@@ -1,0 +1,26 @@
+<h2 style="font-weight: bold; font-size:150%; display:inline;">Welcome to the API Jackknife 2.0 BETA, by ZZJ and Equto.</h2>
+<h4>Hosted at www.whinis.com</h4>
+Major update was mostly backend fixes and QOL stuff. 
+<h3>Major:</h3>
+<b>CONTRACTS VIEW!</b>: Self explanitory.
+
+<b>Login System</b>: You can now register and save api's for future reference.
+
+<b>Index page now auditor</b>: If you need item search a link will now be on the front page.
+
+<b>Crucible 1.6</b>: The database has been updated so items should no longer be unknown.
+
+<b>Test your skills against fits!</b> Under the character portrait, on the skills page. Takes EFT-style fits.
+
+<b>API "Remembering"</b> Log in your character once, then on subsequent visits your character will be remembered until you clear cookies or click one of the various new api links. You can try multiple fits in succession while "remembered" by clicking fitting links.
+
+<b>Minor:</b>
+
+* Completely rewrote glue code and cleaned up page code
+* Some modifications and minor bugfixes to journal and orders
+* Memberlist supports both api access levels now.
+* OLD apis implemented more elegantly. Corp access requires a new api.
+* Bugfixes for mail page.
+* Fix for out of order journal entries due to same timestamp
+
+<h4>Last updated: 3/29/12</h4>
