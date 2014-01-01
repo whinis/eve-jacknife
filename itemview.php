@@ -52,7 +52,7 @@ $desc = mysql_fetch_assoc($result);
 $desc = $desc['description'];
 mysql_free_result($result);
 
-$sql = "SELECT groupID,radius,mass,volume,capacity,portionSize,raceID,published FROM ".DB_PREFIX."invTypes WHERE typeID = '".mysql_real_escape_string($id) ."' LIMIT 1";
+$sql = "SELECT groupID,mass,volume,capacity,portionSize,raceID,published FROM ".DB_PREFIX."invTypes WHERE typeID = '".mysql_real_escape_string($id) ."' LIMIT 1";
  
 $result = $Db->query($sql);
  
