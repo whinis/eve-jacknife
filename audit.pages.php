@@ -17,6 +17,7 @@ include("pages/auditorJournalPage.class.php");
 include("pages/auditorTransactionsPage.class.php");
 include("pages/auditorOrdersPage.class.php");
 include("pages/auditorContractsPage.class.php");
+include("pages/auditorContactsPage.class.php");
 
 foreach ($registered_pages as $name => $page) 
 	if ((CORP_MODE && $page->GetAccMode() != ACC_CHAR_ONLY) || (!CORP_MODE && $page->GetAccMode() != ACC_CORP_ONLY)) {
