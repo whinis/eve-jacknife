@@ -43,6 +43,7 @@ require_once("eveApiMails.class.php");
 require_once("eveApiNotifications.class.php");
 require_once("eveApiMembers.class.php");
 require_once("eveApiContracts.class.php");
+require_once("eveApiContacts.class.php");
 require_once("eveApiAccount.class.php");
 
  ?>

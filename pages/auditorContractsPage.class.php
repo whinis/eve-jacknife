@@ -260,7 +260,7 @@ LEGENDEND;
 				  $this->Output .= "<b>Location</b>: {$entry["startStation"]}<br>";
 				  
 				  if ($entry["type"] == "Courier") 
-						$this->Output .= "<b>Destination</b>: {$entry["endStation"]}<br>";
+						$this->Output .= "<b>Destination</b>: {$entry["endStation"]}({$entry["endStationID"]})<br>";
 		
 				  $this->Output .=  "<b>Posted</b>: $entry[dateIssued]<br>";
 				  				  

@@ -583,7 +583,7 @@ class eveDb {
             return;
         }
         
-        $sql    = "SELECT * FROM ".DB_PREFIX."invGroups WHERE groupID IN (" . implode(",",$items) . ")";
+        $sql    = "SELECT * FROM ".DB_PREFIX."invGroups WHERE groupID IN (" . implode(",",array_filter($items)). ")";
         $result = $this->query($sql);
         
         if (!$result) {
