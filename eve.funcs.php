@@ -196,7 +196,7 @@ function idLookup($link,$ids) {
  
  // first try to look up cached values in the DB
  $sql = "SELECT * FROM ".DB_PREFIX.ID_CACHE_TABLE." WHERE id IN (".implode(",",$ids).")";
- $result = $link->query($sql);
+ $result = $link->query($sql) ;
 
  if ($result != false) {
   if (mysqli_num_rows($result) > 0) // add any found to the list
