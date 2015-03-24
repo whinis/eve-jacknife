@@ -25,12 +25,13 @@
 
 // config file
 
-$sql = "127.0.0.1";
+$sql = "localhost";
 $sql_u = "root";
 $sql_p = "790825";
 $db ="jack";
 
-define("DB_PREFIX","");
+define("DB_PREFIX","jack_");
+define("DEBUG","TRUE");
 
 //Email Settings
 ini_set("sendmail_from", "");
@@ -40,7 +41,7 @@ ini_set("smtp_port", "25");
 
 // Login Settings
 $secureTimeout = "300";
-$salt = "AvTjC5yt9tj5Zmj";
+$salt = "bmneNR9s5juwvwv";
 
 date_default_timezone_set ("UTC");
 

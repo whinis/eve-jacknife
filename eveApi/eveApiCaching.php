@@ -133,18 +133,18 @@ function cache_api_retrieve($link, $apicall, $args = array(), $expiresOverride =
   if (!$_checkedTables) { // create the table if it does not exist already otherwise prune old entries
    $_checkedTables = true;
    
-   $result = mysql_query("SHOW TABLES LIKE '".CACHE_TABLE."'",$link);
-   
-   if (!$result || mysql_num_rows($result) == 0) { // table does not exist... make a new one
-    mysql_query("CREATE TABLE ".DB_PREFIX.CACHE_TABLE." (apicall VARCHAR(64), keyv CHAR(64), expires DATETIME, value MEDIUMBLOB)",$link);
-    mysql_query("CREATE INDEX idx_".DB_PREFIX.CACHE_TABLE." ON ".CACHE_TABLE."(keyv)",$link);
+   $result = $link->query("SHOW TABLES LIKE '".CACHE_TABLE."'");
+
+   if (!$result || mysqli_num_rows($result) == 0) { // table does not exist... make a new one
+       $link->query("CREATE TABLE ".DB_PREFIX.CACHE_TABLE." (apicall VARCHAR(64), keyv CHAR(64), expires DATETIME, value MEDIUMBLOB)");
+       $link->query("CREATE INDEX idx_".DB_PREFIX.CACHE_TABLE." ON ".CACHE_TABLE."(keyv)");
    } else {
     // table exists, so delete all outdated cache entries, so they don't gum up the DB
-    mysql_query("DELETE FROM ".DB_PREFIX.CACHE_TABLE." WHERE expires < '".gmdate("Y-m-d H:i:s")."'",$link);
+       $link->query("DELETE FROM ".DB_PREFIX.CACHE_TABLE." WHERE expires < '".gmdate("Y-m-d H:i:s")."'");
    }
 
    if ($result != false)
-    mysql_free_result($result); 
+    mysqli_free_result($result);
   }
 
   $key = hash('sha256', $apicall . implode($args));
@@ -157,21 +157,21 @@ function cache_api_retrieve($link, $apicall, $args = array(), $expiresOverride =
 		unset($args["vCode"]);
 	}
 	
-  $result = mysql_query("SELECT expires, value FROM ".DB_PREFIX.CACHE_TABLE." WHERE apicall = '".$apicall."' AND keyv = '".$key."' LIMIT 1",$link);
+  $result = $link->query("SELECT expires, value FROM ".DB_PREFIX.CACHE_TABLE." WHERE apicall = '".$apicall."' AND keyv = '".$key."' LIMIT 1");
 
   if ($result != false) {
-   if (mysql_num_rows($result) > 0) {
+   if (mysqli_num_rows($result) > 0) {
     // yay! got a cached value
-    $row = mysql_fetch_assoc($result);
+    $row = mysqli_fetch_assoc($result);
 
-    mysql_free_result($result);
+    mysqli_free_result($result);
 	 //echo "result: " .gzuncompress($row['value']);
 	 if (isset($allApiCalls))
 		$allApiCalls[] = array($apicall,$args, "cached");
 	
     return new CacheEntry(new SimpleXMLElement(gzuncompress($row['value']),LIBXML_NOCDATA), 1, get_timeLeft($row['expires']),$key,$apicall,$link);
    }
-   mysql_free_result($result);
+   mysqli_free_result($result);
   }
   
  }
@@ -220,11 +220,11 @@ function cache_api_retrieve($link, $apicall, $args = array(), $expiresOverride =
    $cachedUntil = gmdate("Y-m-d H:i:s",time()+7*60*60);*/
  } else 
   $cachedUntil = gmdate("Y-m-d H:i:s",time()+$expiresOverride);
- 
- mysql_query(            // add the cached response to the DB
+
+    $link->query(            // add the cached response to the DB
   "INSERT INTO ".DB_PREFIX.CACHE_TABLE." (apicall, keyv, expires, value) ". //             v best comprimise for ratio/speed
   "VALUES('".$apicall."', '".$key."', '".$cachedUntil."', '" . addslashes(gzcompress($resp,6)) . "')"
-  ,$link);//                                                        ^ needed for binary data
+  );//                                                        ^ needed for binary data
   
  return new CacheEntry($xml, 0, get_timeLeft($cachedUntil),$key,$apicall,$link);
 }

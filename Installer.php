@@ -1,10 +1,10 @@
 <?php 
-ini_set("display_errors",false);
+ini_set("display_errors",true);
 set_time_limit(300);
 if (isset ($_GET[ 'source']))    
        {    
          echo '<a <p> href="',$_SERVER['PHP_SELF'],'"> Back </ a> </ p>';    
-         echo '<p> This is the code php file: </ p>';    
+         echo '<p> This is the code php file: </p>';
          $page = highlight_file($_SERVER [ 'SCRIPT_FILENAME'], TRUE);    
          $page = str_replace(    
            array ( '<code>', '/ code>', '','</ are >','< font color ="'),    
@@ -30,10 +30,10 @@ if(isset($_GET['sql'])){
 		$query = "";
 		$queries = 0;
 		while ($handle && !feof($handle)) {
-			$line = gzgets($handle, 1024); // keep string manipulations sane
+			$line = gzgets($handle, 4096); // keep string manipulations sane
 			if ($line != "" && substr($line, 0, 2) != "--") { // line doesnt start with comment
 				$query .= $line;
-				if (substr(trim($line), -1, 1) == ";") {
+				if (substr(trim($line), -2, 2) == ");") {
 					$query=str_replace("NOT EXISTS `","NOT EXISTS `".DB_PREFIX,$query);
 					$query=str_replace("IF EXISTS `","IF EXISTS `".DB_PREFIX,$query);
 					$query=str_replace("TABLE `","TABLE `".DB_PREFIX,$query);
@@ -46,11 +46,26 @@ if(isset($_GET['sql'])){
 							die("MYSQL Error: " . $mysql->error."<br>");
 					$query = "";
 					$queries++;
-				}
+				}elseif(substr(trim($line), -1, 1) == ";") {
+                    $query=str_replace("NOT EXISTS `","NOT EXISTS `".DB_PREFIX,$query);
+                    $query=str_replace("IF EXISTS `","IF EXISTS `".DB_PREFIX,$query);
+                    $query=str_replace("TABLE `","TABLE `".DB_PREFIX,$query);
+                    $query=str_replace("INTO `","INTO `".DB_PREFIX,$query);
+                    $query=str_replace("TABLES `","TABLES `".DB_PREFIX,$query);
+                    if (!$mysql->query($query))
+                        if(defined("DEBUG"))
+                            die("MYSQL Error: " . $mysql->error ."<Br><br>in query: <textarea>$query</textarea><br>");
+                        else
+                            die("MYSQL Error: " . $mysql->error."<br>");
+                    $query = "";
+                    $queries++;
+
+                }
 			}
 		}
-		if($queries==0)
-			return false;
+		if($queries==0){
+            die("NO QUERIES RUN<br>");
+        }
 		return true;
 	}
 	$mysql=new mysqli($sql,$sql_u,$sql_p,$db);
@@ -65,7 +80,7 @@ if(isset($_GET['sql'])){
 	}elseif($fNum=="rename"){
 		if(defined("DB_PREFIX")){
 			$tables = array(); 
-			$rows = mysql_query("SHOW TABLES FROM $db"); 
+			$rows = $mysql->query("SHOW TABLES FROM $db");
 			while ($row = mysql_fetch_array($rows)) { 
 				$tables[] = $row[0]; 
 				
@@ -73,14 +88,14 @@ if(isset($_GET['sql'])){
 			//Append and Rename all tables in a database
 			foreach($tables as $table){
 				$sql='RENAME TABLE ' .$table . ' TO '.DB_PREFIX.$table;
-				mysql_query($sql);
+				$mysql->query($sql);
 			}  
 		}
 	}elseif($fNum=="lock"){
 		$fp=fopen("install.lock",'w');
 		fclose($fp);
 	}
-	mysql_close($mysql);
+	mysqli_close($mysql);
 }else if(isset($_GET['db'])){
 	include("eve.config.php");
 	session_start ();
@@ -88,12 +103,12 @@ if(isset($_GET['sql'])){
 	$fileList=array();
 	$table=array();
 	$sqlFiles=array();
-	$mysql=mysql_connect($sql,$sql_u,$sql_p);
+	$mysql=mysqli_connect($sql,$sql_u,$sql_p);
 	if (!$mysql) {
 		die('Could not connect: ' . mysql_error());
 	}
-	$rows = mysql_query("SHOW TABLES FROM $db"); 
-	while ($row = mysql_fetch_array($rows)) { 
+	$rows = $mysql->query("SHOW TABLES FROM $db");
+	while ($row = $rows->fetch_array()) {
 		$tables[$row[0]] = $row[0]; 
 		
 	}
@@ -172,7 +187,7 @@ if(isset($_GET['sql'])){
 	$i++;
 	}
 	echo "</table>";
-	echo "<input type='button' value='Go to Main Page' onclick='window.location = \"index.php\"' style='display:none;' id='button'></input>";
+	echo "<input type='button' value='Go to Main Page' onclick='window.location = \"index.php\"' style='display:none;' id='button'/>";
 }elseif (isset($_GET['update'])){
 	include("eve.config.php");
 	session_start ();
@@ -180,12 +195,12 @@ if(isset($_GET['sql'])){
 	$fileList=array();
 	$table=array();
 	$sqlFiles=array();
-	$mysql=mysql_connect($sql,$sql_u,$sql_p);
+	$mysql=mysqli_connect($sql,$sql_u,$sql_p);
 	if (!$mysql) {
-		die('Could not connect: ' . mysql_error());
+		die('Could not connect: ' . $mysql->connect_error);
 	}
-	$rows = mysql_query("SHOW TABLES FROM $db"); 
-	while ($row = mysql_fetch_array($rows)) { 
+	$rows = $mysql->query("SHOW TABLES FROM $db");
+	while ($row = $rows->fetch_array()) {
 		$tables[$row[0]] = $row[0]; 
 		
 	}
@@ -266,11 +281,11 @@ if(isset($_GET['sql'])){
 }elseif (isset($_GET['test'])){
 if(isset($_POST['db'])){
 	include("eve.config.php");
-	$mysql=mysql_connect($_POST['host'],$_POST['username'],$_POST['pass']);
+	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass']);
 	if (!$mysql) {
 		die('connection');
 	}
-	if(mysql_select_db($_POST['db'])){
+	if($mysql->select_db($_POST['db'])){
 		die('databaseR');
 	}else{
 		die('database');
@@ -278,7 +293,7 @@ if(isset($_POST['db'])){
 
 
 }else{
-	$mysql=mysql_connect($_POST['host'],$_POST['username'],$_POST['pass']);
+	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass']);
 	if (!$mysql) {
 		die('connection'.mysql_error());
 	}

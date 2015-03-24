@@ -118,15 +118,15 @@ function microtime_float() {
 function isFullApi($link,$chid,$usid,$apik) {
  $key = md5("IDLOOKUP:".$usid.";".$apik);
  // first try to look up cached values in the DB
- $result = mysql_query("SELECT * FROM ".DB_PREFIX."api_type_cache WHERE keyv='".addslashes($key)."' LIMIT 1",$link);
+ $result = $link->query("SELECT * FROM ".DB_PREFIX."api_type_cache WHERE keyv='".addslashes($key)."' LIMIT 1");
 
  if ($result != false) {
-  if (mysql_num_rows($result) > 0) { // got it! return it and have done
-   $row = mysql_fetch_assoc($result);
-   mysql_free_result($result);
+  if (mysqli_num_rows($result) > 0) { // got it! return it and have done
+   $row = mysqli_fetch_assoc($result);
+   mysqli_free_result($result);
    return $row['type'] == "1";
   }
-  mysql_free_result($result);
+  mysqli_free_result($result);
  }
  
  $xmlstr = cache_api_retrieve($link, "/char/AccountBalance.xml.aspx", array("characterID" => $chid,"keyID"=>$usid,"vCode"=>$apik));
@@ -138,8 +138,8 @@ function isFullApi($link,$chid,$usid,$apik) {
  
  if ($xmlstr->api_error) 
   $isFull = false;
-  
- mysql_query("INSERT INTO ".DB_PREFIX.TYPE_CACHE_TABLE." (keyv, type) VALUES ('".addslashes($key)."', ".($isFull?"1":"0").")",$link); // insert the new values into cache
+
+    $link->query("INSERT INTO ".DB_PREFIX.TYPE_CACHE_TABLE." (keyv, type) VALUES ('".addslashes($key)."', ".($isFull?"1":"0").")"); // insert the new values into cache
  return $isFull;
 }
 
@@ -179,9 +179,8 @@ function ass_idLookup($link,$list,$names) {
 
 	$sql = "";
 	foreach ($list as $id) 
-		$sql .= "(".$id.",'".addslashes($names[$id])."'),"; 
-
-	mysql_query("INSERT INTO ".DB_PREFIX.ID_CACHE_TABLE." (id, name) VALUES ".rtrim($sql,","),$link);
+		$sql .= "(".$id.",'".addslashes($names[$id])."'),";
+    $link->query("INSERT INTO ".DB_PREFIX.ID_CACHE_TABLE." (id, name) VALUES ".rtrim($sql,","));
    return $names;
 }
 
@@ -197,14 +196,14 @@ function idLookup($link,$ids) {
  
  // first try to look up cached values in the DB
  $sql = "SELECT * FROM ".DB_PREFIX.ID_CACHE_TABLE." WHERE id IN (".implode(",",$ids).")";
- $result = mysql_query($sql, $link);
+ $result = $link->query($sql);
 
  if ($result != false) {
-  if (mysql_num_rows($result) > 0) // add any found to the list
-   while($row = mysql_fetch_assoc($result)) 
+  if (mysqli_num_rows($result) > 0) // add any found to the list
+   while($row = mysqli_fetch_assoc($result))
     $names[$row['id']] = $row['name'];
     
-  mysql_free_result($result);
+  mysqli_free_result($result);
  }
  
  if (count($names) == count($ids))
@@ -229,8 +228,8 @@ function idLookup($link,$ids) {
   $names[(int)$kvp['characterID']] = (string)$kvp['name'];
   $sql_ins .= "(".$kvp['characterID'].",'".addslashes($kvp['name'])."'),";
  }
- 
- mysql_query("INSERT INTO ".DB_PREFIX.ID_CACHE_TABLE." (id, name) VALUES ".rtrim($sql_ins,","),$link); // insert the new values into cache
+
+    $link->query("INSERT INTO ".DB_PREFIX.ID_CACHE_TABLE." (id, name) VALUES ".rtrim($sql_ins,",")); // insert the new values into cache
  
  return $names;
 }
@@ -241,16 +240,16 @@ function getEvePrice($id, $Db) {
  
  $sql = "SELECT value FROM ".DB_PREFIX."prices WHERE typeID=".$id;
 
- $result = mysql_query($sql, $link);
- 
+ $result = $link->query($sql);
+
  if (!$result) {
   echo 'MySQL Error: ' . mysql_error();
   return 0;
  }
  
- if (mysql_num_rows($result) > 0) {
-  $row = mysql_fetch_assoc($result);
-  mysql_free_result($result);
+ if (mysqli_num_rows($result) > 0) {
+  $row = mysqli_fetch_assoc($result);
+  mysqli_free_result($result);
   
   return $row["value"];
  } else {
@@ -261,7 +260,7 @@ function getEvePrice($id, $Db) {
   $value = $xml->marketstat->type->sell->median;
 
   $sql = "INSERT INTO ".DB_PREFIX."prices (typeID, value) VALUES (".$id.",".$value.")";
-  $result = mysql_query($sql, $link);   
+  $result = $link->query($sql);
 
   return $value;
  }

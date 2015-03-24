@@ -111,7 +111,7 @@ Create API:</b>
 <br>'Remember API' requires cookies to be enabled. Corp apis will not be 'remebered'.<br>If using an old-style Full or Limited API, remember to check the old api checkbox!</h5><pre width="100%"><?php file_get_contents("updates.txt"); ?></pre>
 <br>
 <br>
-Remember you can get source code at <a href="http://code.google.com/p/eve-jackknife">Googlecode</a> or <a href="https://bitbucket.org/Whinis/eve-jacknife">Bitbucket</a>
+Remember you can get source code at <a href="http://code.google.com/p/eve-jackknife">Googlecode</a> (closed) or <a href="https://bitbucket.org/Whinis/eve-jacknife">Bitbucket</a> or <a href="https://github.com/whinis/eve-jacknife">Github</a>
 </body>
 </html>
 <?php 
