@@ -181,7 +181,7 @@ class eveApiContracts extends eveApi {
 		$result = $this->Db->query($sql);
 
 		if ($result) {
-			while ($row = mysql_fetch_assoc($result)) {
+			while ($row = mysqli_fetch_assoc($result)) {
 				$id = (float)$row["contractID"];
 				if (!isset($items[$id]))
 					$items[$id] = array();
@@ -195,7 +195,7 @@ class eveApiContracts extends eveApi {
 					$this->typesToCache[$item[0]] = "1";						
 			}
 			
-			mysql_free_result($result);
+			mysqli_free_result($result);
 	  }
 	  
 	  $storetosql = array();
@@ -222,7 +222,7 @@ class eveApiContracts extends eveApi {
 			$items[$id]["buying"] = $buying;
 			$items[$id]["selling"] = $selling;
 			
-			$storetosql[] = "($id,'" . mysql_real_escape_string(serialize($buying)) ."','" . mysql_real_escape_string(serialize($selling)) ."')";
+			$storetosql[] = "($id,'" . $this->Db->link->real_escape_string(serialize($buying)) ."','" . $this->Db->link->real_escape_string(serialize($selling)) ."')";
 		}
 		
 		if (count($storetosql) > 0) {
@@ -243,14 +243,14 @@ class eveApiContracts extends eveApi {
       $bids = array();
 		
 		if ($result) {
-			while ($row = mysql_fetch_assoc($result)) {
+			while ($row = mysqli_fetch_assoc($result)) {
 				$id = (float)$row["contractID"];
 				if (!isset($bids[$id]))
 					$bids[$id] = array();
 				
 				$bids[$id][$row["bidID"]] = $row;
 			}
-			mysql_free_result($result);
+			mysqli_free_result($result);
 	  }
 	  
 	  	foreach ($bids as &$bidset)
@@ -283,7 +283,7 @@ class eveApiContracts extends eveApi {
 				continue;
 					
 			$bids[$id][$bidid] = array((float)$bid["amount"],(float)$bid["bidderID"],(string)$bid["dateBid"]);
-			$storetosql[] = "($id,$bidid," . (float)$bid["bidderID"]. "," . (float)$bid["amount"]. ",'" . mysql_real_escape_string((string)$bid["dateBid"]) ."')";
+			$storetosql[] = "($id,$bidid," . (float)$bid["bidderID"]. "," . (float)$bid["amount"]. ",'" . $this->Db->link->real_escape_string((string)$bid["dateBid"]) ."')";
 		}
 		
 		if (count($storetosql) > 0) {

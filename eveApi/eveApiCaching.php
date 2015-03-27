@@ -59,9 +59,8 @@ class CacheEntry {
   if ($this->key != "") {
    $this->value = $value;
    $this->hit = false;
-   return  mysql_query(            // update the cached response in the DB
-  "UPDATE ".DB_PREFIX.CACHE_TABLE." SET value='".addslashes(gzcompress($value->asXML(),6)) . "' WHERE keyv='{$this->key}' AND apicall='{$this->apicall}'"
-  ,$this->link);
+   return  $this->link->query(            // update the cached response in the DB
+  "UPDATE ".DB_PREFIX.CACHE_TABLE." SET value='".addslashes(gzcompress($value->asXML(),6)) . "' WHERE keyv='{$this->key}' AND apicall='{$this->apicall}'");
   //die ("would store " . $value->asXML());
   } else return false;
  }

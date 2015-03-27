@@ -2,7 +2,7 @@
 if (isset ($_GET[ 'source']))    
        {    
          echo '<a <p> href="',$_SERVER['PHP_SELF'],'"> Back </ a> </ p>';    
-         echo '<p> This is the code php file: </ p>';    
+         echo '<p> This is the code php file: </p>';
          $page = highlight_file($_SERVER [ 'SCRIPT_FILENAME'], TRUE);    
          $page = str_replace(    
            array ( '<code>', '/ code>', '','</ are >','< font color ="'),    
@@ -20,7 +20,7 @@ if(isset($_GET['sql'])){
 	if(!isset($_GET['sql'])){
 		header('Location: Installer.php?db=1');
 	}
-	function import_sql($filename) {
+	function import_sql($filename,$mysql) {
 		$handle = @gzopen($filename, "r"); // can open normal files, too.
 		$query = "";
 		$queries = 0;
@@ -30,11 +30,11 @@ if(isset($_GET['sql'])){
 				$query .= $line;
 
 				if (substr(trim($line), -1, 1) == ";") {
-					if (!mysql_query($query))
+					if (!$mysql->query($query))
 						if(defined("DEBUG"))
-							echo("MYSQL Error: " . mysql_error() ."<Br><br>in query: $query");
+							echo("MYSQL Error: " . $mysql->error ."<Br><br>in query: $query");
 						else
-							echo("MYSQL Error: " . mysql_error());
+							echo("MYSQL Error: " . $mysql->error;
 
 					$query = "";
 					$queries++;
@@ -43,32 +43,32 @@ if(isset($_GET['sql'])){
 		}
 		return true;
 	}
-	$mysql=mysql_connect($sql,$sql_u,$sql_p);
+	$mysql=mysqli_connect($sql,$sql_u,$sql_p);
 	if (!$mysql) {
-		die('Could not connect: ' . mysql_error());
+		die('Could not connect: ' . $mysql->connect_error);
 	}
-	mysql_select_db($db);
+    $mysql->select_db($db);
 	$i=1;
 	$fNum=$_GET['sql'];
 	if(is_numeric($fNum)&& $fNum>=0 && $fNum<=$_SESSION['fileCount']){
 		$file="./SQL/".$_SESSION['files'][$fNum];
-		echo import_sql($file);
+		echo import_sql($file,$mysql);
 	}elseif($fNum=="rename"){
 		if(defined("DB_PREFIX")){
 			$tables = array(); 
-			$rows = mysql_query("SHOW TABLES FROM $db"); 
-			while ($row = mysql_fetch_array($rows)) { 
+			$rows = $mysql->query("SHOW TABLES FROM $db");
+			while ($row = mysqli_fetch_array($rows)) {
 				$tables[] = $row[0]; 
 				
 			}
 			//Append and Rename all tables in a database
 			foreach($tables as $table){
 				$sql='RENAME TABLE ' .$table . ' TO '.DB_PREFIX.$table;
-				mysql_query($sql);
+                $mysql->query($sql);
 			}  
 		}
 	}
-	mysql_close($mysql);
+	mysqli_close($mysql);
 }else{
 	include("eve.config.php");
 	session_start ();
@@ -76,12 +76,12 @@ if(isset($_GET['sql'])){
 	$fileList=array();
 	$table=array();
 	$sqlFiles=array();
-	$mysql=mysql_connect($sql,$sql_u,$sql_p);
+	$mysql=mysqli_connect($sql,$sql_u,$sql_p);
 	if (!$mysql) {
-		die('Could not connect: ' . mysql_error());
+		die('Could not connect: ' . $mysql->connect_error);
 	}
-	$rows = mysql_query("SHOW TABLES FROM $db"); 
-	while ($row = mysql_fetch_array($rows)) { 
+	$rows = $mysql->query("SHOW TABLES FROM $db");
+	while ($row = mysqli_fetch_array($rows)) {
 		$tables[$row[0]] = $row[0]; 
 		
 	}

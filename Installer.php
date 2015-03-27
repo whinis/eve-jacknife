@@ -81,7 +81,7 @@ if(isset($_GET['sql'])){
 		if(defined("DB_PREFIX")){
 			$tables = array(); 
 			$rows = $mysql->query("SHOW TABLES FROM $db");
-			while ($row = mysql_fetch_array($rows)) { 
+			while ($row = mysqli_fetch_array($rows)) {
 				$tables[] = $row[0]; 
 				
 			}
@@ -105,7 +105,7 @@ if(isset($_GET['sql'])){
 	$sqlFiles=array();
 	$mysql=mysqli_connect($sql,$sql_u,$sql_p);
 	if (!$mysql) {
-		die('Could not connect: ' . mysql_error());
+		die('Could not connect: ' . $mysql->error);
 	}
 	$rows = $mysql->query("SHOW TABLES FROM $db");
 	while ($row = $rows->fetch_array()) {
@@ -295,7 +295,7 @@ if(isset($_POST['db'])){
 }else{
 	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass']);
 	if (!$mysql) {
-		die('connection'.mysql_error());
+		die('connection'.$mysql->error);
 	}
 	die ('connectionR');
 }

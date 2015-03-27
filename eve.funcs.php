@@ -243,7 +243,7 @@ function getEvePrice($id, $Db) {
  $result = $link->query($sql);
 
  if (!$result) {
-  echo 'MySQL Error: ' . mysql_error();
+  echo 'MySQL Error: ' . $link->error;
   return 0;
  }
  
@@ -264,6 +264,5 @@ function getEvePrice($id, $Db) {
 
   return $value;
  }
- 
 }
  ?>

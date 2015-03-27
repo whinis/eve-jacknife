@@ -35,7 +35,7 @@ function redirect($page) {
 </head>
 <body>
 <h3><a href="{$page}">Please, click here to continue.</a></h3>
-Enable javascript to not get this page. Idiot.
+Enable javascript to not get this page.
 </body>
 </html>	
 REDIRECT;
@@ -116,16 +116,16 @@ function retrieve_api_key($link, $key) {
  if (!$link)
   return null;
 
- $result = mysql_query("SELECT usid, chid, apik FROM ".DB_PREFIX.API_TABLE." WHERE keyv = '".mysql_real_escape_string($key)."' LIMIT 1",$link);
+ $result = $link->query("SELECT usid, chid, apik FROM ".DB_PREFIX.API_TABLE." WHERE keyv = '".$link->real_escape_string($key)."' LIMIT 1");
 
  if ($result != false) {
-  if (mysql_num_rows($result) > 0) {
+  if (mysqli_num_rows($result) > 0) {
    // yay! got a cached value
-   $row = mysql_fetch_assoc($result);
-   mysql_free_result($result);
+   $row = mysqli_fetch_assoc($result);
+   mysqli_free_result($result);
    return $row;
   }
-  mysql_free_result($result);
+  mysqli_free_result($result);
  }
 
  return null;
@@ -137,23 +137,21 @@ function make_short_key($link, $usid, $apik, $char=null, $chid=null) {
  if(!$chid)
 	$chid="null";
  else
-	$chid="'".mysql_real_escape_string($chid)."'";
+	$chid="'".$link->real_escape_string($chid)."'";
  if (retrieve_api_key($link, $key) == null) {
  $sql= "INSERT INTO ".DB_PREFIX.API_TABLE." (keyv, chara, chid, usid, apik) ".
-    "VALUES('$key','".mysql_real_escape_string($char)."',$chid,'".mysql_real_escape_string($usid)."','".mysql_real_escape_string($apik)."')";
-  $result = mysql_query( 
-   $sql
-    ,$link);
-  if (mysql_error()) {
-		echo "QUERY: '$sql'\n\n" . mysql_error()."\n\nBacktrace:\n";
+    "VALUES('$key','".$link->real_escape_string($char)."',$chid,'".$link->real_escape_string($usid)."','".$link->real_escape_string($apik)."')";
+  $result = $link->query($sql);
+  if ($link->error) {
+		echo "QUERY: '$sql'\n\n" . $link->error."\n\nBacktrace:\n";
 		debug_print_backtrace();
 		exit;
 	}
   if ($result)
-   return $key;
+      return $key;
  } else {
-  mysql_query("UPDATE ".DB_PREFIX.API_TABLE." SET apik='".mysql_real_escape_string($apik)."' WHERE keyv='$key'",$link);
-  return $key;
+     $link->query("UPDATE ".DB_PREFIX.API_TABLE." SET apik='".$link->real_escape_string($apik)."' WHERE keyv='$key'",$link);
+     return $key;
  }
  
  return null;
@@ -170,5 +168,18 @@ function check_email_address($email) {
  
  return false;  
 }
+function login_load_creds($Db,$alreadyGotCreds) {
+    global $short_api_key;
+    global $user;
+
+    define("API_SAVED", !$alreadyGotCreds);
+    if(isset($_SESSION['key']))
+        $short_api_key=$_SESSION['key'];
+    return true;
+    // ALL LOGIN APIS SHOULD USE THE SHORT API TABLE! set $short_api_key! in this function.
+    // TODO:
+    return false; // return false if user is not logged in or loading creds failed, so cookie will be tried
+}
+
 
  ?>

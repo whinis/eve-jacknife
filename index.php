@@ -36,9 +36,6 @@ require_once("audit.funcs.php");
 require_once("audit.views.php");
 
 $Db = new eveDb($sql, $sql_u, $sql_p, $db);
-	
-require_once("login.php");
-$_SESSION['redirect']="index.php";
 
 
 if (isset($_GET['newapi'])) 
@@ -97,11 +94,11 @@ if ((!isset($apikey) || !isset($userid)) && !isset($short_api_key)) {
 	$info = "";
 		
 	if (isset($_GET['fittingid'])) {
-		$result = mysql_query("SELECT * FROM ".DB_PREFIX.FITTINGS_TABLE." WHERE keyv=\"".mysql_real_escape_string($_GET['fittingid'])."\"", $Db->link);
-		if ($result != false && mysql_num_rows($result) > 0) {
+		$result = $Db->link->query("SELECT * FROM ".DB_PREFIX.FITTINGS_TABLE." WHERE keyv=\"".$Db->link->real_escape_string($_GET['fittingid'])."\"");
+		if ($result != false && mysqli_num_rows($result) > 0) {
 			// yay! got a cached value
-			$row = mysql_fetch_assoc($result);
-			mysql_free_result($result);
+			$row = mysqli_fetch_assoc($result);
+			mysqli_free_result($result);
 			$info = "Your ability to use the fitting '$row[name]' ($row[ship]) will be shown after you log in."; 
 		}	
 		$Db->close();
@@ -258,10 +255,8 @@ if ($multiplechars&&$charSelect)
 if (!isset($short_api_key)) {
 		$infobar .= "<a href=\"".FULL_URL."&makeshorturl&view=".PAGE_VIEW."\">short url</a>&nbsp;";
 	}
-$infobar.="|&nbsp;".get_loginbar().get_api_bar();
 $infobar .= "&gt;&nbsp;<b>" . strtoupper(KEY_TYPE);
 $infobar.="</b></span>";
-$infobar .=get_form_divs();
 
 //////// FINAL OUTPUT
 if (PAGE_VIEW == "onepage") {

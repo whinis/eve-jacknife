@@ -125,11 +125,11 @@ class auditorSkillsPage extends auditorPage {
 					$fit = trim($_POST['fitting']);
 					$fitting = parse_eft_fit($Db, $fit, $warnings, $ship, $fit_name);
 				} else {
-					$result = mysql_query("SELECT * FROM ".DB_PREFIX.FITTINGS_TABLE." WHERE keyv=\"".mysql_real_escape_string($_GET['fittingid'])."\"", $Db->link);
-					if ($result != false && mysql_num_rows($result) > 0) {
+					$result = $Db->link->query("SELECT * FROM ".DB_PREFIX.FITTINGS_TABLE." WHERE keyv=\"".$Db->link->real_escape_string($_GET['fittingid'])."\"");
+					if ($result != false && mysqli_num_rows($result) > 0) {
 						// yay! got a cached value
-						$row = mysql_fetch_assoc($result);
-						mysql_free_result($result);
+						$row = mysqli_fetch_assoc($result);
+						mysqli_free_result($result);
 						$ship = $row["ship"];
 						$fit_name = $row["name"];
 						$fitting = unserialize($row["fit"]);
@@ -164,12 +164,12 @@ class auditorSkillsPage extends auditorPage {
 					$this->key = md5(serialize($fitting));
 					
 					if (!$this->stored && strlen($warnings) == 0) {
-						$result = mysql_query("SELECT * FROM ".DB_PREFIX.FITTINGS_TABLE." WHERE keyv=\"{$this->key}\"");
+						$result = $Db->link->query("SELECT * FROM ".DB_PREFIX.FITTINGS_TABLE." WHERE keyv=\"{$this->key}\"");
 						$this->redirect = true;					
 						$this->stored = true;
-						if ($result == false || mysql_num_rows($result) == 0) {
-							$sql = "INSERT INTO ".DB_PREFIX.FITTINGS_TABLE." (keyv, name, ship, fit) VALUES('{$this->key}', '".mysql_real_escape_string($fit_name) . "', '" . mysql_real_escape_string($ship). "', '" . mysql_real_escape_string(serialize($fitting)) . "')";
-							mysql_query($sql  ,$Db->link);
+						if ($result == false || mysqli_num_rows($result) == 0) {
+							$sql = "INSERT INTO ".DB_PREFIX.FITTINGS_TABLE." (keyv, name, ship, fit) VALUES('{$this->key}', '".$Db->link->real_escape_string($fit_name) . "', '" . $Db->link->real_escape_string($ship). "', '" . $Db->link->real_escape_string(serialize($fitting)) . "')";
+                            $Db->link->query($sql);
 						}
 					}
 					
