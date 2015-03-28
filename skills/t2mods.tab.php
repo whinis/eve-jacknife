@@ -23,34 +23,34 @@
 echo "<h4>Modules</h4><hr><span style=\"font-size:90%\">\n";
   
 if (isLvl5("Anchoring") && (skillLvl("Starbase Defense Management")!=-1))
- test5("Starbase Defense Management","Pos Guns");
+ test_has_skill("Starbase Defense Management","Pos Guns");
  
-test("Cynosural Field Generator I","Cyno Gen");
+test_module_fit("21096","Cyno Gen");
 
 echo "<br>";
 
-if (!test2("100MN Microwarpdrive II","T2 MWDs"))
- test("100MN Microwarpdrive I","T1 MWDs");
+if (!test_module_fit_true("12084","T2 MWDs"))
+ test_module_fit("12054","T1 MWDs");
  
-test("Large Shield Extender II", "LSE II");
-test("Invulnerability Field II", "Invuln II");
-test("Energized Adaptive Nano Membrane II","EANM II");
-test("Damage Control II", "DCU II");
-test("1600mm Reinforced Rolled Tungsten Plates I","1600mm RT");
-test("Sensor Booster II","SB II");
-test("Tracking Computer II", "TC II");
-test("Tracking Enhancer II", "TE II");
-test("Power Diagnostic System II","PDU II");
-test("Reactor Control Unit II","RCU II");
-test("Gyrostabilizer II","T2 dmg mods");
+test_module_fit("3841", "LSE II");
+test_module_fit("2281", "Invuln II");
+test_module_fit("11269","EANM II");
+test_module_fit("2048", "DCU II");
+test_module_fit("11325","1600mm RT");
+test_module_fit("1952","SB II");
+test_module_fit("1978", "TC II");
+test_module_fit("1999", "TE II");
+test_module_fit("1541","PDU II");
+test_module_fit("1355","RCU II");
+test_module_fit("519","T2 dmg mods");
 
-if(!test2("Covert Ops Cloaking Device II","CovOps Cloak"))
- test("Prototype Cloaking Device I","Proto Cloak");
+if(!test_module_fit_true("11578","CovOps Cloak"))
+ test_module_fit("11370","Proto Cloak");
 
-test("Warp Disruptor II","T2 Tackle");
-test("Stasis Webifier II", "Webifier II");
-test("Large Shield Booster II", "LSB II");
-test("Large Armor Repairer II", "LAR II");
+test_module_fit("3244","T2 Tackle");
+test_module_fit("527", "Webifier II");
+test_module_fit("10858", "LSB II");
+test_module_fit("3540", "LAR II");
 
 echo "</span>";
  ?>

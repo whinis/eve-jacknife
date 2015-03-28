@@ -41,7 +41,7 @@ test4("Medium Projectile Turret");
 test4("Large Projectile Turret");
 echo "</tr>\n<tr>";
 echo "<td>guided m</td>\n";
-test4("Standard Missiles");
+test4("Light Missiles");
 test4("Heavy Missiles");
 test4("Cruise Missiles");
 echo "</tr>\n<tr>";
@@ -59,25 +59,25 @@ if (!isLvl5("Drones")) {
  if (isLvl5("Scout Drone Operation")) {
   echo "Has T2 Lights<br>\n"; 
  } else 
-  test5("Scout Drone Interfacing","Light Drones");
+  test_has_skill("Scout Drone Interfacing","Light Drones");
  
  if (isLvl5("Heavy Drone Operation")) {
   echo "Has T2 Heavies<br>\n";
  } else 
-  test5("Heavy Drone Operation","Heavy Drones");
+  test_has_skill("Heavy Drone Operation","Heavy Drones");
   
  if (isLvl5("Sentry Drone Interfacing")) {
   echo "Has T2 Sentries<br>\n"; 
  } else 
-  test5("Sentry Drone Interfacing","Sentry Drones");
+  test_has_skill("Sentry Drone Interfacing","Sentry Drones");
   
  if (isLvl5("Fighters") && (skillLvl("Fighter Bombers")!=-1)) {
- test5("Fighter Bombers","Fighter Bombers");
+ test_has_skill("Fighter Bombers","Fighter Bombers");
   
 } else 
- test5("Fighters","Fighters");
+ test_has_skill("Fighters","Fighters");
  
- test5("Drone Interfacing");
+ test_has_skill("Drone Interfacing");
 }
 
 $delim = "&nbsp;";
@@ -86,9 +86,9 @@ $delim = "</td><td>";
 echo "<br><table><tr><td>WU/AWU:</td><td>";
 echo skillLvl("Weapon Upgrades") .$delim;
 echo skillLvl("Advanced Weapon Upgrades");
-echo "</td></tr><tr><td>ELC/ENG:</td><td>";
-echo skillLvl("Electronics") .$delim;
-echo skillLvl("Engineering");
+echo "</td></tr><tr><td>CPUM/PGM:</td><td>";
+echo skillLvl("CPU Management") .$delim;
+echo skillLvl("Power Grid Management");
 echo "</td></tr></table><br>Support skills:\n<br><table style=\"font-size:95%\"><tr>";
 echo "<td>turr&nbsp;</td><td>";
 

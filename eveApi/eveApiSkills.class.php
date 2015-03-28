@@ -178,6 +178,7 @@ class eveApiSkills extends eveApi
     
     public function canCharUseTypeName($name)
     {
+
         $typeId = $this->Db->getTypeIdFromName($name);
         
         if (!$typeId)
@@ -189,9 +190,11 @@ class eveApiSkills extends eveApi
 	 public function canCharUseTypeID($id)
     {
         $skills = $this->Db->getFullSkillsForTypeId($id);
-        foreach ($skills as $skill => $level)
-            if ($this->getSkillLevelByID($skill) < $level)
+        foreach ($skills as $skill => $level) {
+            if ($this->getSkillLevelByID($skill) < $level) {
                 return false;
+            }
+        }
         
         return true;
     }

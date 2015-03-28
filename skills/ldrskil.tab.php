@@ -32,20 +32,20 @@ if (isLvl5("Leadership")) {
  test3("Skirmish Warfare Specialist");
  echo "</table>\n";
   echo "<br>\n";
- test2("Armored Warfare Mindlink");
- test2("Information Warfare Mindlink");
- test2("Siege Warfare Mindlink");
- test2("Skirmish Warfare Mindlink");
- test2("Mining Forman Mindlink");
+ test_module_fit_true("Armored Warfare Mindlink");
+ test_module_fit_true("Information Warfare Mindlink");
+ test_module_fit_true("Siege Warfare Mindlink");
+ test_module_fit_true("Skirmish Warfare Mindlink");
+ test_module_fit_true("Mining Forman Mindlink");
   echo "<br>\n";
- test2(array("Eos","Information Warfare Link - Recon Operation"),"a booster eos");
- test2(array("Damnation","Armored Warfare Link - Damage Control"),"a booster damnation");
- test2(array("Claymore","Skirmish Warfare Link - Evasive Maneuvers"),"a booster claymore");
- test2(array("Vulture","Siege Warfare Link - Active Shielding"),"a booster vulture");
+ test_module_fit_true(array("Eos","Information Warfare Link - Recon Operation"),"a booster eos");
+ test_module_fit_true(array("Damnation","Armored Warfare Link - Damage Control"),"a booster damnation");
+ test_module_fit_true(array("Claymore","Skirmish Warfare Link - Evasive Maneuvers"),"a booster claymore");
+ test_module_fit_true(array("Vulture","Siege Warfare Link - Active Shielding"),"a booster vulture");
 
- test2(array("Damnation","Armored Warfare Link - Damage Control","Skirmish Warfare Link - Evasive Maneuvers"),"an atlas damnation");
- test2(array("Claymore","Skirmish Warfare Link - Evasive Maneuvers","Siege Warfare Link - Active Shielding"),"an atlas claymore");
- test2(array("Vulture","Siege Warfare Link - Active Shielding","Skirmish Warfare Link - Evasive Maneuvers"),"an atlas vulture");
+ test_module_fit_true(array("Damnation","Armored Warfare Link - Damage Control","Skirmish Warfare Link - Evasive Maneuvers"),"an atlas damnation");
+ test_module_fit_true(array("Claymore","Skirmish Warfare Link - Evasive Maneuvers","Siege Warfare Link - Active Shielding"),"an atlas claymore");
+ test_module_fit_true(array("Vulture","Siege Warfare Link - Active Shielding","Skirmish Warfare Link - Evasive Maneuvers"),"an atlas vulture");
 
  echo "<br>\n";
  echo "FC/WC: "; 

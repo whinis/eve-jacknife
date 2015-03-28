@@ -810,6 +810,7 @@ class eveDb {
         
         return $skills;
     }
+
     
     public function getFullSkillsForTypeName($name) {
         

@@ -360,18 +360,22 @@ EOD;
 }
 
 // single-line test
-function test($mod, $name = "") {
- global $SkillsApi;
- 
- if (is_array($mod)) {
-  $ret = $SkillsApi->canCharUseTypeNames($mod);
-  echo ($ret ? "can":"cannot") ." use " . $name ."<br>\n";
-  return $ret;
- } else {
-  $ret = $SkillsApi->canCharUseTypeName($mod);
-  echo ($ret ? "can":"cannot") . " use " . ($name!=""?$name:$mod) ."<br>\n";
-  return $ret;
- }
+function test_module_fit($mod, $name = "") {
+     global $SkillsApi;
+
+     if (is_array($mod)) {
+         $ret = $SkillsApi->canCharUseTypeNames($mod);
+         echo ($ret ? "can":"cannot") ." use " . $name ."<br>\n";
+         return $ret;
+     } else {
+         if (is_numeric($mod)) {
+             $ret = $SkillsApi->canCharUseTypeId($mod);
+         } else {
+             $ret = $SkillsApi->canCharUseTypeName($mod);
+         }
+         echo ($ret ? "can":"cannot") . " use " . ($name!=""?$name:$mod) ."<br>\n";
+         return $ret;
+     }
 }
 
 // table break
@@ -380,7 +384,7 @@ function tbBr() {
 }
 
 // single-line test, only show up if it is usable
-function test2($mod, $name = "",$add = "") {
+function test_module_fit_true($mod, $name = "",$add = "") {
  global $SkillsApi;
  
  if (is_array($mod)) {
@@ -392,8 +396,12 @@ function test2($mod, $name = "",$add = "") {
    echo "can use " . $name. " " .$add ."<br>\n";
   return $ret;
  } else {
- 
-  $ret = $SkillsApi->canCharUseTypeName($mod);
+
+     if (is_numeric($mod)) {
+         $ret = $SkillsApi->canCharUseTypeId($mod);
+     } else {
+         $ret = $SkillsApi->canCharUseTypeName($mod);
+     }
   if ($ret)
    echo "can use " . ($name!=""?$name:$mod) . " " .$add ."<br>\n";
   return $ret;
@@ -422,25 +430,23 @@ function test7($mod, $name = "",$add = "") {
 
 // table row for skill: display name if usable,  and level if owned or U if usable
 function test3($skill, $name = "") {
- global $SkillsApi;
- 
- if ($name == "")
-  $name = $skill;
-  //debug_print_backtrace();
- $canuse = $SkillsApi->canCharUseTypeName($skill);
- $level = $SkillsApi->getSkillLevelByName($skill); $level = (($level != -1)?$level:"U");
- 
- if ($canuse)
-  echo "<tr><td>" . $name . "&nbsp;</td><td style=\"color: #000000; background-color:".lvlToColour($level).";\">&nbsp;" . $level . "&nbsp;</td></tr>\n";
-  
- return $level;
+     global $SkillsApi;
+
+     if ($name == "")
+        $name = $skill;
+      //debug_print_backtrace();
+     $canuse = $SkillsApi->canCharUseTypeName($skill)||($SkillsApi->getSkillLevelByName($skill)!==-1);
+     $level = $SkillsApi->getSkillLevelByName($skill); $level = (($level != -1)?$level:"U");
+     if ($canuse)
+        echo "<tr><td>" . $name . "&nbsp;</td><td style=\"color: #000000; background-color:".lvlToColour($level).";\">&nbsp;" . $level . "&nbsp;</td></tr>\n";
+     return $level;
 }
 
 // table cell for skill: display U if usable, level otherwise, or if not usable blank
 function test4($skill) {
  global $SkillsApi;
 
- $canuse = $SkillsApi->canCharUseTypeName($skill);
+ $canuse = $SkillsApi->canCharUseTypeName($skill)||($SkillsApi->getSkillLevelByName($skill)!==-1);
  $level = $SkillsApi->getSkillLevelByName($skill); $level = (($level != -1)?$level:"U");
  
  if ($canuse) {
@@ -458,7 +464,7 @@ function skillLvl($skill) {
 }
 
 // single line skill: displays level/usable if canuse as a line
-function test5($skill, $name = "") {
+function test_has_skill($skill, $name = "") {
  global $SkillsApi, $xmlskills;
  
  if ($name == "")

@@ -22,8 +22,8 @@
 
 echo "<h4>T2 Skills</h4><hr>\n";
 echo "<table style=\"font-size:88%\">";
-test3("Heavy Assault Ships");
-test3("Heavy Interdictors");
+test3("Heavy Assault Cruisers");
+test3("Heavy Interdiction Cruisers");
 test3("Recon Ships");
 test3("Logistics");
 test3("Command Ships");
