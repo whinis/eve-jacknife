@@ -47,6 +47,7 @@ class eveApiTransactions extends eveApi {
 			$new["corp"]      = (string) $entry["transactionFor"] == "corporation";
 
 			$new["date"]   = (string) $entry["transactionDateTime"];
+            $new["clientID"]   = (string) $entry["clientID"];
 			$new["price"]  = (double) $entry["price"];
 			$new["client"] = (string) $entry["clientName"];
 			$new["type"]   = (string) $entry["typeName"];
