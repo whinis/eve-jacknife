@@ -35,6 +35,7 @@ class auditorContactsPage extends auditorPage {
 			return false;
 		}
 
+
 		$time_end = microtime_float();
 		$time_api = $time_end - $time_start;
 		
@@ -42,7 +43,11 @@ class auditorContactsPage extends auditorPage {
 		$this->Title = "Contacts for " . USER_NAME;
 
 		if (count($Contacts->Contacts) > 0) {
-
+            $ids=array();
+            foreach ($Contacts->Contacts as $contact) {
+                $ids[]=(string)$contact['contactID'];
+            }
+            $redIDS=GetRedIDS($ids,$Db);
 
 		 $this->Output .= "<br><table class=\"fancy notification\" style=\"font-size:83%;\" border=1>";
 		 $this->Output .= "<tr><th>Contact</th><th>Standing</th><th>In Watchlist</th></tr>";
@@ -50,9 +55,16 @@ class auditorContactsPage extends auditorPage {
 		 $alt = " class=\"main\"";
 
 		 foreach ($Contacts->Contacts as $contact) {
-			    if ($alt == " class=\"main\"") {
-			        $alt = " class=\"alt\"";
-		        } else $alt = " class=\"main\"";
+             if(in_array($contact['contactID'],$redIDS)){
+                 if (strpos(strtolower($alt),'main') !== false) {
+                    $alt = " class=\"redAlt\"";
+                } else $alt = " class=\"redMain\"";
+             }else{
+                 if (strpos(strtolower($alt),'main') !== false) {
+                     $alt = " class=\"alt\"";
+                 } else $alt = " class=\"main\"";
+
+             }
 
               $this->Output .= "<tr$alt>";
               $this->Output .= "<td>".$contact["contactName"]."</td>";

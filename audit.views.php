@@ -9,10 +9,56 @@ function insert_header($title = "API Jackknife") {
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"> 
 <title><?php echo $title;  ?></title>
 <link REL="STYLESHEET" TYPE="text/css" HREF="audit.style.css">
+<script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="jquery-ui.js"></script>
 <script type="text/javascript" src="audit.js"></script>
 <script type="text/javascript" src="ajax.js"></script>
+    <style type="text/css">
+        section.center {
+            max-width: 150px;
+            margin: 100px auto;
+        }
+        span.clickMe {
+            font-size: 30px;
+        }
+        span.clickMe:hover {
+            cursor: pointer;
+            color: green;
+        }
+        section.hidden {
+            display: none;
+            position: fixed;
+        }
+        section article.popup {
+            position: relative;
+            width: 400px;
+            height: 300px;
+            background: #e3e3e3;
+            color: #222;
+            border: 1px solid #333;
+            border-radius: 3px;
+            padding: 5px 7px;
+            margin: 10% auto;
+        }
+        span.close {
+            text-transform: uppercase;
+            color: #222;
+        }
+        span.close:hover{
+            color: red;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+    <section class="hidden" >
+        <article class="popup">
+            <span class="close">Close Me</span>
+            <p>Paste red flagged characters, corps, and alliances. One entity per line</p>
+            <textarea id="redFlagBox"><?php echo $_SESSION['redFlagText']; ?></textarea><br>
+            <input type="button" id="saveRedFlag" value="Save">
+        </article>
+    </section>
 <a name="top"></a>
 <?php 
 }
@@ -136,6 +182,11 @@ can be used to navigate the apis or selecting one-page will display everything a
 <br>
 
 Remember you can get source code at <a href="http://code.google.com/p/eve-jackknife">Googlecode</a> (closed) or <a href="https://bitbucket.org/Whinis/eve-jacknife">Bitbucket</a> or <a href="https://github.com/whinis/eve-jacknife">Github</a>
+ <br>
+ <br>
+ <br>
+ Questions or concerns contact Equto ingame or Email me at Whinis@whinis.com
+
  <div class="push"></div>
     </div>
     <div class="footer">

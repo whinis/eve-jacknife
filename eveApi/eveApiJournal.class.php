@@ -103,6 +103,8 @@ class eveApiJournal extends eveApi {
 		 foreach ($list as $entry) {
 
 			  $new             = array();
+              $new['ownerID1']=(string)$entry['ownerID1'];
+              $new['ownerID2']=(string)$entry['ownerID2'];
 			  $new["ID"] 		= (float)$entry["refID"];
 			  $new["date"]     = (string) $entry["date"];
 			  $new["type"]     = $this->transTypes[(int)$entry["refTypeID"]];

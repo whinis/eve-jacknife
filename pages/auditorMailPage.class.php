@@ -84,12 +84,29 @@ class auditorMailPage extends auditorPage {
 				  $this->Output .= "<tr><th>date</th><th>sender</th><th>title</th><th>recipients</th></tr>";
 				  
 				  $alt = " class=\"main\"";
+                 $ids1=array();
+                 foreach ($Mail->Messages as $message) {
+                     $ids1[]=(string)$message['senderID '];
+                     $kindaID=explode(",",(string)$message['toCharacterIDs']);
+                     $ids1=array_merge($ids1,$kindaID);
+
+                 }
+                 $ids1=array_unique($ids1);
+                 $redIDS=GetRedIDS($ids1,$Db);
 				  
 				  foreach ($Mail->Messages as $message) {
-						if ($alt == " class=\"main\"") {
-							 $alt = " class=\"alt\"";
-						} else
-							 $alt = " class=\"main\"";
+                      $sentTo=explode(",",(string)$message['toCharacterIDs']);
+                      $intersect=array_intersect($redIDS,$sentTo);
+                      if(in_array($message['senderID '],$redIDS)||!empty($intersect)){
+                          if (strpos(strtolower($alt),'main') !== false) {
+                              $alt = " class=\"redAlt\"";
+                          } else $alt = " class=\"redMain\"";
+                      }else{
+                          if (strpos(strtolower($alt),'main') !== false) {
+                              $alt = " class=\"alt\"";
+                          } else $alt = " class=\"main\"";
+
+                      }
 						
 						if ((int) $message["toListID"] == 0 || (string) $message["toListID"] == "") {
 							 $to = array();

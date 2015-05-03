@@ -20,32 +20,23 @@
 // 
 // ****************************************************************************
 
-// main eveAPI file. 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class eveApiCharacterID extends eveApi {
 
-set_include_path(get_include_path() . PATH_SEPARATOR . "eveApi");
-
-require_once("eve.config.php");
-require_once("eve.funcs.php");
-
-require_once("eveApiCaching.php");
-require_once("eveDb.php");
-require_once("eveAccessMasks.php");
-require_once("eveApi.base.php");
-
-require_once("eveApiOrders.class.php");
-require_once("eveApiTransactions.class.php");
-require_once("eveApiJournal.class.php");
-require_once("eveApiSkills.class.php");
-require_once("eveApiTraining.class.php");
-require_once("eveApiAssets.class.php");
-require_once("eveApiKillLog.class.php");
-require_once("eveApiMails.class.php");
-require_once("eveApiNotifications.class.php");
-require_once("eveApiMembers.class.php");
-require_once("eveApiContracts.class.php");
-require_once("eveApiContacts.class.php");
-require_once("eveApiCharacterID.class.php");
-require_once("eveApiCharacterAffiliations.class.php");
-require_once("eveApiAccount.class.php");
-
+    public $IDs=array();
+    public function fetch($characters)
+    {
+        return $this->fetch_xml("/eve/CharacterID.xml.aspx", array(
+            "names" => implode(",",$characters),
+        ));
+    }
+    public function LoadAPI() {
+        $IDs = $this->api->xpath("/eveapi/result/rowset/row");
+        foreach($IDs as $ID){
+            $this->IDs[]=(string)$ID['characterID'];
+        }
+        return true;
+    }
+}
+  
  ?>

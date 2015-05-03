@@ -106,6 +106,11 @@ if ((!isset($apikey) || !isset($userid)) && !isset($short_api_key)) {
 	
 	api_input($info); // die	
 }
+session_start();
+if(!isset($_SESSION['redFlagText']))
+    $_SESSION['redFlagText']="";
+if(!isset($_SESSION['redFlagIds']))
+    $_SESSION['redFlagIds']=array();
 
 define("USER_ID", $userid);
 define("API_KEY",(isset($_GET['oldkey']) && $_GET['oldkey'] == "1") ? "old_$apikey" : $apikey);	
@@ -215,7 +220,7 @@ if (isset($_GET['makeshorturl'])) {
 		fatal_error("Unable to create key.","Please try again later.",true);
 }
 	
-$infobar = "<span class=\"infobar\">&lt;&nbsp;";
+$infobar = "<span id='infobar' class=\"infobar\">&lt;&nbsp;";
 $getpage = "none";
 
 if (isset($_GET['view'])) {
@@ -255,6 +260,7 @@ if ($multiplechars&&$charSelect)
 if (!isset($short_api_key)) {
 		$infobar .= "<a href=\"".FULL_URL."&makeshorturl&view=".PAGE_VIEW."\">short url</a>&nbsp;";
 	}
+$infobar .= "|<a id='redFlag' href=\"#redflag\">Set Red Flags</a>&nbsp;";
 $infobar .= "&gt;&nbsp;<b>" . strtoupper(KEY_TYPE);
 $infobar.="</b></span>";
 

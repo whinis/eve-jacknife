@@ -56,10 +56,19 @@ if (!$snipehac)
  echo "can't use any snipe hac<br>\n";
 
 echo "<br>";
-$snipebc = false;
-$snipebc |= test7(array("Hurricane","Tracking Enhancer II","720mm Howitzer Artillery II"),"a snipe 'cane");
-if (!$snipebc)
- echo "can't use any snipe bc<br>\n";
+$pvp = false;
+if(!$ishtar=test7(array("Ishtar","Drone Link Augmentor II","Drone Damage Amplifier II","Large Shield Extender II","Hammerhead II","Curator II","Garde II"),"T2 Sentry Ishtar")){
+    $ishtar=test7(array("Ishtar","Drone Link Augmentor II","Drone Damage Amplifier II","Large Shield Extender II","Hammerhead II","Curator I","Garde I"),"T1 Sentry Ishtar");
+}
+$pvp|=$ishtar;
+$pvp|=test7(array("Tengu","250mm Railgun II","Large Shield Extender II","Adaptive Invulnerability Field II","Magnetic Field Stabilizer II"),"Rail Tengu");
+
+if(!$harpy=test7(array("Harpy","150mm Railgun II","Adaptive Invulnerability Field II","Magnetic Field Stabilizer II"),"Rail Harpy")){
+    $harpy=test7(array("Merlin","Limited Light Neutron Blaster I","Initiated Harmonic Warp Scrambler I","Experimental 1MN Afterburner I"),"Tackle Merlin");
+}
+$pvp|=$harpy;
+if (!$pvp)
+    echo "can't use fleet pvp ships<br>\n";
 
 echo "<br>\n";
 
@@ -99,14 +108,14 @@ echo "<br>\n";
 
 $logi = false;
 
-if(!$logi |= test7(array("Guardian","Large Remote Armor Repair System II", "Large Energy Transfer Array II"),"a t2 Guardian"))
-	$logi |= test7(array("Guardian","Large Remote Armor Repair System I", "Large Energy Transfer Array I"),"a Guardian");
-if(!$logi |= test7(array("Scimitar","Large Shield Transporter II", "Tracking Link II"),"a t2 Schimitar"))
-	$logi |= test7(array("Scimitar","Large Shield Transporter I", "Tracking Link I"),"a t2 Schimitar");
-if(!$logi |= test7(array("Oneiros","Large Remote Armor Repair System II", "Tracking Link II"),"a t2 Oneiros"))
-	$logi |= test7(array("Oneiros","Large Remote Armor Repair System I", "Tracking Link I"),"a Onerios");
-if(!$logi |= test7(array("Basilisk","Large Shield Transporter II", "Large Energy Transfer Array II"),"a t2 Basilisk"))
-	$logi |= test7(array("Basilisk","Large Shield Transporter I", "Large Energy Transfer Array I"),"a t2 Basilisk");
+if(!$logi |= test7(array("Guardian","Large Remote Armor Repairer II", "Large Remote Capacitor Transmitter II"),"a t2 Guardian"))
+	$logi |= test7(array("Guardian","Large Remote Armor Repairer I", "Large Remote Capacitor Transmitter I"),"a Guardian");
+if(!$logi |= test7(array("Scimitar","Large Remote Shield Booster II", "10MN Microwarpdrive I"),"a t2 Schimitar"))
+	$logi |= test7(array("Scimitar","Large Remote Shield Booster I", "10MN Microwarpdrive I"),"a t2 Schimitar");
+if(!$logi |= test7(array("Oneiros","Large Remote Armor Repairer II", "10MN Microwarpdrive I"),"a t2 Oneiros"))
+	$logi |= test7(array("Oneiros","Large Remote Armor Repairer I", "10MN Microwarpdrive I"),"a Onerios");
+if(!$logi |= test7(array("Basilisk","Large Remote Shield Booster II", "Large Remote Capacitor Transmitter II"),"a t2 Basilisk"))
+	$logi |= test7(array("Basilisk","Large Remote Shield Booster I", "Large Remote Capacitor Transmitter I"),"a t2 Basilisk");
 
 if (!$logi)
 	echo "can't use any logi<br>\n";

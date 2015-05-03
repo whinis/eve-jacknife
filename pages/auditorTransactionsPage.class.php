@@ -83,6 +83,12 @@ class auditorTransactionsPage extends auditorPage {
 						$this->Output .= "</a>";
 				  $this->Output .= "</th>";
 			 }
+            $ids=array();
+            foreach ($result as &$entry) {
+                $ids[]=(string)$entry['clientID'];
+            }
+            $ids=array_unique($ids);
+            $redIDS=GetRedIDS($ids,$Db);
 			 
 			 $this->Output .= "</tr>";
 			 
@@ -95,7 +101,20 @@ class auditorTransactionsPage extends auditorPage {
 			 foreach ($result as $entry) {
 				  $alt_b = !$alt_b;
 					
-				  $this->Output .= "<tr class=\"" . ($alt_b?"main":"alt") . (($entry["corp"] && !CORP_MODE) ? " corp_entry_row" : "") . "\">";
+				  $this->Output .= "<tr ";
+                  if(in_array($entry['clientID'],$redIDS)){
+                     if ($alt_b) {
+                         $this->Output .= " class=\"redAlt";
+                     } else
+                         $this->Output .= " class=\"redMain";
+                 }else{
+                     if ($alt_b) {
+                         $this->Output .= " class=\"alt";
+                     } else
+                         $this->Output .= " class=\"main";
+
+                 }
+                  $this->Output .=(($entry["corp"] && !CORP_MODE) ? " corp_entry_row" : "") . "\">";
 				  $this->Output .= "<th scope=\"row\">" . str_replace(" ", "&nbsp;", $entry["date"]) . "&nbsp;</th>";
 				  $this->Output .= "<td>" . str_replace(" ", "&nbsp;", $entry["type"]) . "</td>";
 				  $this->Output .= "<td align=right >" . number_format($entry["price"], 2) . "&nbsp;ISK</td>";

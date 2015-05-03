@@ -61,7 +61,7 @@ test3("Capital Projectile Turret","Capital Proj. Turret");
 test3("Citadel Cruise Missiles","Citadel Cruise");
 test3("Citadel Torpedoes");
 tbBr();
-test3("Capital Energy Emission Systems","Cap Energy Trans");
+test3("Capital Capacitor Emission Systems","Cap Energy Trans");
 test3("Capital Shield Emission Systems","Cap Shield Trans");
 test3("Capital Remote Hull Repair Systems","Cap Remote Hull");
 test3("Capital Remote Armor Repair Systems","Cap Remote Armour");

@@ -68,6 +68,13 @@ class auditorJournalPage extends auditorPage {
 		$this->Output .= div_select($acct);
 
 		if (count($Journal->entries) > 0) {
+            $ids=array();
+            foreach ($Journal->entries as $entry) {
+                $ids[]=(string)$entry['ownerID1'];
+                $ids[]=(string)$entry['ownerID2'];
+            }
+            $ids=array_unique($ids);
+            $redIDS=GetRedIDS($ids,$Db);
 			 $this->Output .= number_format((int) $Journal->entries[0]["balance"], 2) . " ISK<br><br>";
 			 
 			 $this->Output .= count($Journal->entries) . " entries<br>";
@@ -91,14 +98,25 @@ class auditorJournalPage extends auditorPage {
 			 if ($sort != null && array_key_exists($sort, $entries[0]))
 				  usort($entries, "globl_sortfunc");
 			 $alt = " class=\"main\"";
-			 
-			 foreach ($entries as $entry) {
 
-				  if ($alt == " class=\"main\"") {
-						$alt = " class=\"alt\"";
-				  } else
-						$alt = " class=\"main\"";
-				  $this->Output .= "<tr$alt>";
+
+            $alt_b = false;
+			 foreach ($entries as $entry) {
+                 $alt_b = !$alt_b;
+				 $this->Output .= "<tr";
+                 if(in_array($entry['ownerID1'],$redIDS)||in_array($entry['ownerID2'],$redIDS)){
+                     if ($alt_b) {
+                         $this->Output .= " class=\"redAlt";
+                     } else
+                         $this->Output .= " class=\"redMain";
+                 }else{
+                     if ($alt_b) {
+                         $this->Output .= " class=\"alt";
+                     } else
+                         $this->Output .= " class=\"main";
+
+                 }
+                 $this->Output .=">";
 				  $this->Output .= "<th scope=\"row\">" . str_replace(" ", "&nbsp;", $entry["date"]) . "&nbsp;</th>";
 				  $this->Output .= "<td>" . str_replace(" ", "&nbsp;", $entry["typeNice"]) . "</td>";
 				  $this->Output .= "<td align=right style=\"color: " . (($entry["amount"] > -1) ? "#007700" : "#BB0000") . ";\">&nbsp;" . number_format($entry["amount"], 2) . "&nbsp;ISK</td>";

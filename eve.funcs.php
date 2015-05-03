@@ -265,4 +265,20 @@ function getEvePrice($id, $Db) {
   return $value;
  }
 }
+function GetRedIDS($ids,$Db){
+    $redIDS=array();
+    $IDS = new eveApiCharacterAffiliations($Db);
+    $IDS->fetch($ids);
+    $characters=$IDS->IDs;
+    foreach($characters as $character){
+        if(in_array((string)$character['characterID'],$_SESSION['redFlagIds']))
+            $redIDS[]=(string)$character['characterID'];
+        if($character['corporationID']!=0&&in_array((string)$character['corporationID'],$_SESSION['redFlagIds']))
+            $redIDS[]=(string)$character['characterID'];
+        if($character['allianceID']!=0&&in_array((string)$character['allianceID'],$_SESSION['redFlagIds']))
+            $redIDS[]=(string)$character['characterID'];
+    }
+    $redIDS=array_unique($redIDS);
+    return $redIDS;
+}
  ?>

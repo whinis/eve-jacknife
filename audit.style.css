@@ -111,12 +111,20 @@ table.contracts_table{
  border-collapse: collapse;
 }
 table.contracts_table tr.alt th, table.contracts_table tr.alt td
+ {
+     background-color: #001122;
+     border-width: 1px 1px 1px 1px;
+     padding: 2px 5px 2px 5px;
+     border-style: outset outset outset outset;
+     white-space:nowrap;
+ }
+table.contracts_table tr.redAlt th, table.contracts_table tr.redAlt td
 {
- background-color: #001122;
- border-width: 1px 1px 1px 1px;
-	padding: 2px 5px 2px 5px;
-	border-style: outset outset outset outset;
-	white-space:nowrap; 
+    background-color: #810909;
+    border-width: 1px 1px 1px 1px;
+    padding: 2px 5px 2px 5px;
+    border-style: outset outset outset outset;
+    white-space:nowrap;
 }
 
 table.contracts_table tr.main th, table.contracts_table tr.main td
@@ -126,6 +134,14 @@ table.contracts_table tr.main th, table.contracts_table tr.main td
 	padding: 2px 5px 2px 5px;
 	border-style: outset outset outset outset;
 	white-space:nowrap; 
+}
+table.contracts_table tr.redMain th, table.contracts_table tr.redMain td
+{
+    background-color: #AB0202;
+    border-width: 1px 1px 1px 1px;
+    padding: 2px 5px 2px 5px;
+    border-style: outset outset outset outset;
+    white-space:nowrap;
 }
 
 table.contracts_table tr.hover:hover th[scope=row], table.contracts_table tr.hover:hover td
@@ -321,19 +337,34 @@ table.fittingskills
 }
 
 table.fancy tr.alt th, table.fancy tr.alt td
-{
- background-color: #001122;
- border-width: 1px 1px 1px 1px;
-	padding: 2px 5px 2px 5px;
-	border-style: outset outset outset outset;
-}
+ {
+     background-color: #001122;
+     border-width: 1px 1px 1px 1px;
+     padding: 2px 5px 2px 5px;
+     border-style: outset outset outset outset;
+ }
 
 table.fancy tr.main th, table.fancy tr.main td
 {
- background-color: #112233;
- border-width: 1px 1px 1px 1px;
-	padding: 2px 5px 2px 5px;
-	border-style: outset outset outset outset;
+    background-color: #112233;
+    border-width: 1px 1px 1px 1px;
+    padding: 2px 5px 2px 5px;
+    border-style: outset outset outset outset;
+}
+table.fancy tr.redAlt th, table.fancy tr.redAlt td
+{
+    background-color:  #810909;
+    border-width: 1px 1px 1px 1px;
+    padding: 2px 5px 2px 5px;
+    border-style: outset outset outset outset;
+}
+
+table.fancy tr.redMain th, table.fancy tr.redMain td
+{
+    background-color: #AB0202;
+    border-width: 1px 1px 1px 1px;
+    padding: 2px 5px 2px 5px;
+    border-style: outset outset outset outset;
 }
 
 

@@ -135,8 +135,8 @@ LEGENDEND;
 			 
 			 $this->Output .= "</tr>";
 			 
-			 $entries = $Contracts->entries;	
-			
+			 $entries = $Contracts->entries;
+            $ids=array();
 			foreach ($entries as &$entry) {
 			  if ((string)$entry["availability"] == "Private" && $entry["acceptor"] == "") {
 						$entry["contractor"] = $entry["assignee"];		  
@@ -152,7 +152,11 @@ LEGENDEND;
 						$entry["contractor"] = $entry["acceptor"];
 						
 					$entry["Price"] = (($entry["reward"] > 0 || $entry["reward"] == $entry["price"]) ? -1 :1) * ((float)($entry["price"] + (float)$entry["reward"]));
+                $ids[]=(string)$entry['issuerID'];
+                $ids[]=(string)$entry['assigneeID'];
 			}
+            $ids=array_unique($ids);
+            $redIDS=GetRedIDS($ids,$Db);
 			unset($entry);
 			 if ($sort != null && array_key_exists($sort, $entries[0])) 
 				 usort($entries, "globl_sortfunc");
@@ -165,7 +169,21 @@ LEGENDEND;
 				  $alt_b = !$alt_b;
 				  $hasItems = isset($entry["buying"]) && ($entry["sellingItems"] != "" || $entry["buyingItems"] != "");
 					
-				  $this->Output .= "<tr onclick=\"toggle_row_visibility('contract".$entry["contractID"]."'); return false;\" class=\"" . ($alt_b?"main":"alt") . ((($entry["forCorp"]==1)) ? " corp_entry_row" : "") ." hover clickablerow\">";
+				  $this->Output .= "<tr onclick=\"toggle_row_visibility('contract".$entry["contractID"]."'); return false;\"";
+                      if(in_array($entry['issuerID'],$redIDS)||in_array($entry['assigneeID'],$redIDS)){
+                          if ($alt_b) {
+                              $this->Output .= " class=\"redAlt";
+                          } else
+                              $this->Output .= " class=\"redMain";
+                      }else{
+                          if ($alt_b) {
+                              $this->Output .= " class=\"alt";
+                          } else
+                              $this->Output .= " class=\"main";
+
+                      }
+
+                   $this->Output .= ((($entry["forCorp"]==1)) ? " corp_entry_row" : "") ." hover clickablerow\">";
 				  //$this->Output .= "<th scope=\"row\">" . $entry["contractID"] . "</th>";
 				  $this->Output .= "<th scope=\"row\">" . $entry["Type"] . "</th>";
 				  
