@@ -89,6 +89,8 @@ class auditorTransactionsPage extends auditorPage {
             }
             $ids=array_unique($ids);
             $redIDS=GetRedIDS($ids,$Db);
+            if(isset($redIDS[0])&&$redIDS[0]==0)
+                $redIDS=array();
 			 
 			 $this->Output .= "</tr>";
 			 

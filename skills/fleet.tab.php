@@ -158,18 +158,18 @@ echo "<center> Capitals</center>";
 $capital=false;
 $capital|=test7(array("Orca","Mining Foreman Link - Harvester Capacitor Efficiency I", "Small Tractor Beam I", "Expanded Cargohold II"),"a Orca");
 
-$capital|=test7(array("Moros","Capital Armor Repairer I","Dual 1000mm Railgun I","Bouncer I","Siege Module I"),"a moros");
-$capital|=test7(array("Revelation","Capital Armor Repairer I","Dual Giga Beam Laser I","Bouncer I","Siege Module I"),"a revelation");
-$capital|=test7(array("Naglfar","Capital Shield Booster I", "Quad 3500mm Siege Artillery I", "Citadel Cruise Launcher I","Bouncer I","Siege Module I"),"a naglfar");
-$capital|=test7(array("Phoenix","Capital Shield Booster I", "Citadel Cruise Launcher I", "Bouncer I", "Siege Module I"),"a phoenix");
+$capital|=test7(array("Moros","Capital Armor Repairer I","Dual 1000mm Railgun I","Siege Module I"),"a moros");
+$capital|=test7(array("Revelation","Capital Armor Repairer I","Dual Giga Beam Laser I","Siege Module I"),"a revelation");
+$capital|=test7(array("Naglfar","Capital Shield Booster I", "Quad 3500mm Siege Artillery I","Siege Module I"),"a naglfar");
+$capital|=test7(array("Phoenix","Capital Shield Booster I", "Citadel Cruise Launcher I", "Siege Module I"),"a phoenix");
 
-$capital|=test7(array("Thanatos","Capital Armor Repairer I", "Fighters"),"a thanatos",($SkillsApi->canCharUseTypeNames(array("Capital Remote Armor Repair System I","Capital Shield Transporter I"))?"well":"poorly"));
+$capital|=test7(array("Thanatos","Capital Armor Repairer I", "Fighters"),"a thanatos",($SkillsApi->canCharUseTypeNames(array("Capital Remote Armor Repair System I","Capital Remote Shield Booster I"))?"well":"poorly"));
 
 $capital|=test7(array("Archon","Capital Armor Repairer I", "Fighters"),"an archon",($SkillsApi->canCharUseTypeNames(array("Capital Remote Armor Repair System I","Capital Energy Transfer Array I"))?"well":"poorly"));
 
-$capital|=test7(array("Nidhoggur","Capital Armor Repairer I", "Fighters"),"a nidhoggur",($SkillsApi->canCharUseTypeNames(array("Capital Remote Armor Repair System I","Capital Shield Transporter I"))?"well":"poorly"));
+$capital|=test7(array("Nidhoggur","Capital Armor Repairer I", "Fighters"),"a nidhoggur",($SkillsApi->canCharUseTypeNames(array("Capital Remote Armor Repair System I","Capital Remote Shield Booster I"))?"well":"poorly"));
 
-$capital|=test7(array("Chimera","Capital Shield Booster I", "Bouncer I", "Fighters"),"a chimera",($SkillsApi->canCharUseTypeNames(array("Capital Energy Transfer Array I","Capital Shield Transporter I"))?"well":"poorly"));
+$capital|=test7(array("Chimera","Capital Shield Booster I", "Bouncer I", "Fighters"),"a chimera",($SkillsApi->canCharUseTypeNames(array("Capital Energy Transfer Array I","Capital Remote Shield Booster I"))?"well":"poorly"));
 
 if (!$capital)
 	echo "<br>can't use any capitals<br>\n";	

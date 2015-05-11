@@ -157,6 +157,8 @@ LEGENDEND;
 			}
             $ids=array_unique($ids);
             $redIDS=GetRedIDS($ids,$Db);
+            if(isset($redIDS[0])&&$redIDS[0]==0)
+                $redIDS=array();
 			unset($entry);
 			 if ($sort != null && array_key_exists($sort, $entries[0])) 
 				 usort($entries, "globl_sortfunc");

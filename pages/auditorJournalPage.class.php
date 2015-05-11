@@ -75,6 +75,8 @@ class auditorJournalPage extends auditorPage {
             }
             $ids=array_unique($ids);
             $redIDS=GetRedIDS($ids,$Db);
+            if(isset($redIDS[0])&&$redIDS[0]==0)
+                $redIDS=array();
 			 $this->Output .= number_format((int) $Journal->entries[0]["balance"], 2) . " ISK<br><br>";
 			 
 			 $this->Output .= count($Journal->entries) . " entries<br>";
@@ -106,14 +108,14 @@ class auditorJournalPage extends auditorPage {
 				 $this->Output .= "<tr";
                  if(in_array($entry['ownerID1'],$redIDS)||in_array($entry['ownerID2'],$redIDS)){
                      if ($alt_b) {
-                         $this->Output .= " class=\"redAlt";
+                         $this->Output .= " class=\"redAlt\"";
                      } else
-                         $this->Output .= " class=\"redMain";
+                         $this->Output .= " class=\"redMain\"";
                  }else{
                      if ($alt_b) {
-                         $this->Output .= " class=\"alt";
+                         $this->Output .= " class=\"alt\"";
                      } else
-                         $this->Output .= " class=\"main";
+                         $this->Output .= " class=\"main\"";
 
                  }
                  $this->Output .=">";

@@ -86,18 +86,23 @@ class auditorMailPage extends auditorPage {
 				  $alt = " class=\"main\"";
                  $ids1=array();
                  foreach ($Mail->Messages as $message) {
-                     $ids1[]=(string)$message['senderID '];
+                     $ids1[]=(string)$message['senderID'];
                      $kindaID=explode(",",(string)$message['toCharacterIDs']);
-                     $ids1=array_merge($ids1,$kindaID);
+                     $kindaID2=explode(",",(string)$message['toCorpOrAllianceID']);
+                     $ids1=array_merge($ids1,$kindaID,$kindaID2);
 
                  }
                  $ids1=array_unique($ids1);
                  $redIDS=GetRedIDS($ids1,$Db);
+                 if(isset($redIDS[0])&&$redIDS[0]==0)
+                     $redIDS=array();
 				  
 				  foreach ($Mail->Messages as $message) {
                       $sentTo=explode(",",(string)$message['toCharacterIDs']);
+                      $sentToGroup=explode(",",(string)$message['toCorpOrAllianceID']);
                       $intersect=array_intersect($redIDS,$sentTo);
-                      if(in_array($message['senderID '],$redIDS)||!empty($intersect)){
+                      $intersect2=array_intersect($redIDS,$sentToGroup);
+                      if(in_array((string)$message['senderID'],$redIDS)||!empty($intersect)||!empty($intersect2)){
                           if (strpos(strtolower($alt),'main') !== false) {
                               $alt = " class=\"redAlt\"";
                           } else $alt = " class=\"redMain\"";
