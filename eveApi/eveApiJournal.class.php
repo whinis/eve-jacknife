@@ -38,7 +38,7 @@ class eveApiJournal extends eveApi {
   if ($corp)
    $args["accountKey"] = $acct;
    
-  return $this->fetch_xml("/".($corp?"corp":"char")."/WalletJournal.xml.aspx",$args,60*60);
+  return $this->fetch_xml("/".($corp?"corp":"char")."/WalletJournal.xml.aspx",$args,60*30);
  }
 
  private function getTransTypes() {

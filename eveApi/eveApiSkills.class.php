@@ -144,12 +144,22 @@ class eveApiSkills extends eveApi
     
     public function canCharUseTypeNames($names)
     {
+        $capitalSkillHack=array(24311,24312,24313,24314,20525,20530,20531,20532,3344,3345,3346,3347);
         if (!$skills = $this->Db->getFullSkillsForTypeNames($names))
             return false;
-        
         foreach ($skills as $skill => $level) { // now check to see if each skill is at the min level
-            if ($this->getSkillLevelByID($skill) < $level)
-                return false;
+            if ($this->getSkillLevelByID($skill) < $level) {
+
+                if ($skill == 20533) { //check if the person has a capital skill trained before the level change
+                    $intersect = array_intersect(array_keys($skills), $capitalSkillHack);
+                    if(empty($intersect)){
+                        return false;
+                    }
+                }else{
+                    return false;
+                }
+
+            }
         }
         
         return true;

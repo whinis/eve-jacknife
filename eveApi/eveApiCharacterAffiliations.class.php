@@ -29,7 +29,8 @@ class eveApiCharacterAffiliations extends eveApi {
 
         return $this->fetch_xml("/eve/CharacterAffiliation.xml.aspx", array(
             "ids" => implode(",",$characters),
-        ));
+        ),3600);
+
     }
     public function LoadAPI() {
         $this->IDs = $this->api->xpath("/eveapi/result/rowset/row");
