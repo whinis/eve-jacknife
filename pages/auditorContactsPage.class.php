@@ -43,37 +43,42 @@ class auditorContactsPage extends auditorPage {
 		$this->Title = "Contacts for " . USER_NAME;
 
 		if (count($Contacts->Contacts) > 0) {
-            $ids=array();
-            foreach ($Contacts->Contacts as $contact) {
-                $ids[]=(string)$contact['contactID'];
-            }
-            $redIDS=GetRedIDS($ids,$Db);
+            $redIDS=GetContactInfo($Contacts->Contacts,$Db);
 
-		 $this->Output .= "<br><table class=\"fancy notification\" style=\"font-size:83%;\" border=1>";
-		 $this->Output .= "<tr><th>Contact</th><th>Standing</th><th>In Watchlist</th></tr>";
+		 	$this->Output .= "<br><table class=\"fancy notification\" style=\"font-size:83%;\" border=1>";
+		 	$this->Output .= "<tr><th>Contact</th><th>Standing</th><th>Corp</th><th>Allaince</th><th>In Watchlist</th></tr>";
 		 
-		 $alt = " class=\"main\"";
+		 	$alt = " class=\"main\"";
+			foreach ($Contacts->Contacts as $contact) {
+				if(in_array($contact['contactID'],$redIDS)){
+					if (strpos(strtolower($alt),'main') !== false) {
+						$alt = " class=\"redAlt\"";
+					} else $alt = " class=\"redMain\"";
+				}else{
+					if (strpos(strtolower($alt),'main') !== false) {
+						 $alt = " class=\"alt\"";
+					} else $alt = " class=\"main\"";
 
-		 foreach ($Contacts->Contacts as $contact) {
-             if(in_array($contact['contactID'],$redIDS)){
-                 if (strpos(strtolower($alt),'main') !== false) {
-                    $alt = " class=\"redAlt\"";
-                } else $alt = " class=\"redMain\"";
-             }else{
-                 if (strpos(strtolower($alt),'main') !== false) {
-                     $alt = " class=\"alt\"";
-                 } else $alt = " class=\"main\"";
+				}
 
-             }
+				$this->Output .= "<tr$alt>";
+				$this->Output .= "<td>".$contact["contactName"]."</td>";
+				$this->Output .= "<td>".$contact["standing"]."</td>";
+				if(isset($contact['corpID'])){
+					$this->Output .= "<td>".$contact["corpName"]."</td>";
+				}else{
+					$this->Output .= "<td></td>";
+				}
+				if(isset($contact['allianceID'])){
+					$this->Output .= "<td>".$contact["allianceName"]."</td>";
+				}else{
+					$this->Output .= "<td></td>";
+				}
+				$this->Output .= "<td>".($contact["inWatchlist"]=="True"?"&#10004":"")."</td>";
+				$this->Output .= "</tr>";
+			 }
 
-              $this->Output .= "<tr$alt>";
-              $this->Output .= "<td>".$contact["contactName"]."</td>";
-              $this->Output .= "<td>".$contact["standing"]."</td>";
-             $this->Output .= "<td>".($contact["inWatchlist"]=="True"?"&#10004":"")."</td>";
-              $this->Output .= "</tr>";
-		 }
-
-		 $this->Output .= "</table>";
+			 $this->Output .= "</table>";
 		 
 		} else 
 		 $this->Output .= "<br>Character has no contacts.<br>";

@@ -281,4 +281,35 @@ function GetRedIDS($ids,$Db){
     $redIDS=array_unique($redIDS);
     return $redIDS;
 }
+function GetContactInfo(&$Contacts,$Db){
+    $redIDS=array();
+    $ids=array();
+    foreach ($Contacts as $key=>$contact) {
+        $ids[(string)$contact['contactID']]=$key;
+    }
+    $IDS = new eveApiCharacterAffiliations($Db);
+    $IDS->fetch(array_keys($ids));
+    $characters=$IDS->IDs;
+    foreach($characters as $character){
+       if(in_array((string)$character['characterID'],$_SESSION['redFlagIds'])) {
+           $redIDS[] = (string)$character['characterID'];
+       }
+       if($character['corporationID']!=0) {
+           if(in_array((string)$character['corporationID'],$_SESSION['redFlagIds'])) {
+               $redIDS[] = (string)$character['characterID'];
+           }
+           $Contacts[$ids[(string)$character['characterID']]]['corpID']=$character['corporationID'];
+           $Contacts[$ids[(string)$character['characterID']]]['corpName']=$character['corporationName'];
+       }
+       if($character['allianceID']!=0) {
+           if(in_array((string)$character['allianceID'],$_SESSION['redFlagIds'])) {
+               $redIDS[] = (string)$character['characterID'];
+           }
+           $Contacts[$ids[(string)$character['characterID']]]['allianceID']=$character['allianceID'];
+           $Contacts[$ids[(string)$character['characterID']]]['allianceName']=$character['allianceName'];
+       }
+    }
+    $redIDS=array_unique($redIDS);
+    return $redIDS;
+}
  ?>
