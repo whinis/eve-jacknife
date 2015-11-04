@@ -168,8 +168,8 @@ echo "<br><b>$info</b><br>";
 <input type="submit" value="Get Chars"></form><h5>
 <a target="_blank" href="https://support.eveonline.com/api/Key/Index">I don't know my NEW apis! (EVE Support)</a>&nbsp;&nbsp;<b><br>
 Create API:</b>
-<a target="_blank" href="https://support.eveonline.com/api/Key/CreatePredefined/34013320">Skills-only API</a>&nbsp; or
-<a target="_blank" href="https://support.eveonline.com/api/Key/CreatePredefined/268435455">Everything API</a>&nbsp;<br>
+<a target="_blank" href="https://community.eveonline.com/support/api-key/createpredefined?accessmask=34013320">Skills-only API</a>&nbsp; or
+<a target="_blank" href="https://community.eveonline.com/support/api-key/createpredefined?accessmask=268435455">Everything API</a>&nbsp;<br>
 <br>'Remember API' requires cookies to be enabled. Corp apis will not be 'remebered'.<br>If using an old-style Full or Limited API, remember to check the old api checkbox!</h5><pre width="100%"><?php file_get_contents("updates.txt"); ?></pre>
 <br>
 <br>
