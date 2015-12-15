@@ -44,7 +44,7 @@ abstract class eveApi {
  }
 
  protected function fetch_xml($apicall, $args = array(),$override=0) {
-  $result = cache_api_retrieve($this->Db->link,$apicall, $args, $override);
+  $result = cache_api_retrieve($this->Db,$apicall, $args, $override);
 
   if ($result->http_error) {
    $this->Error = "HTTP error " . $result->value;

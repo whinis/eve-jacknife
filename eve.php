@@ -28,6 +28,7 @@ require_once("eve.config.php");
 require_once("eve.funcs.php");
 
 require_once("eveApiCaching.php");
+require_once("class_db.php");
 require_once("eveDb.php");
 require_once("eveAccessMasks.php");
 require_once("eveApi.base.php");
@@ -47,5 +48,8 @@ require_once("eveApiContacts.class.php");
 require_once("eveApiCharacterID.class.php");
 require_once("eveApiCharacterAffiliations.class.php");
 require_once("eveApiAccount.class.php");
+
+
+$Db = new eveDb($sql, $sql_u, $sql_p, $db,3306,false);
 
  ?>

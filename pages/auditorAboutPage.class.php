@@ -31,7 +31,7 @@ class auditorAboutPage extends auditorPage {
 		$full_url = FULL_URL; // TODO
 		$time_start = microtime_float();
 		
-		$corpinf = cache_api_retrieve($Db->link, "/corp/CorporationSheet.xml.aspx", array("corporationID"=>CORP_ID),3*24*60*60)->value;
+		$corpinf = cache_api_retrieve($Db,"/corp/CorporationSheet.xml.aspx", array("corporationID"=>CORP_ID),3*24*60*60)->value;
 
 		$this->Title = "About ".$corpinf->result->corporationName;
 

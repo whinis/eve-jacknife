@@ -125,11 +125,10 @@ class auditorSkillsPage extends auditorPage {
 					$fit = trim($_POST['fitting']);
 					$fitting = parse_eft_fit($Db, $fit, $warnings, $ship, $fit_name);
 				} else {
-					$result = $Db->link->query("SELECT * FROM ".DB_PREFIX.FITTINGS_TABLE." WHERE keyv=\"".$Db->link->real_escape_string($_GET['fittingid'])."\"");
-					if ($result != false && mysqli_num_rows($result) > 0) {
+					$result = $Db->selectWhere(FITTINGS_TABLE,['keyv'=>$_GET['fittingid']]);
+					if ($result != false && $result->rows > 0) {
 						// yay! got a cached value
-						$row = mysqli_fetch_assoc($result);
-						mysqli_free_result($result);
+						$row = $result->results[0];
 						$ship = $row["ship"];
 						$fit_name = $row["name"];
 						$fitting = unserialize($row["fit"]);
@@ -164,12 +163,14 @@ class auditorSkillsPage extends auditorPage {
 					$this->key = md5(serialize($fitting));
 					
 					if (!$this->stored && strlen($warnings) == 0) {
-						$result = $Db->link->query("SELECT * FROM ".DB_PREFIX.FITTINGS_TABLE." WHERE keyv=\"{$this->key}\"");
+						$result = $Db->selectWhere(FITTINGS_TABLE,['keyv'=>$_GET['fittingid']]);
+
 						$this->redirect = true;					
 						$this->stored = true;
-						if ($result == false || mysqli_num_rows($result) == 0) {
-							$sql = "INSERT INTO ".DB_PREFIX.FITTINGS_TABLE." (keyv, name, ship, fit) VALUES('{$this->key}', '".$Db->link->real_escape_string($fit_name) . "', '" . $Db->link->real_escape_string($ship). "', '" . $Db->link->real_escape_string(serialize($fitting)) . "')";
-                            $Db->link->query($sql);
+						if ($result == false || $result->rows  == 0) {
+							//$sql = "INSERT INTO ".DB_PREFIX.FITTINGS_TABLE." (keyv, name, ship, fit) VALUES('{$this->key}', '".$Db->link->real_escape_string($fit_name) . "', '" . $Db->link->real_escape_string($ship). "', '" . $Db->link->real_escape_string(serialize($fitting)) . "')";
+                            $Db->insert(FITTINGS_TABLE,['keyv'=>$this->key,'name'=>$fit_name,'ship'=>$ship,'fit'=>serialize($fitting)]);
+							//$Db->link->query($sql);
 						}
 					}
 					

@@ -193,16 +193,16 @@ class auditorAssetsPage extends auditorPage {
 		$time_api = $time_end - $time_start;
 
 		$Db->updateConqStations();
-		
-		$sql       = "SELECT groupName, groupID FROM ".DB_PREFIX."invGroups WHERE categoryID = 6";
-		$result    = $Db->link->query($sql);
+
+		$result = $Db->selectWhere("invGroups",['categoryID'=>6],['groupName','groupID']);
 		$shpgroups = array();
-
-		while ($row = mysqli_fetch_assoc($result))
-			 $shpgroups[$row["groupID"]] = $row["groupName"];
-
-		mysqli_free_result($result);
-
+		if ($result != false) {
+			if ($result->rows > 0) {
+				foreach ($result->results as $row){
+					$shpgroups[$row["groupID"]] = $row["groupName"];
+				}
+			}
+		}
 		$owngroups = array();
 		$hrwidth   = 450;
 		$start     = true;

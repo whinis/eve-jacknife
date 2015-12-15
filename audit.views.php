@@ -100,8 +100,13 @@ function character_select($Db, $chars) {
 			echo "<td align=center><a href=\"".$auth."&chid=$ch_id".(isset($_GET['fittingid']) ? "&fittingid=$_GET[fittingid]" :"") . ((isset($_GET['save']) && $_GET['save'] == "1") ? "&save=1":""). "\">";
 			echo "<img src=\"http://image.eveonline.com/Character/".$ch_id."_256.jpg\" height=150 width=150><br>";
 			echo "<b>".$char["name"]."</b></a><br><span style=\"font-size:70%\">".$char["corporationName"].(($char["allianceID"] != 0)?("<br>".$char["allianceName"]):"<br>&nbsp;")."</span>";
-            echo "<br><input style=\"font-size:80%;align:left\" type=\"button\" onclick=\"getCharacterInfo($ch_id,".USER_ID .",'". API_KEY ."');this.style.display='none';document.getElementById('iskTable".$ch_id."').style.display='block' \" value='Load Char Info'/>";
-            $Hide=";display:none;";
+           if(loggedIn()){
+				$Hide="";
+				echo "<script type=\"text/javascript\">getCharacterInfo($ch_id,".USER_ID .",'". API_KEY ."')</script>";
+			}else{
+				echo "<br><input style=\"font-size:80%;align:left\" type=\"button\" onclick=\"getCharacterInfo($ch_id,".USER_ID .",'". API_KEY ."');this.style.display='none';document.getElementById('iskTable".$ch_id."').style.display='block' \" value='Load Char Info'/>";
+				$Hide=";display:none;";
+			}
 			echo "<br><table id=\"iskTable".$ch_id."\" style=\"font-size:90%;align:left;width:100%".$Hide."\"> <tr><td>Isk: </td><td id=\"isk".$ch_id."\"></td></tr>";
 			echo "<tr><td>SP: </td><td id=\"sp".$ch_id."\"></td></tr>";
 			echo "<tr><td>Born: </td><td id=\"bday".$ch_id."\"></td></tr>";
@@ -125,7 +130,15 @@ function character_select($Db, $chars) {
 }
 
 function api_input($info = "") {
+    global $infoBarFunctions,$footerFunctions;
 	insert_header();
+	$infobar="";
+	foreach($infoBarFunctions as $function){
+        $infobar.=$function();
+    }
+    if(!empty($infoBarFunctions))
+        $infobar="<span class=\"infobar\">&lt;&nbsp;".$infobar."&gt;</span><br>";
+    echo $infobar;
 
 	
 	 ?>
@@ -162,7 +175,7 @@ echo "<br><b>$info</b><br>";
 <tr><td>User ID / key ID</td><td><input type="textbox" name="usid" size=7></td></tr>
 <tr><td>API Key / vCode</td><td><input type="textbox" name="apik" size=90></td></tr>
 <tr><td>Old API key?</td><td><input type="checkbox" name="oldkey" value="1"></td></tr>
-<tr><td>Remember API?</td><td><input type="checkbox" name="save" value="1" checked></td></tr>
+<?php if (!loggedIn()) {  ?><tr><td>Remember API?</td><td><input type="checkbox" name="save" value="1" checked></td></tr><?php }  ?>
 <?php if (isset($_GET['fittingid'])) { ?><input type="hidden" name="fittingid" value="<?php $_GET['fittingid'] ?>"><?php } ?>
 </table>
 <input type="submit" value="Get Chars"></form><h5>
@@ -191,8 +204,12 @@ Remember you can get source code at <a href="http://code.google.com/p/eve-jackkn
     </div>
     <div class="footer">
 EVE Online and the EVE logo are the registered trademarks of CCP hf. All rights are reserved worldwide. All other trademarks are the property of their respective owners. EVE Online, the EVE logo, EVE and all associated logos and designs are the intellectual property of CCP hf. All artwork, screenshots, characters, vehicles, storylines, world facts or other recognizable features of the intellectual property relating to these trademarks are likewise the intellectual property of CCP hf. CCP hf. has granted permission to Eve JackKnife to use EVE Online and all associated logos and designs for promotional and information purposes on its website but does not endorse, and is not in any way affiliated with, Eve JackKnife. CCP is in no way responsible for the content on or functioning of this website, nor can it be liable for any damage arising from the use of this website.
-</div<
-
+</div>
+<?php
+    foreach($footerFunctions as $function){
+        echo $function();
+    }
+ ?>
 </body>
 </html>
 <?php 

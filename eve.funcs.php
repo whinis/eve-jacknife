@@ -31,7 +31,7 @@ function get_key_info($Db, $userid, $apikey) {
 		foreach ($chars as $char) 
 			$apiinfo .= "$char[name], ";
 	} else {	
-		$keyInfo = cache_api_retrieve($Db->link, "/account/APIKeyInfo.xml.aspx", array("keyID"=>$userid, "vCode" => $apikey),5*60)->value;
+		$keyInfo = cache_api_retrieve($Db,"/account/APIKeyInfo.xml.aspx", array("keyID"=>$userid, "vCode" => $apikey),5*60)->value;
 		if ($keyInfo->error) return "";
 		
 		$mask = (float)$keyInfo->result->key["accessMask"];
@@ -115,32 +115,30 @@ function microtime_float() {
  return ((float)$usec + (float)$sec);
 }
 
-function isFullApi($link,$chid,$usid,$apik) {
- $key = md5("IDLOOKUP:".$usid.";".$apik);
- // first try to look up cached values in the DB
- $result = $link->query("SELECT * FROM ".DB_PREFIX."api_type_cache WHERE keyv='".addslashes($key)."' LIMIT 1");
+function isFullApi($db,$chid,$usid,$apik) {
+    $key = md5("IDLOOKUP:".$usid.";".$apik);
+    // first try to look up cached values in the DB
+    //$result = $link->query("SELECT * FROM ".DB_PREFIX."api_type_cache WHERE keyv='".addslashes($key)."' LIMIT 1");
+    $result = $db->selectWhere("api_type_cache",['keyv'=>$key]);
 
- if ($result != false) {
-  if (mysqli_num_rows($result) > 0) { // got it! return it and have done
-   $row = mysqli_fetch_assoc($result);
-   mysqli_free_result($result);
-   return $row['type'] == "1";
-  }
-  mysqli_free_result($result);
- }
+    if ($result != false) {
+        if ($result->rows > 0) { // got it! return it and have done
+            $row = $result->results[0];
+            return $row['type'] == "1";
+        }
+    }
  
- $xmlstr = cache_api_retrieve($link, "/char/AccountBalance.xml.aspx", array("characterID" => $chid,"keyID"=>$usid,"vCode"=>$apik));
+    $xmlstr = cache_api_retrieve($db,"/char/AccountBalance.xml.aspx", array("characterID" => $chid,"keyID"=>$usid,"vCode"=>$apik));
  
- if ($xmlstr->http_error)
-  return false; 
- 
- $isFull = true;
- 
- if ($xmlstr->api_error) 
-  $isFull = false;
+    if ($xmlstr->http_error)
+        return false;
 
-    $link->query("INSERT INTO ".DB_PREFIX.TYPE_CACHE_TABLE." (keyv, type) VALUES ('".addslashes($key)."', ".($isFull?"1":"0").")"); // insert the new values into cache
- return $isFull;
+    $isFull = true;
+ 
+    if ($xmlstr->api_error)
+        $isFull = false;
+    $db->insert(TYPE_CACHE_TABLE,['keyv'=>$key,'type'=>($isFull?"1":"0")]);
+    return $isFull;
 }
 
 function parse_ccptml($str) {
@@ -170,100 +168,94 @@ function fuck_ccp($list, $names) { // stupid durable id lookup
  return $names;
 }
 
-function ass_idLookup($link,$list,$names) {
-// fuck you, ccp.
+function char_idLookup($Db,$list,$names) {
 	$len = count($list);
 
 	// get the ids...
 	$names = fuck_ccp($list,$names);
 
 	$sql = "";
-	foreach ($list as $id) 
-		$sql .= "(".$id.",'".addslashes($names[$id])."'),";
-    $link->query("INSERT INTO ".DB_PREFIX.ID_CACHE_TABLE." (id, name) VALUES ".rtrim($sql,","));
-   return $names;
+    $Db->prepare("insert",ID_CACHE_TABLE,['id'=>"?","name"=>"?"]);
+	foreach ($list as $id) {
+        $Db->execute(['id'=>$id,'name'=>$names[$id]]);
+    }
+    return $names;
 }
 
 function idLookup($link,$ids) {
- global $Db;
- 
- if (!is_array($ids)) {
-  $ids = array($ids);
- } else
-  $ids = array_unique($ids);
+    global $Db;
+
+    if (!is_array($ids)) {
+        $ids = array($ids);
+    } else {
+        $ids = array_unique($ids);
+    }
+
   
- $names = array();
+    $names = array();
  
- // first try to look up cached values in the DB
- $sql = "SELECT * FROM ".DB_PREFIX.ID_CACHE_TABLE." WHERE id IN (".implode(",",$ids).")";
- $result = $link->query($sql) ;
+    // first try to look up cached values in the DB
+    $result=$Db->selectWhere(ID_CACHE_TABLE,['id'=>['IN',$ids]]);
 
- if ($result != false) {
-  if (mysqli_num_rows($result) > 0) // add any found to the list
-   while($row = mysqli_fetch_assoc($result))
-    $names[$row['id']] = $row['name'];
-    
-  mysqli_free_result($result);
- }
+    if ($result != false) {
+        if ($result->rows) { // add any found to the list
+            foreach($result->results as $row){
+                $names[$row['id']] = $row['name'];
+            }
+        }
+    }
  
- if (count($names) == count($ids))
-  return $names; // all names were cached!
+    if (count($names) == count($ids))
+        return $names; // all names were cached!
  
- $list = array();
+    $list = array();
 
- foreach($ids as $id) // make a list of ids which were not cached
-  if (!isset($names[$id])) 
-   $list[] = $id;
+    foreach($ids as $id) { // make a list of ids which were not cached
+        if (!isset($names[$id])) {
+            $list[] = $id;
+        }
+    }
    
- $result = simple_api_retrieve('/eve/CharacterName.xml.aspx',array('ids'=>implode(",",$list)));
- if(!$result)
-	return false;
-  // get the ids...
- if ($result->error) // ccp sucks, look it up by divide and conquer
-  return ass_idLookup($link,$list,$names);
+    $result = simple_api_retrieve('/eve/CharacterName.xml.aspx',array('ids'=>implode(",",$list)));
+    if(!$result)
+	    return false;
+    // get the ids...
+    if ($result->error)
+        return char_idLookup($Db,$list,$names);
 
- $sql_ins = "";
+    $Db->prepare("insert",ID_CACHE_TABLE,["id"=>"?","name"=>"?"]);
+    foreach($result->value->xpath('//row') as $kvp) { // add them to the array and make an insert query
+        $names[(int)$kvp['characterID']] = (string)$kvp['name'];
+        $Db->execute([$kvp['characterID'],$kvp['name']]);
+    }
  
- foreach($result->value->xpath('//row') as $kvp) { // add them to the array and make an insert query
-  $names[(int)$kvp['characterID']] = (string)$kvp['name'];
-  $sql_ins .= "(".$kvp['characterID'].",'".addslashes($kvp['name'])."'),";
- }
-
-    $link->query("INSERT INTO ".DB_PREFIX.ID_CACHE_TABLE." (id, name) VALUES ".rtrim($sql_ins,",")); // insert the new values into cache
- 
- return $names;
+    return $names;
 }
 
 function getEvePrice($id, $Db) {
 
- $link = $Db->link;
- 
- $sql = "SELECT value FROM ".DB_PREFIX."prices WHERE typeID=".$id;
+     $link = $Db->link;
+     $result=$Db->selectWhere("prices",['typeID'=>$id]);
+     $sql = "SELECT value FROM ".DB_PREFIX."prices WHERE typeID=".$id;
 
- $result = $link->query($sql);
+     if (!$result) {
+         return 0;
+     }
 
- if (!$result) {
-  echo 'MySQL Error: ' . $link->error;
-  return 0;
- }
- 
- if (mysqli_num_rows($result) > 0) {
-  $row = mysqli_fetch_assoc($result);
-  mysqli_free_result($result);
-  
-  return $row["value"];
- } else {
-  $evec = file_get_contents("http://api.eve-central.com/api/marketstat?typeid=".$id);
-  
-  $xml = new SimpleXMLElement($evec);
+     if ($result->rows>0) {
+         $row = $result->results[0];
+         return $row["value"];
+     } else {
+         $evec = file_get_contents("http://api.eve-central.com/api/marketstat?typeid=".$id);
 
-  $value = $xml->marketstat->type->sell->median;
+         $xml = new SimpleXMLElement($evec);
 
-  $sql = "INSERT INTO ".DB_PREFIX."prices (typeID, value) VALUES (".$id.",".$value.")";
-  $result = $link->query($sql);
+         $value = $xml->marketstat->type->sell->median;
 
-  return $value;
- }
+         $Db->insert("prices",['typeID'=>$id,"value"=>$value]);
+
+         return $value;
+     }
 }
 function GetRedIDS($ids,$Db){
     $redIDS=array();

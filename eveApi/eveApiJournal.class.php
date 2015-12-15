@@ -42,7 +42,7 @@ class eveApiJournal extends eveApi {
  }
 
  private function getTransTypes() {
-  $trans = cache_api_retrieve($this->Db->link,"/eve/RefTypes.xml.aspx");
+  $trans = cache_api_retrieve($this->Db,"/eve/RefTypes.xml.aspx");
   $transTypeIds = $trans->value;
 
   $result = $transTypeIds->xpath("/eveapi/result/rowset/row");

@@ -31,11 +31,18 @@ define("AUDIT_PHP", true);
 $cookielogin = false;
 $charSelect=true;
 
+$infoBarFunctions=array();
+$footerFunctions=array();
+
 require_once("eve.php");
 require_once("audit.funcs.php");
 require_once("audit.views.php");
 
-$Db = new eveDb($sql, $sql_u, $sql_p, $db);
+
+if(defined("allow_login")&&allow_login==true) {
+	require_once("login.php");
+}
+$_SESSION['redirect']="index.php";
 
 
 if (isset($_GET['newapi'])) 
@@ -72,7 +79,7 @@ if (!login_load_creds($Db, (isset($userid) && isset($apikey) || isset($short_api
 
 if (isset($short_api_key)) { // get stored apikey
 	$charSelect=false;
-	$ret = retrieve_api_key($Db->link, $short_api_key);
+	$ret = retrieve_api_key($Db, $short_api_key);
 
 	if ($ret != null) {
 		$chid = $ret["chid"];
@@ -94,19 +101,17 @@ if ((!isset($apikey) || !isset($userid)) && !isset($short_api_key)) {
 	$info = "";
 		
 	if (isset($_GET['fittingid'])) {
-		$result = $Db->link->query("SELECT * FROM ".DB_PREFIX.FITTINGS_TABLE." WHERE keyv=\"".$Db->link->real_escape_string($_GET['fittingid'])."\"");
-		if ($result != false && mysqli_num_rows($result) > 0) {
+		$result=$Db->selectWhere(FITTINGS_TABLE,["keyv"=>$_GET['fittingid']]);
+		if ($result != false && $result->rows) {
 			// yay! got a cached value
-			$row = mysqli_fetch_assoc($result);
-			mysqli_free_result($result);
+			$row = $result->results[0];
 			$info = "Your ability to use the fitting '$row[name]' ($row[ship]) will be shown after you log in."; 
 		}	
 		$Db->close();
 	} 
 	
-	api_input($info); // die	
+	api_input($info); // die
 }
-session_start();
 if(!isset($_SESSION['redFlagText']))
     $_SESSION['redFlagText']="";
 if(!isset($_SESSION['redFlagIds']))
@@ -131,7 +136,7 @@ if (strpos(API_KEY,"old_") === 0) { // old api key, must load characters and oth
 		
 	$keys = array_keys($chars);
 	
-	define("KEY_MASK",isFullApi($Db->link,$keys[0], USER_ID, API_KEY) ? 268435455 : 8);
+	define("KEY_MASK",isFullApi($Db,$keys[0], USER_ID, API_KEY) ? 268435455 : 8);
 	
 	$multiplechars = count($chars) > 1;
 	if (!$multiplechars) 
@@ -149,10 +154,9 @@ if (strpos(API_KEY,"old_") === 0) { // old api key, must load characters and oth
 	define("CORP_MODE", false);
 	define("KEY_TYPE","Account");
 } else {	// modern fancy ass keys ////////////////////////
-	$keyInfo = cache_api_retrieve($Db->link, "/account/APIKeyInfo.xml.aspx", array("keyID"=>USER_ID, "vCode" => API_KEY),5*60)->value;
-	if ($keyInfo->error) 
+	$keyInfo = cache_api_retrieve($Db,"/account/APIKeyInfo.xml.aspx", array("keyID"=>USER_ID, "vCode" => API_KEY),5*60)->value;
+	if (!is_object($keyInfo)||$keyInfo->error)
 		fatal_error("Unable to load API. Verify the key is correct and not expired.");
-		
 	define("KEY_MASK",(float)$keyInfo->result->key["accessMask"]);
 	$multiplechars = count($keyInfo->result->key->rowset->row) > 1;
 	
@@ -211,7 +215,7 @@ if (!CORP_MODE && isset($_GET['save']) && $_GET['save'] == "1") { // save api ke
 require_once("audit.pages.php");
 
 if (isset($_GET['makeshorturl'])) {
-	$key = make_short_key($Db->link,USER_ID,API_KEY,CHAR_NAME,CHAR_ID);
+	$key = make_short_key($Db,USER_ID,API_KEY,CHAR_NAME,CHAR_ID);
 
 	if ($key) {
 		header("Location: ".SELF_URL."key=$key" . (isset($_GET['view']) ? "&view=".$_GET['view'] : ""));
@@ -261,6 +265,9 @@ if (!isset($short_api_key)) {
 		$infobar .= "<a href=\"".FULL_URL."&makeshorturl&view=".PAGE_VIEW."\">short url</a>&nbsp;";
 	}
 $infobar .= "|<a id='redFlag' href=\"#redflag\">Set Red Flags</a>&nbsp;";
+foreach($infoBarFunctions as $function){
+	$infobar.="|&nbsp;".$function();
+}
 $infobar .= "&gt;&nbsp;<b>" . strtoupper(KEY_TYPE);
 $infobar.="</b></span>";
 

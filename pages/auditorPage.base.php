@@ -20,7 +20,7 @@ function getPageTimes($Db,$time_api,$time_exec) {
 		 foreach ($Db->allQueries as $query => $count) {
 			  if ($count > 1) // optimization required
 					$output .= " MULTIPLE QUERIES ### ";
-			  $output .= $query . " ## " . $count . "<br>\n";
+			  $output .= str_replace("?"," X ",$query) . " ## " . $count . "<br>\n";
 		 }
 		 $output .= "</h5>";
 	}

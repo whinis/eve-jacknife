@@ -141,14 +141,15 @@ class auditorMembersPage extends auditorPage {
 			 */
 		} else {
 			 /////////////////////////////////////////////////
-			 $sql       = "SELECT groupName, groupID FROM ".DB_PREFIX."invGroups WHERE categoryID = 6";
-			 $result    = $Db->link->query($sql);
-			 $shpgroups = array();
-			 
-			 while ($row = mysqli_fetch_assoc($result))
-				  $shpgroups[$row["groupID"]] = $row["groupName"];
-			 
-			 mysqli_free_result($result);
+			$result = $Db->selectWhere("invGroups",['categoryID'=>6],['groupName','groupID']);
+			$shpgroups = array();
+			if ($result != false) {
+				if ($result->rows > 0) {
+					foreach ($result->results as $row){
+						$shpgroups[$row["groupID"]] = $row["groupName"];
+					}
+				}
+			}
 			 
 			 $owngroups = array();
 			 

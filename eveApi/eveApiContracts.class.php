@@ -175,36 +175,29 @@ class eveApiContracts extends eveApi {
 
 	public function fetchItems($ids) {
 		$items = array();
-		
-		$sql    = "SELECT * FROM ".DB_PREFIX.CONTRACT_CONTENTS_TABLE." WHERE contractID IN (".implode(",",$ids).")";
-      
-		$result = $this->Db->query($sql);
 
+		$result = $this->Db->selectWhere(CONTRACT_CONTENTS_TABLE,['contractID'=>["IN",$ids]]);
 		if ($result) {
-			while ($row = mysqli_fetch_assoc($result)) {
+			foreach($result->results as $row) {
 				$id = (float)$row["contractID"];
 				if (!isset($items[$id]))
 					$items[$id] = array();
-				
+
 				$items[$id]["buying"] = unserialize($row["buying"]);
-				$items[$id]["selling"] = unserialize($row["selling"]);	
+				$items[$id]["selling"] = unserialize($row["selling"]);
 
-				foreach ($items[$id]["buying"] as $item) 
+				foreach ($items[$id]["buying"] as $item)
 					$this->typesToCache[$item[0]] = "1";
-				foreach ($items[$id]["selling"] as $item) 
-					$this->typesToCache[$item[0]] = "1";						
+				foreach ($items[$id]["selling"] as $item)
+					$this->typesToCache[$item[0]] = "1";
 			}
-			
-			mysqli_free_result($result);
 	  }
-	  
-	  $storetosql = array();
-
+		$this->Db->prepare("insert",CONTRACT_CONTENTS_TABLE,['id'=>'?','buying'=>'?','selling'=>'?']);
 		foreach ($ids as $id) {
 			if (isset($items[$id])) continue;
 			
 			$args = array("characterID"=>$this->chid,"keyID"=>$this->usid,"vCode"=>$this->apik,"contractID"=>$id);
-			$result = cache_api_retrieve($this->Db->link,"/".($this->corp?"corp":"char")."/ContractItems.xml.aspx",$args, 60); // short cache as we use db in the future
+			$result = cache_api_retrieve($this->Db,"/".($this->corp?"corp":"char")."/ContractItems.xml.aspx",$args, 60); // short cache as we use db in the future
 			
 			$buying = array();
 			$selling = array();
@@ -221,43 +214,35 @@ class eveApiContracts extends eveApi {
 			
 			$items[$id]["buying"] = $buying;
 			$items[$id]["selling"] = $selling;
-			
-			$storetosql[] = "($id,'" . $this->Db->link->real_escape_string(serialize($buying)) ."','" . $this->Db->link->real_escape_string(serialize($selling)) ."')";
+			$this->Db->execute(['id'=>$id,'buying'=>serialize($buying),'selling'=>serialize($selling)]);
 		}
-		
-		if (count($storetosql) > 0) {
-			$sql    = "INSERT INTO ".DB_PREFIX.CONTRACT_CONTENTS_TABLE." VALUES ".implode(",",$storetosql);
-			$result = $this->Db->query($sql);
-		}
-		
 		return $items;
 	}
 	
 	public function fetchBids($ids) {
 		$this->hasAuctions = true;
 		$args = array("characterID"=>$this->chid,"keyID"=>$this->usid,"vCode"=>$this->apik);
-
-		$sql    = "SELECT * FROM ".DB_PREFIX.CONTRACT_BIDS_TABLE." WHERE contractID IN (".implode(",",$ids).")";
-      $result = $this->Db->query($sql);
+		//$sql    = "SELECT * FROM ".DB_PREFIX.CONTRACT_BIDS_TABLE." WHERE contractID IN (".implode(",",$ids).")";
+      	//$result = $this->Db->query($sql);
+		$result = $this->Db->selectWhere(CONTRACT_BIDS_TABLE,['contractID'=>["IN",$ids]]);
         
       $bids = array();
 		
 		if ($result) {
-			while ($row = mysqli_fetch_assoc($result)) {
+			foreach ($result->results as $row){
 				$id = (float)$row["contractID"];
 				if (!isset($bids[$id]))
 					$bids[$id] = array();
-				
+
 				$bids[$id][$row["bidID"]] = $row;
 			}
-			mysqli_free_result($result);
-	  }
+	  	}
 	  
 	  	foreach ($bids as &$bidset)
 			usort($bidset,"bids_sortfunc");
 
       $args = array("characterID"=>$this->chid,"keyID"=>$this->usid,"vCode"=>$this->apik);
-		$result = cache_api_retrieve($this->Db->link,"/".($this->corp?"corp":"char")."/ContractBids.xml.aspx",$args);
+		$result = cache_api_retrieve($this->Db,"/".($this->corp?"corp":"char")."/ContractBids.xml.aspx",$args);
 		
 		if ($result->error) {
 			$this->bids = $bids;
@@ -271,8 +256,7 @@ class eveApiContracts extends eveApi {
 			return;
 		}
 
-		$storetosql = array();
-
+		$this->Db->prepare("insert",CONTRACT_BIDS_TABLE,['contractID'=>'?','bidID'=>'?','bidderID'=>'?','amount'=>'?','bidTime'=>'?']);
 		foreach ($rows as $bid) {
 			$id = (float)$bid["contractID"];
 			$bidid = (float)$bid["bidID"];
@@ -283,14 +267,9 @@ class eveApiContracts extends eveApi {
 				continue;
 					
 			$bids[$id][$bidid] = array((float)$bid["amount"],(float)$bid["bidderID"],(string)$bid["dateBid"]);
-			$storetosql[] = "($id,$bidid," . (float)$bid["bidderID"]. "," . (float)$bid["amount"]. ",'" . $this->Db->link->real_escape_string((string)$bid["dateBid"]) ."')";
+			$this->Db->execute(['contractID'=>$id,'bidID'=>$bidid,'bidderID'=>(float)$bid["bidderID"],'amount'=>(float)$bid["amount"],'bidTime'=>(string)$bid["dateBid"]]);
 		}
-		
-		if (count($storetosql) > 0) {
-			$sql    = "INSERT INTO ".DB_PREFIX.CONTRACT_BIDS_TABLE." VALUES ".implode(",",$storetosql);
-			$result = $this->Db->query($sql);
-		}
-		
+
 		foreach ($bids as &$bidset)
 			usort($bidset,"bids_sortfunc");
 

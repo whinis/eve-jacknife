@@ -35,7 +35,7 @@ class eveApiMails extends eveApi {
  //public $unread;
  
   public function fetchMailBody($chid,$usid,$apik,$id) {
-  $api_ret = cache_api_retrieve($this->Db->link,"/char/MailBodies.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik,"ids"=>$id));
+  $api_ret = cache_api_retrieve($this->Db,"/char/MailBodies.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik,"ids"=>$id));
   if (!$api_ret) 
    return "";
 

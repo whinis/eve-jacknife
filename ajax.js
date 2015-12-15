@@ -66,4 +66,32 @@
                 }
             });
         });
+        $("#saveNotes").click(function(e){
+            var hiddenSection = $('section.hidden');
+            var array={action:"editKey", characters:$("#redFlagBox").val()};
+            $.ajax({
+                type: 'POST',
+                url: 'ajax.php?t=' + new Date().getTime(),
+                data: array,
+                async: true,
+                success: function (data, textStatus, XHR) {
+                    $(hiddenSection).fadeOut();
+                    location.reload();
+                }
+            });
+        });
+        $("#saveName").click(function(e){
+            var hiddenSection = $('section.hidden');
+            var array={action:"editKey", name:$("#redFlagBox").val()};
+            $.ajax({
+                type: 'POST',
+                url: 'ajax.php?t=' + new Date().getTime(),
+                data: array,
+                async: true,
+                success: function (data, textStatus, XHR) {
+                    $(hiddenSection).fadeOut();
+                    location.reload();
+                }
+            });
+        });
     });

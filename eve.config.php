@@ -53,4 +53,7 @@ define("TYPE_CACHE_TABLE", "api_type_cache");
 define("CONTRACT_BIDS_TABLE", "contract_bids");
 define("CONTRACT_CONTENTS_TABLE", "contract_items");
 
+
+define("allow_login", true);
+
  ?>

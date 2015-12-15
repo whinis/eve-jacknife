@@ -34,7 +34,7 @@ $def_eve_db = 'eve_tyr';
 
 //$allApiCalls = array();
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class eveDb {
+class eveDb  extends db{
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     //public $allQueries = array();
@@ -62,10 +62,10 @@ class eveDb {
    
     protected $emptyQueries = array();
     // cache of empty queries
-    
+/*
     public function __construct($server = "", $user= "", $pass= "", $db = null) {
         global $def_eve_db;
-        
+
         if ($db == null) {
             $db = $def_eve_db;
         }
@@ -75,7 +75,7 @@ class eveDb {
         }
         
         $this->connect($server, $user, $pass, $db);
-    }
+    }*/
     
     public function close() {
         if ($this->link != null) {
@@ -97,7 +97,7 @@ class eveDb {
             die('Could not select database');
         }
     }
-    
+    /*
     public function query($sql) {
         
         if (isset($this->emptyQueries[$sql])) {
@@ -136,12 +136,12 @@ class eveDb {
         }
         
         return $result;
-    }
+    }*/
     
     function fetchApiChars($usid, $apik)
     {
         
-        $xmlstr = cache_api_retrieve($this->link, "/account/Characters.xml.aspx", array("keyID"=>$usid,"vCode"=>$apik));
+        $xmlstr = cache_api_retrieve($this,"/account/Characters.xml.aspx", array("keyID"=>$usid,"vCode"=>$apik));
         //print_r($xmlstr);
         
         if ($xmlstr->error) {
@@ -162,7 +162,7 @@ class eveDb {
             foreach($char->attributes() as $name => $value) // copy item attributes
             $charA[(string)$name] = (string)$value;
             
-            $corpinf = cache_api_retrieve($this->link, "/corp/CorporationSheet.xml.aspx", array("corporationID"=>$charA["corporationID"]))->value;
+            $corpinf = cache_api_retrieve($this,"/corp/CorporationSheet.xml.aspx", array("corporationID"=>$charA["corporationID"]))->value;
             
             $charA["allianceID"] = (string)$corpinf->result->allianceID;
             if ($charA["allianceID"] == 0) {
@@ -180,7 +180,7 @@ class eveDb {
     }
     
     public function updateConqStations() {
-        $result = cache_api_retrieve($this->link, "/eve/ConquerableStationList.xml.aspx",array(),3*24*60*60);
+        $result = cache_api_retrieve($this, "/eve/ConquerableStationList.xml.aspx",array(),3*24*60*60);
         
         if ($result->error) {
             return false;
@@ -196,21 +196,35 @@ class eveDb {
             $stationName = /*$this->getNameFromSystemId((string)$station["solarSystemID"])." - ".*/$station["stationName"];
             
             $sql = "SELECT corporationID FROM ".DB_PREFIX."staStations WHERE stationID='".$this->link->real_escape_string($station["stationID"])."'";
-            
-            $result = $this->link->query($sql);
+
+            $result = $this->selectWhere("staStations",['stationID'=>$station["stationID"]],['corportationID']);
             
             if (!$result) {
                 echo 'MySQL Error: ' . $this->link->error;
                 return false;
             }
             
-            if (mysqli_num_rows($result) > 0) {
-                mysqli_free_result($result);
+            if ($result->rows > 0) {
                 $sql = "UPDATE ".DB_PREFIX."staStations SET corporationID='".$this->link->real_escape_string($station["corporationID"])."', stationName='".$this->link->real_escape_string(addslashes($stationName))."' WHERE stationID=".$this->link->real_escape_string($station["stationID"]);
-                $result = $this->link->query($sql);
+                //$result = $this->link->query($sql);
+                $this->update("staStations",
+                    [
+                        'stationID'=>$station["stationID"]
+                    ],
+                    [
+                        'corporationID'=>$station["corporationID"],
+                        'stationName'=>$stationName
+                    ]);
             } else {
                 $sql = "INSERT INTO ".DB_PREFIX."staStations (stationID, stationTypeID, corporationID, solarSystemID, stationName) VALUES (".$this->link->real_escape_string($station["stationID"]).", ".$this->link->real_escape_string($station["stationTypeID"]).", ".$this->link->real_escape_string($station["corporationID"]).", ".$this->link->real_escape_string($station["solarSystemID"]).", '".$this->link->real_escape_string(addslashes($stationName))."');";
-                $result = $this->link->query($sql);
+                //$result = $this->link->query($sql);
+                $this->insert('staStations',[
+                    'stationID'=>$station["stationID"],
+                    'stationTypeID'=>$station["stationTypeID"],
+                    'corporationID'=>$station["corporationID"],
+                    'solarSystemID'=>$station["solarSystemID"],
+                    'stationName'=>$stationName
+                ]);
             }
         }
         
@@ -223,18 +237,17 @@ class eveDb {
 				return $this->metaCache[$id];
 
         $sql = "SELECT valueInt, valueFloat FROM ".DB_PREFIX."dgmTypeAttributes WHERE typeID=".$this->link->real_escape_string($id)." AND attributeID=633";
-        $result = $this->query($sql);
-        
+        //$result = $this->query($sql);
+        $result = $this->selectWhere('dgmTypeAttributes',['typeID'=>$id,'attributeID'=>633],['valueInt', 'valueFloat']);
         if (!$result) {
 				$this->metaCache[$id] = 0;
             return 0;
         }
 		  					
-        if (mysqli_num_rows($result) > 0) {
-            $row = mysqli_fetch_assoc($result);
-            mysqli_free_result($result);
-				$this->metaCache[$id] = $this->getMeta($row);
-				return $this->getMeta($row);
+        if ($result->rows > 0) {
+            $row = $result->results[0];
+            $this->metaCache[$id] = $this->getMeta($row);
+            return $this->getMeta($row);
         }
         
 		  $this->metaCache[$id] = 0;
@@ -245,21 +258,21 @@ class eveDb {
 		  if (count ($ids) == 0) return;
 		  
         $sql = "SELECT typeID, valueInt, valueFloat FROM ".DB_PREFIX."dgmTypeAttributes WHERE typeID IN (".implode(",",$ids).") AND attributeID=633";
-        $result = $this->link->query($sql);
-        
-        if (!$result) 
-				return;
-        
-        if (mysqli_num_rows($result) > 0) {
-				while($row = mysqli_fetch_assoc($result)) 
-					$this->metaCache[$row["typeID"]] = $this->getMeta($row);
-				
-				foreach($ids as $typeid)
-					if (!isset($this->metaCache[$typeid]))
-						$this->metaCache[$typeid] = 0;
+        //$result = $this->link->query($sql);
+         $result = $this->selectWhere('dgmTypeAttributes',['typeID'=>['IN',$ids],'attributeID'=>633],['typeID','valueInt', 'valueFloat']);
 
-				mysqli_free_result($result);
+         if (!$result)
 				return;
+        
+        if ($result->rows > 0) {
+            foreach($result->results as $row){
+                $this->metaCache[$row["typeID"]] = $this->getMeta($row);
+            }
+            foreach($ids as $typeid)
+                if (!isset($this->metaCache[$typeid]))
+                    $this->metaCache[$typeid] = 0;
+
+            return;
         }
     }
 	 
@@ -324,34 +337,34 @@ class eveDb {
         }
         
         $sql    = "SELECT stationID, stationName FROM ".DB_PREFIX."staStations WHERE stationID = '".$this->link->real_escape_string($id)."' LIMIT 1";
-        $result = $this->query($sql);
+        //$result = $this->query($sql);
+        $result = $this->selectWhere("staStations",['stationID'=>$id],['stationID','stationName'],1);
         
-        if (!$result) {
+        if (!$result|| $result->rows ==0) {
             return "Name not found, try refreshing";
         }
         
-        $row = mysqli_fetch_assoc($result);
-        mysqli_free_result($result);
+        $row = $result->results[0];
         
         $this->locationCache[$row['stationID']] = $row['stationName'];
         
         return $row['stationName'];
     }
 	 
-	  public function getSystemFromStationId($id) {
+    public function getSystemFromStationId($id) {
         
         if (isset($this->stationToSystemCache[$id])) {
             return $this->stationToSystemCache[$id];
-        }			
+        }
         $sql    = "SELECT stationID, solarSystemID FROM ".DB_PREFIX."staStations WHERE stationID = '".$this->link->real_escape_string($id)."' LIMIT 1";
-        $result = $this->query($sql);
-        
-        if (!$result) {
+        //$result = $this->query($sql);
+        $result = $this->selectWhere("staStations",['stationID'=>$id],['stationID','stationName'],1);
+
+        if (!$result || $result->rows ==0) {
             return null;
         }
         
-        $row = mysqli_fetch_assoc($result);
-        mysqli_free_result($result);
+        $row = $result->results[0];
         
         $this->stationToSystemCache[$row['stationID']] = $row['solarSystemID'];
         
@@ -366,13 +379,14 @@ class eveDb {
         }
         
         $sql    = "SELECT typeID FROM ".DB_PREFIX."invTypes WHERE typeName LIKE '".$this->link->real_escape_string($name)."' LIMIT 1";
-        $result = $this->query($sql);
-        
-        if (!$result) 
-            return null;
+        //$result = $this->query($sql);
+        $result = $this->selectWhere("invTypes",['typeName'=>['LIKE',$name]],['typeID'],1);
 
-        $row = mysqli_fetch_assoc($result);
-        mysqli_free_result($result);
+        if (!$result || $result->rows ==0) {
+            return null;
+        }
+
+        $row = $result->results[0];
         
         $this->typesCache[$name] = $row['typeID'];
         
@@ -396,14 +410,14 @@ class eveDb {
         }
         
         $sql    = "SELECT itemID, itemName FROM ".DB_PREFIX."invUniqueNames WHERE itemID = '".$this->link->real_escape_string($id)."' LIMIT 1";
-        $result = $this->query($sql);
-        
-        if (!$result) {
+        //$result = $this->query($sql);
+        $result = $this->selectWhere("invUniqueNames",['itemID'=>$id],['itemID','itemName'],1);
+
+        if (!$result || $result->rows ==0) {
             return null;
         }
-        
-        $row = mysqli_fetch_assoc($result);
-        mysqli_free_result($result);
+
+        $row = $result->results[0];
         
         $this->locationCache[$row['itemID']] = $row['itemName'];
         
@@ -417,14 +431,14 @@ class eveDb {
         }
         
         $sql    = "SELECT solarSystemID, solarSystemName FROM ".DB_PREFIX."mapSolarSystems WHERE solarSystemID = '".$this->link->real_escape_string($id)."' LIMIT 1";
-        $result = $this->query($sql);
-        
-        if (!$result) {
+        //$result = $this->query($sql);
+        $result = $this->selectWhere("mapSolarSystems",['solarSystemID'=>$id],['solarSystemID','solarSystemName'],1);
+
+        if (!$result || $result->rows ==0) {
             return null;
         }
-        
-        $row = mysqli_fetch_assoc($result);
-        mysqli_free_result($result);
+
+        $row = $result->results[0];
         
         $this->locationCache[$row['solarSystemID']] = $row['solarSystemName'];
         
@@ -434,14 +448,14 @@ class eveDb {
     public function getSystemSecurity($id) {
         
         $sql    = "SELECT security FROM ".DB_PREFIX."mapSolarSystems WHERE solarSystemID = '".$this->link->real_escape_string($id)."' LIMIT 1";
-        $result = $this->query($sql);
-        
-        if (!$result) {
+        //$result = $this->query($sql);
+        $result = $this->selectWhere("mapSolarSystems",['solarSystemID'=>$id],['security'],1);
+
+        if (!$result || $result->rows ==0) {
             return 0;
         }
-        
-        $row = mysqli_fetch_assoc($result);
-        mysqli_free_result($result);
+
+        $row = $result->results[0];
         
         $value = $row['security'];
         if ($value < 0) {
@@ -452,11 +466,13 @@ class eveDb {
     
     public function getSlotFromTypeId($id) {
         $sql    = "SELECT effectID FROM ".DB_PREFIX."dgmTypeEffects WHERE typeID = '".$this->link->real_escape_string($id) . "' AND effectID IN (11,12,13,2663,3772)";
-        $result = $this->query($sql);
+        //$result = $this->query($sql);
+
+        $effectID=array(11,12,13,2663,3772);
+        $result = $this->selectWhere("dgmTypeEffects",['typeID'=>$id,'effectID'=>['IN',$effectID]],['effectID']);
         
-        if ($result) {
-            $row = mysqli_fetch_assoc($result);
-            mysqli_free_result($result);
+        if ($result&& $result->rows >0) {
+            $row = $result->results[0];
             if (count($row) != 0  && isset($row["effectID"])) {
                 return $row["effectID"];
             }
@@ -476,12 +492,12 @@ class eveDb {
 		$id=(int)$id;
 		settype($offset, 'integer');
         $sql    = "SELECT * FROM ".DB_PREFIX."invTypes WHERE typeID = '".$this->link->real_escape_string($id)."' LIMIT 1 OFFSET $offset;";
-        $result = $this->query($sql);
+        //$result = $this->query($sql);
+        $result = $this->selectWhere("invTypes",['typeID'=>$id],null,1);
         //debug_print_backtrace();
-		if($result){
-			$row = mysqli_fetch_assoc($result);
-			mysqli_free_result($result);
-        
+        if ($result&& $result->rows >0) {
+			$row = $result->results[0];
+
 			$this->typesCache[$row['typeName']] = $row['typeID'];
 			$this->typesCache[$row['typeID']] = $row;
         }
@@ -510,14 +526,15 @@ class eveDb {
         }
         
         $sql    = "SELECT * FROM ".DB_PREFIX."invGroups WHERE groupID = '".$this->link->real_escape_string($id)."' LIMIT 1";
-        $result = $this->query($sql);
-        
-        if (!$result) {
+        //$result = $this->query($sql);
+
+        $result = $this->selectWhere("invGroups",['groupID'=>$id],null,1);
+
+        if (!$result || $result->rows ==0) {
             return null;
         }
-        
-        $row = mysqli_fetch_assoc($result);
-        mysqli_free_result($result);
+
+        $row = $result->results[0];
         
         $this->groupCache[$row['groupID']] = $row;
         
@@ -527,15 +544,14 @@ class eveDb {
     public function getAttribInfo($attrID) {
         
         $sql    = "SELECT * FROM ".DB_PREFIX."dgmAttributeTypes WHERE attributeId = '".$this->link->real_escape_string($attrID)."' LIMIT 1";
-        $result = $this->query($sql);
+        //$result = $this->query($sql);
+        $result = $this->selectWhere("dgmAttributeTypes",['attributeId'=>$attrID],null,1);
         
-        if (!$result) {
+        if (!$result|| $result->rows ==0) {
             return array();
         }
-        
-        $row = mysqli_fetch_assoc($result);
-        
-        mysqli_free_result($result);
+
+        $row = $result->results[0];
         
         return $row;
     }
@@ -562,18 +578,16 @@ class eveDb {
         }
         
         $sql    = "SELECT * FROM ".DB_PREFIX."invTypes WHERE typeID IN (" . implode(",",$items) . ")";
-        $result = $this->query($sql);
-        
-        if (!$result) {
+        //$result = $this->query($sql);
+        $result = $this->selectWhere("invTypes",['typeID'=>['IN',$items]],null);
+
+        if (!$result|| $result->rows ==0) {
             return;
         }
-        
-        while ($row = mysqli_fetch_assoc($result)) {
+        foreach ($result->results as $row){
             $this->typesCache[$row['typeName']] = $row['typeID'];
             $this->typesCache[$row['typeID']] = $row;
         }
-        
-        mysqli_free_result($result);
     }
     
     public function cacheGroupTypes($items) {
@@ -581,18 +595,18 @@ class eveDb {
             return;
         }
         
-        $sql    = "SELECT * FROM ".DB_PREFIX."invGroups WHERE groupID IN (" . implode(",",array_filter($items)). ")";
-        $result = $this->query($sql);
-        
-        if (!$result) {
+        //$sql    = "SELECT * FROM ".DB_PREFIX."invGroups WHERE groupID IN (" . implode(",",array_filter($items)). ")";
+        //$result = $this->query($sql);
+
+        $result = $this->selectWhere("invGroups",['groupID'=>['IN',array_filter($items)]],null);
+
+        if (!$result|| $result->rows ==0) {
             return;
         }
-        
-        while ($row = mysqli_fetch_assoc($result)) {
+
+        foreach ($result->results as $row){
             $this->groupCache[$row['groupID']] = $row;
         }
-        
-        mysqli_free_result($result);
     }
     
     public function cacheLocationIds($locations) {
@@ -612,37 +626,35 @@ class eveDb {
         $Locations = array();
         
         if (count($sqlStations) != 0) {
-            $result = $this->query("SELECT stationID, stationName, solarSystemID FROM ".DB_PREFIX."staStations WHERE stationID IN (".implode(",",array_keys($sqlStations)).")");
-            while ($row = mysqli_fetch_assoc($result)) {
+            //$result = $this->query("SELECT stationID, stationName, solarSystemID FROM ".DB_PREFIX."staStations WHERE stationID IN (".implode(",",array_keys($sqlStations)).")");
+            $result = $this->selectWhere("staStations",['stationID'=>['IN',array_keys($sqlStations)]],['stationID', 'stationName', 'solarSystemID']);
+            foreach($result->results as $row){
                 $this->locationCache[$row['stationID']] = $row['stationName'];
 					 $this->stationToSystemCache[$row['stationID']] = $row['solarSystemID'];
             }
-            
-            mysqli_free_result($result);
         }
         
         if (count($sqlSystems) != 0) {
-            $result = $this->query("SELECT solarSystemID, solarSystemName FROM ".DB_PREFIX."mapSolarSystems WHERE solarSystemID IN ('".implode("','",array_keys($sqlSystems))."')");
-            while ($row = mysqli_fetch_assoc($result)) {
+           // $result = $this->query("SELECT solarSystemID, solarSystemName FROM ".DB_PREFIX."mapSolarSystems WHERE solarSystemID IN ('".implode("','",array_keys($sqlSystems))."')");
+            $result = $this->selectWhere("mapSolarSystems",['solarSystemID'=>['IN',array_keys($sqlSystems)]],['solarSystemID', 'solarSystemName']);
+            foreach($result->results as $row){
                 $this->locationCache[$row['solarSystemID']] = $row['solarSystemName'];
             }
-            
-            mysqli_free_result($result);
         }
     }
     
     public function getEffectInfo($effectID) {
         
         $sql    = "SELECT * FROM ".DB_PREFIX."dgmEffects WHERE effectId = '".$this->link->real_escape_string($effectID)."' LIMIT 1";
-        $result = $this->query($sql);
-        
-        if (!$result) {
-            return array();
+        //$result = $this->query($sql);
+        $result = $this->selectWhere("dgmEffects",['effectId'=>$effectID],null,1);
+
+
+        if (!$result|| $result->rows ==0) {
+            return;
         }
-        
-        $row = mysqli_fetch_assoc($result);
-        
-        mysqli_free_result($result);
+
+        $row = $result->results[0];
         
         return $row;
     }
@@ -654,15 +666,49 @@ class eveDb {
         
         $sql = "SELECT attributeID, valueInt, valueFloat FROM ".DB_PREFIX."dgmTypeAttributes WHERE typeID = '".$this->link->real_escape_string($typeId) ."' AND ((attributeID > 181 AND attributeID < 185) OR (attributeID > 276 AND attributeID < 280)) LIMIT 6";
         // only select the skill attributes
-        $result = $this->query($sql);
-        
-        if (!$result) {
+        //$result = $this->query($sql);
+        $result = $this->selectWhere(
+            "dgmTypeAttributes", //table
+            [ //where statement
+                'typeID'=>$typeId,
+                [
+                    [
+                        [
+                            'attributeID'=>['>',181],
+                        ],
+                        [
+                            'attributeID'=>['<',185],
+                        ],
+                        'or'=>true
+                    ],
+                    [
+                        [
+                            'attributeID'=>['>',276],
+                        ],
+                        [
+                            'attributeID'=>['<',280],
+                        ]
+
+                    ],
+
+                ]
+            ],
+            [ //fields wanted
+                'attributeID',
+                'valueInt',
+                'valueFloat'
+            ],
+            6 //limit
+        );
+
+        if (!$result|| $result->rows ==0) {
+            $this->skillCache1[$typeId] = array();
             return null;
         }
         
         $res = array();
         
-        while ($row = mysqli_fetch_assoc($result)) {
+        foreach ($result->results as $row){
             $value = $row['valueInt'] != "" ? $row['valueInt'] : $row['valueFloat'];
             
             if ($row['attributeID'] > 181 && $row['attributeID'] < 185) {
@@ -678,8 +724,7 @@ class eveDb {
                 // remove the temporary index
             }
         }
-        mysqli_free_result($result);
-        
+
         $this->skillCache1[$typeId] = $res;
         
         return $res;
@@ -688,21 +733,54 @@ class eveDb {
     public function cacheSkillsForTypeIds($typeIds) {
         $sql = "SELECT typeID, attributeID, valueInt, valueFloat FROM ".DB_PREFIX."dgmTypeAttributes WHERE typeID IN (" . implode(",",$typeIds) . ") AND ((attributeID > 181 AND attributeID < 185) OR (attributeID > 276 AND attributeID < 280)) ORDER BY typeID ASC";
         // only select the skill attributes
-        $result = $this->query($sql);
-        
-        if (!$result) {
+        //$result = $this->query($sql);
+        $result = $this->selectWhere(
+            "dgmTypeAttributes", //table
+            [ //where statement
+                'typeID'=>['IN',$typeIds],
+                [
+                    [
+                        [
+                            'attributeID'=>['>',181],
+                        ],
+                        [
+                            'attributeID'=>['<',185],
+                        ],
+                        'or'=>true
+                    ],
+                    [
+                        [
+                            'attributeID'=>['>',276],
+                        ],
+                        [
+                            'attributeID'=>['<',280],
+                        ]
+
+                    ],
+
+                ]
+            ],
+            [ //fields wanted
+                'typeID',
+                'attributeID',
+                'valueInt',
+                'valueFloat'],
+            null, //limit
+            ['typeID',"ASC"]
+        );
+        if (!$result|| $result->rows ==0) {
             return;
         }
         
         $res = array();
         
         $typeId = "-1";
-        while ($row = mysqli_fetch_assoc($result)) {
+        foreach($result->results as $row){
             if ($row["typeID"] != $typeId && $typeId != "-1") {
                 $this->skillCache1[$typeId] = $res;
                 $res = array();
             }
-            
+
             $typeId = $row["typeID"];
             $value = $row['valueInt'] != "" ? $row['valueInt'] : $row['valueFloat'];
             if ($row['attributeID'] > 181 && $row['attributeID'] < 185) {
@@ -718,13 +796,11 @@ class eveDb {
                 // remove the temporary index
             }
         }
-        mysqli_free_result($result);
     }
     
     private function recurse_skills($skills, $allSkills) {
         
         array_push($allSkills, $skills);
-        
         foreach($skills as $skill => $level)
         if ($skill2 = $this->getSkillsForTypeId($skill)) {
             // if it requires more skills to use, it will be non-null
@@ -753,10 +829,10 @@ class eveDb {
         
         // combine all the arrays in allskills into one
         foreach($allSkills as $skills)
-        foreach($skills as $skill => $level)
-        if (!isset($result[$skill]) || ($result[$skill] < $level)) {
-            $result[$skill] = $level;
-        }
+            foreach($skills as $skill => $level)
+            if (!isset($result[$skill]) || ($result[$skill] < $level)) {
+                $result[$skill] = $level;
+            }
         // only set if not added already or less than required level
         
         $this->skillCacheF[$typeId] = $result;

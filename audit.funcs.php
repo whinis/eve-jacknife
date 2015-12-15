@@ -112,49 +112,45 @@ function clear_api_cookie() {
 	unset($_COOKIE["api"]);
 }
 
-function retrieve_api_key($link, $key) {
- if (!$link)
-  return null;
-
- $result = $link->query("SELECT usid, chid, apik FROM ".DB_PREFIX.API_TABLE." WHERE keyv = '".$link->real_escape_string($key)."' LIMIT 1");
-
- if ($result != false) {
-  if (mysqli_num_rows($result) > 0) {
-   // yay! got a cached value
-   $row = mysqli_fetch_assoc($result);
-   mysqli_free_result($result);
-   return $row;
-  }
-  mysqli_free_result($result);
- }
-
- return null;
+function retrieve_api_key($db, $key) {
+    if (!$db)
+        return null;
+    //$result = $link->query("SELECT usid, chid, apik FROM ".DB_PREFIX.API_TABLE." WHERE keyv = '".$link->real_escape_string($key)."' LIMIT 1");
+    $result = $db->selectWhere(API_TABLE,['keyv'=>$key],['usid','chid','apik']);
+    if ($result != false) {
+      if ($result->rows>0) {
+        // yay! got a cached value
+        $row = $result->results[0];
+        return $row;
+      }
+    }
+    return null;
 }
 
-function make_short_key($link, $usid, $apik, $char=null, $chid=null) {
+function make_short_key($Db, $usid, $apik, $char=null, $chid=null) {
  
- $key = hash('md5', $char.$chid.$usid);
- if(!$chid)
-	$chid="null";
- else
-	$chid="'".$link->real_escape_string($chid)."'";
- if (retrieve_api_key($link, $key) == null) {
- $sql= "INSERT INTO ".DB_PREFIX.API_TABLE." (keyv, chara, chid, usid, apik) ".
-    "VALUES('$key','".$link->real_escape_string($char)."',$chid,'".$link->real_escape_string($usid)."','".$link->real_escape_string($apik)."')";
-  $result = $link->query($sql);
-  if ($link->error) {
-		echo "QUERY: '$sql'\n\n" . $link->error."\n\nBacktrace:\n";
-		debug_print_backtrace();
-		exit;
-	}
-  if ($result)
-      return $key;
- } else {
-     $link->query("UPDATE ".DB_PREFIX.API_TABLE." SET apik='".$link->real_escape_string($apik)."' WHERE keyv='$key'",$link);
-     return $key;
- }
+    $key = hash('md5', $char.$chid.$usid);
+    if (retrieve_api_key($Db, $key) == null) {
+        // $sql= "INSERT INTO ".DB_PREFIX.API_TABLE." (keyv, chara, chid, usid, apik) ".
+        // "VALUES('$key','".$link->real_escape_string($char)."',$chid,'".$link->real_escape_string($usid)."','".$link->real_escape_string($apik)."')";
+        //  $result = $link->query($sql);
+        $result = $Db->insert(API_TABLE,[
+                 'keyv'=>$key,
+                 'chara'=>$char,
+                 'chid'=>$chid,
+                 'usid'=>$usid,
+                 'apik'=>$apik
+             ]);
+        if ($result) {
+            return $key;
+        }
+    } else {
+        $Db->update(API_TABLE,['keyv'=>$key],['apik'=>$apik]);
+        //$link->query("UPDATE ".DB_PREFIX.API_TABLE." SET apik='".$link->real_escape_string($apik)."' WHERE keyv='$key'");
+        return $key;
+    }
  
- return null;
+    return null;
 }
 
 function check_email_address($email) {
@@ -179,6 +175,12 @@ function login_load_creds($Db,$alreadyGotCreds) {
     // ALL LOGIN APIS SHOULD USE THE SHORT API TABLE! set $short_api_key! in this function.
     // TODO:
     return false; // return false if user is not logged in or loading creds failed, so cookie will be tried
+}
+function loggedIn(){
+  if(isset($_SESSION['login'])&&$_SESSION['login']===true) {
+   return true;
+  }
+ return false;
 }
 
 
