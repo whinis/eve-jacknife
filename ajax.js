@@ -66,31 +66,94 @@
                 }
             });
         });
-        $("#saveNotes").click(function(e){
-            var hiddenSection = $('section.hidden');
-            var array={action:"editKey", characters:$("#redFlagBox").val()};
+        $(".editKey").click(function(e) {
+            e.preventDefault();
+            $("#keyInfoBox").show();
+            $("#saveKey").attr("keyID",$(this).attr("keyID"));
+            $(".fadeDiv").show();
+            $("#keyName").val($(this).parent().parent().find(".keyName").text());
+            $("#notes").val($(this).parent().parent().find(".keyNotes").text());
+            $("#keyName").attr("changed",false);
+            $("#notes").attr("changed",false);
+        });
+        $(".fadeDiv").click(function(e){
+            $(".floating_login_div").hide();
+            $(".fadeDiv").hide();
+        })
+        $(".exitbutton").click(function(e){
+            $(this).parent().hide();
+            $(".fadeDiv").hide();
+        })
+        $("#saveKey").click(function(e){
+            $(".floating_login_div").hide();
+            $(".fadeDiv").hide();
+            var id=$(this).attr("keyID");
+            var array={
+                action:"editKey",
+                keyID:id,
+                name:false,
+                notes:false
+            };
+            if($("#keyName").attr("changed")=="true"){
+                array['name']=$("#keyName").val();
+            }
+            if($("#notes").attr("changed")=="true"){
+                array['notes']=$("#notes").val();
+            }
             $.ajax({
                 type: 'POST',
                 url: 'ajax.php?t=' + new Date().getTime(),
                 data: array,
+                context:$(this),
                 async: true,
                 success: function (data, textStatus, XHR) {
-                    $(hiddenSection).fadeOut();
-                    location.reload();
+                    data= $.parseJSON(data);
+                    var id=$(this).attr("keyID");
+                    if(data.result=="success") {
+                        if($("#keyName").attr("changed")=="true") {
+                            $("tr[keyID='"+id+"']").find(".keyName").text($("#keyName").val());
+                            $("#keyName").val("")
+                            $("#keyName").attr("changed",false);
+                        }
+                        if($("#notes").attr("changed")=="true") {
+                            $("tr[keyID='"+id+"']").find(".keyNotes").text($("#notes").val());
+                            $("#notes").val("")
+                            $("#notes").attr("changed",false);
+                        }
+                    }else{
+                        alert("Error Editting Key");
+                    }
                 }
             });
         });
-        $("#saveName").click(function(e){
-            var hiddenSection = $('section.hidden');
-            var array={action:"editKey", name:$("#redFlagBox").val()};
+        $("#keyName").change(function(){
+            $("#keyName").attr("changed",true);
+        });
+        $("#notes").change(function(){
+            $("#notes").attr("changed",true);
+        });
+        $("body").on("click",".removeKey",function(e){
+            e.preventDefault();
+            var id=$(this).attr("keyID");
+            var array={action:"removeKey", keyID:id};
             $.ajax({
                 type: 'POST',
                 url: 'ajax.php?t=' + new Date().getTime(),
                 data: array,
+                context: $(this),
                 async: true,
                 success: function (data, textStatus, XHR) {
-                    $(hiddenSection).fadeOut();
-                    location.reload();
+                    data= $.parseJSON(data);
+                    if(data.result=="success") {
+                        if($(this).parent().parent().is("tr")) {
+                            $(this).parent().parent().remove();
+                        }else{
+                            alert("Key Removed");
+                            $(this).remove();
+                        }
+                    }else{
+                        alert("Error Removing Key");
+                    }
                 }
             });
         });

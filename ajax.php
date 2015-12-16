@@ -42,21 +42,24 @@ if(isset($_POST['action'])){
                         $info['dob']=date("Y-m-d",$char->charDOB);
 
                 break;
-                case "remove":
+                case "removeKey":
                         session_start();
                         $id=$_POST['keyID'];
-                        $info=remove_api_key($Db,$id);
+                        $result=remove_api_key($Db,$id);
+                        if($result!==false){
+                            $info['id']=$id;
+                        }else{
+                            $info['result']="failure";
+                        }
                 break;
                 case "editKey":
                         session_start();
                         $id=$_POST['keyID'];
-                        if(isset($_POST['name'])){
-                                $name=$_POST['name'];
-                                $info=edit_api_key($Db,$id,$name,"");
-                        }
-                        if(isset($_POST['notes'])){
-                                $notes=$_POST['notes'];
-                                $info=edit_api_key($Db,$id,"",$notes);
+                        $result=edit_api_key($Db,$id,$_POST['name'],$_POST['notes']);
+                        if($result!==false){
+                            $info['id']=$id;
+                        }else{
+                            $info['result']="failure";
                         }
                 break;
                 case "save":

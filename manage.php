@@ -151,7 +151,7 @@ EOD;
 				insert_header("Jackknife - Edit Notes");
 			} #standard account page
 			else {
-				echo "<span class=\"infobar\">&lt;&nbsp;" . get_loginbar(true) . get_api_bar() . "<a onclick=\"if(!show_div('account')) return false;\" href='manage.php?editAccount=1'> Account Settings</a> &gt;</span><br>";
+				echo "<span class=\"infobar\">&lt;&nbsp;" . get_loginbar() . "<a onclick=\"if(!show_div('account')) return false;\" href='manage.php?editAccount=1'> Account Settings</a> &gt;</span><br>";
 				echo get_form_divs();
 				echo makeDiv("account", get_account_change($_SESSION['email']));
 				echo management_view($Db);

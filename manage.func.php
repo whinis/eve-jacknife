@@ -64,38 +64,20 @@ EOD;
 			$id=$row['id'];
 			$class=($alt_b?"main":"alt");
 			$table.=<<<EOD
-					<tr id="row{$id}" class="{$class}">
-					<td style="color: #FFA500"><a href="index.php?key={$key}" id="name{$id}">{$name}</a><input type="text" style="display:none;" id="nameEdit{$id}" value="{$name}"/>
-					<input id="nameButton{$id}" style="display:none;" type="button" value="Edit" onclick="editName({$id}); hide('nameEdit{$id}'); hide('nameButton{$id}');show('name{$id}') return false;"></th>
+					<tr keyID={$id} class="{$class}">
+					<td style="color: #FFA500"><a href="index.php?key={$key}" class="keyName">{$name}</a></td>
 					<td>{$type}</td>
 					<td>{$Characters}</td>
-					<td id="note{$id}">{$trunNotes}</td>
-					<td><a onclick="show_notes({$id}); return false;" href="manage.php?editNotes&id={$id}">Edit notes</a></td>
-					<td><a onclick="removeKey({$id}); return false;" href="manage.php?removeKey&id={$id}">Remove Key</a></td>
-					<td><a onclick="show('nameEdit{$id}'); hide('name{$id}'); show('nameButton{$id}'); return false;" href="manage.php?editName&id={$id}">Edit Name</a></td>
+					<td class="keyNotes">{$trunNotes}</td>
+					<td><a keyID={$id} class="editKey" href="manage.php?editNotes&id={$id}">Edit Key</a></td>
+					<td><a keyID={$id} class="removeKey" href="manage.php?removeKey&id={$id}">Remove Key</a></td>
 					</tr>
 EOD;
 		}
-		$table.=<<<EOD
-				<div onclick="hide_notes(); return false;" id="notesDiv" class="fade_div">&nbsp;</div>
-				<div id="notes" class="floating_login_div">
-				<div class="exitbutton"><a href="#" onclick="hide_notes(); return false;">[X]</a></div>
-				Notes<br/>
-				<textarea name="noteText" Cols="50" Rows="15" id="noteText" style="resize:none;background-color:#222222; color:#EEEEEE;" onKeyDown="limitText(this,3000)"></textarea>
-				<br>
-				<input type="button" value="Edit" onclick="saveNotes($id); hide_notes();">
-				</div>
-EOD;
-$table.=<<<EOD
-				<div onclick="hide_name(); return false;" id="nameDiv" class="fade_div">&nbsp;</div>
-				<div id="edi" class="floating_login_div">
-				<div class="exitbutton"><a href="#" onclick="hide_notes(); return false;">[X]</a></div>
-				Notes<br/>
-				<textarea name="noteText" Cols="50" Rows="15" id="noteText" style="resize:none;background-color:#222222; color:#EEEEEE;" onKeyDown="limitText(this,3000)"></textarea>
-				<br>
-				<input type="button" value="Edit" onclick="saveNotes($id); hide_notes();">
-				</div>
-EOD;
+		$table.='<div class="fadeDiv">&nbsp;</div><div id="keyInfoBox" class="floating_login_div" style="display: none;">';
+			$table.='<div class="exitbutton"><a href="#">[X]</a></div>';
+		$table.=edit_key_form();
+		$table.='</div>';
 	}else
 		$table.="<tr><td colspan=4> No Keys Found </td></tr>";
 	$table.="</table>";
@@ -148,7 +130,7 @@ function remove_api_key($Db,$id){
 		}
 		Return false;
 	}else{
-		return $Db->lastid;
+		return true;
 	}
 }
 // add api key to account
@@ -190,11 +172,14 @@ function add_api_key($Db,$uid,$keyID,$vCode,$name,$notes=""){
 }
 function edit_api_key($Db,$keyID,$name="",$notes=""){
 	$uid=$_SESSION['uid'];
-	if($name){
-        $result=$Db->update("keyInformation",['id'=>$keyID,'uid'=>$uid],['keyName'=>$name]);
-	}else if($notes){
-        $result=$Db->update("keyInformation",['id'=>$keyID,'uid'=>$uid],['notes'=>$notes]);
+	$updateArray=array();
+	if($name!="false"){
+		$updateArray['keyName']=$name;
 	}
+	if($notes!="false"){
+		$updateArray['notes']=$notes;
+	}
+	$result=$Db->update("keyInformation",['id'=>$keyID,'userID'=>$uid],$updateArray);
 	if (!$result) {
         Return false;
 	}else{

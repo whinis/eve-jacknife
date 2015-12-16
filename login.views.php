@@ -64,17 +64,15 @@ EOD;
 <a class="smalllink" href="?login=true" onclick="if(!hide_div('register')&&!show_div('login'))return false;">[login]</a>
 EOD;
 }
-function add_key_form(){
+function edit_key_form(){
 $div= <<<EOD
 <h3> Please Name Your Key</h3>
 <form id="apiForm" action="" method="post">
-<table>
-<tr><td>Key Name:</td><td><input type="textbox" name="keyName" id="keyName" size="16"></td></tr>
-<tr><td>Notes:</td><td><textarea name='notes' Cols='28' id='notes' style='resize:none;' onKeyDown="limitText(this,90)"></textarea> </td></tr>
-</table>
-<input type="button" value="Save Api" onclick="addKey('
+<div style="display:inline-block;padding-right:8px;">Key Name:</div><input changed="false" type="textbox" name="keyName" id="keyName" size="16"><br>
+<div style="display:inline-block;padding-right:40px;">Notes:</div><textarea changed="false" name='notes' Cols='28' id='notes' style='resize:none;' onKeyDown="limitText(this,90)"></textarea><br>
+<input type="button" value="Save Api" id="saveKey"
 EOD;
-$div.= USER_ID."','".API_KEY."');hide_div('api');\"></form>";
+$div.= "></form>";
 return $div;
 }
 function resetPasswordForm() {
@@ -146,9 +144,9 @@ function get_api_bar(){
 				// then check the key
 				$id=check_saved_api(USER_ID,API_KEY,$_SESSION['uid']);
 					if($id) 
-						$infobar .= "<a href=\"manage.php?removeKey&id=$id\" id='keyAction' onclick=\"removeKey($id); return false;\">remove</a>&nbsp";
+						$infobar .= "<a keyID='{$id}' class=\"removeKey\" href=\"manage.php?removeKey&id=$id\" id='keyAction'>remove</a>&nbsp";
 					else{
-						$infobar .= "<a href=\"manage.php?saveKey&apik=".USER_ID."&vcode=".API_KEY."\" id='keyAction' onclick=\"if(!show_div('api')) return false;\">save</a>&nbsp";
+						$infobar .= "<a href=\"manage.php?saveKey&apik=".USER_ID."&vcode=".API_KEY."\" id='keyAction'>save</a>&nbsp";
 					}
 			}
 	// add links to either the auditor or manage page
@@ -167,7 +165,7 @@ function get_form_divs(){
 		$infobar .= makediv("reset",resetPasswordForm());
 	}else{
 		if(!(isset($_GET['key'])&&!isset($_GET['chid']))&&defined("API_KEY"))
-			$infobar .=makediv("api",add_key_form());
+			$infobar .=makediv("api",edit_key_form());
 	}
 
 	return $infobar;

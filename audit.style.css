@@ -19,7 +19,7 @@ div.exitbutton {
 	z-index:101;
 }
 
-div.fade_div {
+div.fadeDiv {
 	display: none;
 	position: absolute;
 	top: 0px;
