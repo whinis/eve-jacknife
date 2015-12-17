@@ -196,6 +196,14 @@ can be used to navigate the apis or selecting one-page will display everything a
 
 Remember you can get source code at <a href="http://code.google.com/p/eve-jackknife">Googlecode</a> (closed) or <a href="https://bitbucket.org/Whinis/eve-jacknife">Bitbucket</a> or <a href="https://github.com/whinis/eve-jacknife">Github</a>
  <br>
+   <?php
+        if(defined("public")){ //something noone should need to set, displays a link to my github commit log on the main website
+        ?>
+            <a href="history.html">Update History</a>
+        <?php
+        }
+
+ ?>
  <br>
  <br>
  Questions or concerns contact Equto ingame or Email me at Whinis@whinis.com

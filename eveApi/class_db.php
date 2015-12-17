@@ -210,7 +210,9 @@ class db
                 $return->results = $result->fetch_all(MYSQLI_ASSOC);
                 $return->rows=$result->num_rows;
             }else{//backup for lack of mysqlnd
-                $method = $this->ref->getMethod("bind_result");
+
+				$ref = new ReflectionClass('mysqli_stmt');
+                $method = $ref->getMethod("bind_result");
 
                 $variables = array();
                 $data = array();
