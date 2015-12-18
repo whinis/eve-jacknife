@@ -194,7 +194,7 @@ can be used to navigate the apis or selecting one-page will display everything a
 <br>
 <br>
 
-Remember you can get source code at <a href="http://code.google.com/p/eve-jackknife">Googlecode</a> (closed) or <a href="https://bitbucket.org/Whinis/eve-jacknife">Bitbucket</a> or <a href="https://github.com/whinis/eve-jacknife">Github</a>
+Remember you can get source code at  <a href="https://bitbucket.org/Whinis/eve-jacknife">Bitbucket</a> or <a href="https://github.com/whinis/eve-jacknife">Github</a>
  <br>
    <?php
         if(defined("public")){ //something noone should need to set, displays a link to my github commit log on the main website
