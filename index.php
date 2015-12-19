@@ -118,7 +118,7 @@ if(!isset($_SESSION['redFlagIds']))
     $_SESSION['redFlagIds']=array();
 
 define("USER_ID", $userid);
-define("API_KEY",(isset($_GET['oldkey']) && $_GET['oldkey'] == "1") ? "old_$apikey" : $apikey);	
+define("API_KEY",$apikey);
 
 $multiplechars = false;
 
@@ -126,61 +126,34 @@ function canAccess($mask) {
 	return (KEY_MASK & $mask) == $mask;
 }
 
-if (strpos(API_KEY,"old_") === 0) { // old api key, must load characters and other horseshit
-	$keyinfo = 1;	
-	
-	$chars = $Db->fetchApiChars(USER_ID, API_KEY);
 
-	if (!$chars) 
-		fatal_error("Unable to load API. Verify the key is correct and not expired.");
-		
-	$keys = array_keys($chars);
-	
-	define("KEY_MASK",isFullApi($Db,$keys[0], USER_ID, API_KEY) ? 268435455 : 8);
-	
-	$multiplechars = count($chars) > 1;
-	if (!$multiplechars) 
-		$chid = $keys[0];
-		
-	if (isset($chid)) {
-		foreach ($chars as $ch_id => $char) 
-			if ($ch_id == $chid) 
-				define("CHAR_NAME",$char["name"]);
-				
-		if (!defined("CHAR_NAME")) 
-			fatal_error("The character ID was not found on this account.");
-	}
-	
-	define("CORP_MODE", false);
-	define("KEY_TYPE","Account");
-} else {	// modern fancy ass keys ////////////////////////
-	$keyInfo = cache_api_retrieve($Db,"/account/APIKeyInfo.xml.aspx", array("keyID"=>USER_ID, "vCode" => API_KEY),5*60)->value;
-	if (!is_object($keyInfo)||$keyInfo->error)
-		fatal_error("Unable to load API. Verify the key is correct and not expired.");
-	define("KEY_MASK",(float)$keyInfo->result->key["accessMask"]);
-	$multiplechars = count($keyInfo->result->key->rowset->row) > 1;
-	
-	if (!$multiplechars) 
-		$chid = (string)$keyInfo->result->key->rowset->row[0]["characterID"];
-	
-	if (isset($chid)) {
-		$char = $keyInfo->api->xpath("//row[@characterID='$chid']");
-		if (count($char) == 0)
-			fatal_error("The character ID was not found on this account.");
-			
-		define("CHAR_NAME",(string)$char[0]["characterName"]);
-	}
-	
-	define("KEY_TYPE",(string)$keyInfo->result->key["type"]);
+$keyInfo = cache_api_retrieve($Db,"/account/APIKeyInfo.xml.aspx", array("keyID"=>USER_ID, "vCode" => API_KEY),5*60)->value;
+if (!is_object($keyInfo)||$keyInfo->error)
+	fatal_error("Unable to load API. Verify the key is correct and not expired.");
+define("KEY_MASK",(float)$keyInfo->result->key["accessMask"]);
+$multiplechars = count($keyInfo->result->key->rowset->row) > 1;
 
-	if (KEY_TYPE == "Corporation") {
-		define("CORP_MODE",true);
-		define("CORP_ID",(string)$keyInfo->result->key->rowset->row[0]["corporationID"]);
-		define("CORP_NAME",(string)$keyInfo->result->key->rowset->row[0]["corporationName"]);
-		$multiplechars = false;
-	} else 
-		define("CORP_MODE",false);	
+if (!$multiplechars)
+	$chid = (string)$keyInfo->result->key->rowset->row[0]["characterID"];
+
+if (isset($chid)) {
+	$char = $keyInfo->api->xpath("//row[@characterID='$chid']");
+	if (count($char) == 0)
+		fatal_error("The character ID was not found on this account.");
+
+	define("CHAR_NAME",(string)$char[0]["characterName"]);
 }
+
+define("KEY_TYPE",(string)$keyInfo->result->key["type"]);
+
+if (KEY_TYPE == "Corporation") {
+	define("CORP_MODE",true);
+	define("CORP_ID",(string)$keyInfo->result->key->rowset->row[0]["corporationID"]);
+	define("CORP_NAME",(string)$keyInfo->result->key->rowset->row[0]["corporationName"]);
+	$multiplechars = false;
+} else
+	define("CORP_MODE",false);
+
 
 if (isset($short_api_key)&&$charSelect)
 	$urlAuthInfo = "key=$short_api_key&chid=$chid";

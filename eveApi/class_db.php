@@ -24,7 +24,6 @@ class db
 	
 	protected $ref;
     protected $res;
-    protected $prepare=false;
 	protected $link;
 	protected $prefix="";
     protected $lastQuery="";
@@ -34,11 +33,17 @@ class db
 	public $lastid;
     public $hold=false;
     public $queries = 0;
+    public $prepare;
 
     private $params=array("");
-	function __construct($host,$user,$pass,$database,$port=3306,$debug=false){
+	private $_prepared=false;
+    private $parent;
+
+
+	function __construct($host,$user,$pass,$database,$port=3306,$debug=false,$prepared=false,$parent=false){
 		$this->ref = new mysqli($host, $user, $pass, $database, $port);
 		$this->destroy=false;
+        $this->_prepared=$prepared;
 		if(mysqli_connect_errno($this->ref)){
 			$this->destroy=true;
 			$this->ref=null;
@@ -55,29 +60,24 @@ class db
 		if(defined("DB_PREFIX")){
 			$this->prefix=DB_PREFIX;
 		}
+        if($this->_prepared===false) {
+            $this->prepare = new db($host, $user, $pass, $database, $port, $debug, true,$this); //setup a copy to be used for prepared statements
+        }else{
+            $this->parent=$parent;
+        }
+
 	}
 	function __destruct(){
 		if($this->ref)
 			$this->close();
 	}
-    public function prepare(){
-        $allowed=[
-            'select',
-            'selectWhere',
-            'insert',
-            'update',
-            'delete'
-        ];
-        $this->prepare=true;
-        $args=func_get_args();
-        $function=array_shift($args);
-        if(!in_array($function,$allowed)){
-            return false;
-        }else{
-            call_user_func_array(array($this,$function),$args);
-        }
-        $this->prepare=false;
+	public function setupPrepare(){
+		$this->_prepared=true;
+	}
+    public function _increaseQueryCount(){
+        $this->queries++;
     }
+
 	protected function _prepare($query){
         //clean the last statement if it exist
         if(is_object($this->res)) {
@@ -121,6 +121,10 @@ class db
                 $newParam[] =& $params[$i];
             }
             array_unshift($newParam, $types);
+			$this->params=$newParam;
+			if($this->debugQuery==true)
+				$this->printQuery();
+			$this->debugQuery=false;
             #bind parameters to insure safety
             $ref = new ReflectionClass('mysqli_stmt');
             $method = $ref->getMethod("bind_param");
@@ -168,7 +172,11 @@ class db
 		// select prepared statement or raw query;
 		if($query==""&&$this->res) {
 			$result = $this->res->execute();
-            $this->queries++;
+            if($this->_prepared==true) {
+                $this->parent->_increaseQueryCount();
+            }else {
+                $this->queries++;
+            }
 			$success=!($this->res->error||$result===false);
 			if(!$success){
 				#output to a log file
@@ -183,7 +191,11 @@ class db
 
 			#run query
 			$result=$this->ref->query($query);
-            $this->queries++;
+            if($this->_prepared==true) {
+                $this->parent->_increaseQueryCount();
+            }else {
+                $this->queries++;
+            }
 
 			if($this->ref->error) {
 				#output to a log file
@@ -337,8 +349,10 @@ class db
 				$statement.=" LIMIT ".$this->escape(array($limit[0],"int"),"",true).",".$this->escape(array($limit[1],"int"),"",true);
 		}
         $this->_prepare($statement.";");
-        if($this->prepare==false) {
+        if($this->_prepared==false) {
             return $this->query();
+        }else{
+            return $this;
         }
 	}
 	/************************************************************************/
@@ -376,8 +390,10 @@ class db
 		}
 		$statement=substr($statement,0,-1).") ";
         $this->_prepare($statement.";");
-        if($this->prepare==false) {
+        if($this->_prepared==false) {
             return $this->query();
+        }else{
+            return $this;
         }
 	}
 	/************************************************************************/
@@ -424,8 +440,10 @@ class db
 			$statement.=$this->where($where);
 		}
         $this->_prepare($statement.";");
-        if($this->prepare==false) {
+        if($this->_prepared==false) {
             return $this->query();
+        }else{
+            return $this;
         }
 	}
 	
@@ -438,8 +456,10 @@ class db
 		}else
 			return false;
         $this->_prepare($statement.";");
-        if($this->prepare==false) {
+        if($this->_prepared==false) {
             return $this->query();
+        }else{
+            return $this;
         }
 	}
 	/************************************************************************/
@@ -484,8 +504,12 @@ class db
 				if(is_array($value)){
 					switch($value[0]){
 						case "IN":
+							if(empty($value[1])){
+								trigger_error("(SQL) IN array empty",E_USER_ERROR );
+								return;
+							}
 							$operator=" IN ";
-							$statement.=$this->escape($column,"`",true)." ".$operator."(";
+							$statement.=$this->escape($column,"`",true)." ".$operator."( ";
 								foreach($value[1] as $v){
 									$statement.=$this->escape($v,'`').",";
 								}

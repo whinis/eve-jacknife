@@ -23,28 +23,20 @@
 // eveAPI funcs
 
 function get_key_info($Db, $userid, $apikey) {
-	if (strpos($apikey,"old_") === 0) { // old api key, must load characters and other horseshit	
-		$chars = $Db->fetchApiChars($userid, $apikey);
-		if (!$chars) return "";
-		
-		$apiinfo = "<b>OLD KEY</b> #$userid for ";
-		foreach ($chars as $char) 
-			$apiinfo .= "$char[name], ";
-	} else {	
-		$keyInfo = cache_api_retrieve($Db,"/account/APIKeyInfo.xml.aspx", array("keyID"=>$userid, "vCode" => $apikey),5*60)->value;
-		if ($keyInfo->error) return "";
-		
-		$mask = (float)$keyInfo->result->key["accessMask"];
-		$keytype = (string)$keyInfo->result->key["type"];
-		$apiinfo = "<b>$keytype</b> CAK (mask $mask) for ";
-		
-		if ($keytype == "Corporation") {
-			$apiinfo .= (string)$keyInfo->result->key->rowset->row[0]["corporationName"];
-		} else {
-			foreach ($keyInfo->api->xpath("//row") as $char) 
-				$apiinfo .= "$char[characterName], ";
-		}
-	}
+
+    $keyInfo = cache_api_retrieve($Db,"/account/APIKeyInfo.xml.aspx", array("keyID"=>$userid, "vCode" => $apikey),5*60)->value;
+    if ($keyInfo->error) return "";
+
+    $mask = (float)$keyInfo->result->key["accessMask"];
+    $keytype = (string)$keyInfo->result->key["type"];
+    $apiinfo = "<b>$keytype</b> CAK (mask $mask) for ";
+
+    if ($keytype == "Corporation") {
+        $apiinfo .= (string)$keyInfo->result->key->rowset->row[0]["corporationName"];
+    } else {
+        foreach ($keyInfo->api->xpath("//row") as $char)
+            $apiinfo .= "$char[characterName], ";
+    }
 	
 	return rtrim($apiinfo,", ");
 }
@@ -175,9 +167,9 @@ function char_idLookup($Db,$list,$names) {
 	$names = fuck_ccp($list,$names);
 
 	$sql = "";
-    $Db->prepare("insert",ID_CACHE_TABLE,['id'=>"?","name"=>"?"]);
+    $insertStatement=$Db->prepare->insert(ID_CACHE_TABLE,['id'=>"?","name"=>"?"]);
 	foreach ($list as $id) {
-        $Db->execute(['id'=>$id,'name'=>$names[$id]]);
+        $insertStatement->execute(['id'=>$id,'name'=>$names[$id]]);
     }
     return $names;
 }
@@ -189,6 +181,9 @@ function idLookup($link,$ids) {
         $ids = array($ids);
     } else {
         $ids = array_unique($ids);
+    }
+    if(empty($ids)){
+        return null;
     }
 
   
@@ -223,10 +218,10 @@ function idLookup($link,$ids) {
     if ($result->error)
         return char_idLookup($Db,$list,$names);
 
-    $Db->prepare("insert",ID_CACHE_TABLE,["id"=>"?","name"=>"?"]);
+    $insertStatement=$Db->prepare->insert(ID_CACHE_TABLE,["id"=>"?","name"=>"?"]);
     foreach($result->value->xpath('//row') as $kvp) { // add them to the array and make an insert query
         $names[(int)$kvp['characterID']] = (string)$kvp['name'];
-        $Db->execute([$kvp['characterID'],$kvp['name']]);
+        $insertStatement->execute([$kvp['characterID'],$kvp['name']]);
     }
  
     return $names;

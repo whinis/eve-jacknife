@@ -174,7 +174,6 @@ echo "<br><b>$info</b><br>";
 <table>
 <tr><td>User ID / key ID</td><td><input type="textbox" name="usid" size=7></td></tr>
 <tr><td>API Key / vCode</td><td><input type="textbox" name="apik" size=90></td></tr>
-<tr><td>Old API key?</td><td><input type="checkbox" name="oldkey" value="1"></td></tr>
 <?php if (!loggedIn()) {  ?><tr><td>Remember API?</td><td><input type="checkbox" name="save" value="1" checked></td></tr><?php }  ?>
 <?php if (isset($_GET['fittingid'])) { ?><input type="hidden" name="fittingid" value="<?php $_GET['fittingid'] ?>"><?php } ?>
 </table>

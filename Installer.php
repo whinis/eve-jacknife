@@ -368,6 +368,15 @@ define("TYPE_CACHE_TABLE", "api_type_cache");
 define("CONTRACT_BIDS_TABLE", "contract_bids");
 define("CONTRACT_CONTENTS_TABLE", "contract_items");
 
+
+define("allow_login",false);
+
+
+define("API_BASE_URL","https://api.eveonline.com");
+define("DEBUG",false);
+
+
+
  ?>';
 $fp=fopen("eve.config.php","w");
 if($fp){

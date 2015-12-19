@@ -46,7 +46,7 @@ class auditorContactsPage extends auditorPage {
             $redIDS=GetContactInfo($Contacts->Contacts,$Db);
 
 		 	$this->Output .= "<br><table class=\"fancy notification\" style=\"font-size:83%;\" border=1>";
-		 	$this->Output .= "<tr><th>Contact</th><th>Standing</th><th>Corp</th><th>Allaince</th><th>In Watchlist</th></tr>";
+		 	$this->Output .= "<tr><th>Contact</th><th>Standing</th><th>Corp</th><th>Alliance</th><th>In Watchlist</th></tr>";
 		 
 		 	$alt = " class=\"main\"";
 			foreach ($Contacts->Contacts as $contact) {

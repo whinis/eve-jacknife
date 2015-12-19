@@ -24,7 +24,7 @@
 
 
 
-define("API_BASE_URL","https://api.eveonline.com");
+
 
 
 $_checkedTables = false;
@@ -120,17 +120,9 @@ function cache_api_retrieve($db,$apicall, $args = array(), $expiresOverride = 0)
 	
     date_default_timezone_set ("UTC");
  
-    if ($expiresOverride != -1) { // skip the cache, don't want to save it and won't be cached
+    if ($expiresOverride != -1||(defined("API_DEBUG")&&API_DEBUG!=true)) { // skip the cache, don't want to save it and won't be cached
         $key = hash('sha256', $apicall . implode($args));
-    
-        if (isset($args["vCode"]) && strpos($args["vCode"],"old_") === 0) {
-		    $args["userid"] = $args["keyID"];
-		    $args["apikey"] = substr($args["vCode"],4);
 
-		    unset($args["keyID"]);
-		    unset($args["vCode"]);
-	    }
-	
         //$result = $link->query("SELECT expires, value FROM ".DB_PREFIX.CACHE_TABLE." WHERE apicall = '".$apicall."' AND keyv = '".$key."' LIMIT 1");
         $result = $db->selectWhere(CACHE_TABLE,['apicall'=>$apicall,'keyv'=>$key],['expires','value']);
         if ($result != false) {

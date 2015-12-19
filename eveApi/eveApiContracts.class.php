@@ -175,7 +175,9 @@ class eveApiContracts extends eveApi {
 
 	public function fetchItems($ids) {
 		$items = array();
-
+		if(empty($ids)){
+			return $items;
+		}
 		$result = $this->Db->selectWhere(CONTRACT_CONTENTS_TABLE,['contractID'=>["IN",$ids]]);
 		if ($result) {
 			foreach($result->results as $row) {
@@ -191,8 +193,8 @@ class eveApiContracts extends eveApi {
 				foreach ($items[$id]["selling"] as $item)
 					$this->typesToCache[$item[0]] = "1";
 			}
-	  }
-		$this->Db->prepare("insert",CONTRACT_CONTENTS_TABLE,['id'=>'?','buying'=>'?','selling'=>'?']);
+	  	}
+		$insertStatement=$this->Db->prepare->insert(CONTRACT_CONTENTS_TABLE,['contractID'=>'?','buying'=>'?','selling'=>'?']);
 		foreach ($ids as $id) {
 			if (isset($items[$id])) continue;
 			
@@ -214,7 +216,7 @@ class eveApiContracts extends eveApi {
 			
 			$items[$id]["buying"] = $buying;
 			$items[$id]["selling"] = $selling;
-			$this->Db->execute(['id'=>$id,'buying'=>serialize($buying),'selling'=>serialize($selling)]);
+            $insertStatement->execute(['contractID'=>$id,'buying'=>serialize($buying),'selling'=>serialize($selling)]);
 		}
 		return $items;
 	}
@@ -256,7 +258,7 @@ class eveApiContracts extends eveApi {
 			return;
 		}
 
-		$this->Db->prepare("insert",CONTRACT_BIDS_TABLE,['contractID'=>'?','bidID'=>'?','bidderID'=>'?','amount'=>'?','bidTime'=>'?']);
+		$insertStatement=$this->Db->prepare->insert(CONTRACT_BIDS_TABLE,['contractID'=>'?','bidID'=>'?','bidderID'=>'?','amount'=>'?','bidTime'=>'?']);
 		foreach ($rows as $bid) {
 			$id = (float)$bid["contractID"];
 			$bidid = (float)$bid["bidID"];
@@ -267,7 +269,7 @@ class eveApiContracts extends eveApi {
 				continue;
 					
 			$bids[$id][$bidid] = array((float)$bid["amount"],(float)$bid["bidderID"],(string)$bid["dateBid"]);
-			$this->Db->execute(['contractID'=>$id,'bidID'=>$bidid,'bidderID'=>(float)$bid["bidderID"],'amount'=>(float)$bid["amount"],'bidTime'=>(string)$bid["dateBid"]]);
+            $insertStatement->execute(['contractID'=>$id,'bidID'=>$bidid,'bidderID'=>(float)$bid["bidderID"],'amount'=>(float)$bid["amount"],'bidTime'=>(string)$bid["dateBid"]]);
 		}
 
 		foreach ($bids as &$bidset)
