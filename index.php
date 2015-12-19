@@ -42,6 +42,9 @@ require_once("audit.views.php");
 if(defined("allow_login")&&allow_login==true) {
 	require_once("login.php");
 }
+if(!isset($_SESSION)){
+	session_start();
+}
 $_SESSION['redirect']="index.php";
 
 

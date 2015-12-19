@@ -70,6 +70,14 @@ if(isset($_POST['action'])){
                         $notes=$_POST['notes'];
                         $info=add_api_key($Db,$_SESSION['uid'],$keyID,$vCode,$name,$notes);
                 break;
+                case "changeMailFormat":
+                        session_start();
+                        if($_POST['val']=="true") {
+                            $_SESSION['mailFormatted'] = true;
+                        }else {
+                            $_SESSION['mailFormatted'] = false;
+                        }
+                break;
                 default:
                         $info['result']="failure";
                 break;

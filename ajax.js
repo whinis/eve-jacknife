@@ -66,6 +66,27 @@
                 }
             });
         });
+        $("#changeMessageFormatting").click(function(e){
+            var val=true;
+            if($(this).val()=="Formatted"){
+                val=false;
+            }
+            var array={action:"changeMailFormat",val:val};
+            $.ajax({
+                type: 'POST',
+                url: 'ajax.php?t=' + new Date().getTime(),
+                data: array,
+                context: $(this),
+                async: true,
+                success: function (data, textStatus, XHR) {
+                    if($(this).val()=="Formatted"){
+                        $(this).val("Unformatted");
+                    }else{
+                        $(this).val("Formatted");
+                    }
+                }
+            });
+        });
         $(".messageRow").click(function(e) {
             if(!$(this).next("tr").hasClass("messageBody")){
                 $(".messageBody").remove();
@@ -79,6 +100,9 @@
                         if(data.result=="success"){
                             $(this).after("<tr class=\"messageBody\"><td colspan='4'>"+data.body+"</td></tr>" );
                         }
+                    },
+                    error:function (data, textStatus, XHR) {
+                        location.href=$(this).attr("href");
                     },
                     fail: function (data, textStatus, XHR) {
                         location.href=$(this).attr("href");

@@ -30,40 +30,47 @@ function sortfunc_mails($a, $b) {
 class eveApiMails extends eveApi {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
- public $Messages;
- public $Message;
- //public $unread;
+    public $Messages;
+    public $Message;
+    //public $unread;
  
-  public function fetchMailBody($chid,$usid,$apik,$id) {
-  $api_ret = cache_api_retrieve($this->Db,"/char/MailBodies.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik,"ids"=>$id));
-  if (!$api_ret) 
-   return "";
-  if(is_int($api_ret->value)){
-    return "Http error".$api_ret->value;
-  }
-  $body = $api_ret->value->xpath("/eveapi/result/rowset[@name='messages']/row");
-  return $body[0];
- }
- 
- public function fetch($chid,$usid,$apik) {
-  try {
-	$api_ret = $this->fetch_xml("/char/MailMessages.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik));
-  }catch (exception $ex){
-	  $this->Error = "Invalid XML returned.";
-	  return null;
-  }
-  
-  $this->Message = "";
+    public function fetchMailBody($chid,$usid,$apik,$id) {
+        $api_ret = cache_api_retrieve($this->Db,"/char/MailBodies.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik,"ids"=>$id));
+        if (!$api_ret)
+            return "";
+        if(is_int($api_ret->value)){
+            return "Http error".$api_ret->value;
+        }
+        $body = $api_ret->value->xpath("/eveapi/result/rowset[@name='messages']/row");
+        if(empty($body)){
+            return null;
+        }
+        if(isset($_SESSION)&&isset($_SESSION['mailFormatted'])&&$_SESSION['mailFormatted']==true){ //should you show the message with or without formatting
+            return $body[0];
+        }else{
+            return preg_replace('#</?font[^>]*>#is', '',$body[0]);
+        }
+    }
 
-  return $this->LoadAPI();
- }
+    public function fetch($chid,$usid,$apik) {
+        try {
+            $api_ret = $this->fetch_xml("/char/MailMessages.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik));
+        }catch (exception $ex){
+            $this->Error = "Invalid XML returned.";
+            return null;
+        }
 
- public function LoadAPI() {
-  $this->Messages = $this->api->xpath("/eveapi/result/rowset[@name='messages']/row");
-  //$this->unread = count($this->api->xpath("//row[@read=0]"));
-  uasort($this->Messages,"sortfunc_mails");
-  return true;
- }
+        $this->Message = "";
+
+        return $this->LoadAPI();
+    }
+
+    public function LoadAPI() {
+        $this->Messages = $this->api->xpath("/eveapi/result/rowset[@name='messages']/row");
+        //$this->unread = count($this->api->xpath("//row[@read=0]"));
+        uasort($this->Messages,"sortfunc_mails");
+        return true;
+    }
 }
   
  ?>

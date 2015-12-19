@@ -73,64 +73,74 @@ class auditorMailPage extends auditorPage {
 				$this->Output .= "<a href=\"$full_url&view=mail\">[back]</a><br><br>";
 				  
 			 } else {
-				  $this->Output .= "<span style=\"font-size:80%; font-weight: bold;\">";
-				  /*if ($Mail->unread > 0) 
-				  $this->Output .= $Mail->unread." unread message".($Mail->unread ==1?", ":"s, ");*/
-				  $this->Output .= count($Mail->Messages) . " messages total<br>";
-				  
-				  if ($Mail->Message != "")
-						$this->Output .= $Mail->Message . "<br>";
-				  
-				  $this->Output .= "</span>";
-				  
-				  $this->Output .= "<br><table class=\"fancy Mail\" style=\"font-size:83%;\" border=1>";
-				  $this->Output .= "<tr><th>date</th><th>sender</th><th>title</th><th>recipients</th></tr>";
-				  
-				  $alt = " class=\"main\"";
-                 $ids1=array();
-                 foreach ($Mail->Messages as $message) {
-                     $ids1[]=(string)$message['senderID'];
-                     $kindaID=explode(",",(string)$message['toCharacterIDs']);
-                     $kindaID2=explode(",",(string)$message['toCorpOrAllianceID']);
-                     $ids1=array_merge($ids1,$kindaID,$kindaID2);
+				    $this->Output .= "<span style=\"font-size:80%; font-weight: bold;\">";
+				    /*if ($Mail->unread > 0)
+				    $this->Output .= $Mail->unread." unread message".($Mail->unread ==1?", ":"s, ");*/
+				    $this->Output .= count($Mail->Messages) . " messages total<br>";
 
-                 }
-                 $ids1=array_unique($ids1);
-                 $redIDS=GetRedIDS($ids1,$Db);
-                 if(isset($redIDS[0])&&$redIDS[0]==0)
-                     $redIDS=array();
+                    if(isset($_SESSION)&&isset($_SESSION['mailFormatted'])&&$_SESSION['mailFormatted']==true) {
+                        $this->Output .= "Message Formatting: <input type=\"button\" value=\"Formatted\" id=\"changeMessageFormatting\">";
+                    }else{
+                        $this->Output .= "Message Formatting: <input type=\"button\" value=\"Unformatted\" id=\"changeMessageFormatting\">";
+                    }
+				    if ($Mail->Message != "")
+						    $this->Output .= $Mail->Message . "<br>";
 				  
-				  foreach ($Mail->Messages as $message) {
-                      $sentTo=explode(",",(string)$message['toCharacterIDs']);
-                      $sentToGroup=explode(",",(string)$message['toCorpOrAllianceID']);
-                      $intersect=array_intersect($redIDS,$sentTo);
-                      $intersect2=array_intersect($redIDS,$sentToGroup);
-                      if(in_array((string)$message['senderID'],$redIDS)||!empty($intersect)||!empty($intersect2)){
-                          if (strpos(strtolower($alt),'main') !== false) {
-                              $alt = " class=\"redAlt messageRow\"";
-                          } else $alt = " class=\"redMain messageRow\"";
-                      }else{
-                          if (strpos(strtolower($alt),'main') !== false) {
-                              $alt = " class=\"alt messageRow\"";
-                          } else $alt = " class=\"main messageRow\"";
+				    $this->Output .= "</span>";
+				  
+				    $this->Output .= "<br><table class=\"fancy Mail\" style=\"font-size:83%;\" border=1>";
+				    $this->Output .= "<tr><th>date</th><th>sender</th><th>title</th><th>recipients</th></tr>";
+				  
+				    $alt = " class=\"main\"";
+                    $ids1=array();
+                    foreach ($Mail->Messages as $message) {
+                        $ids1[]=(string)$message['senderID'];
+                        $kindaID=explode(",",(string)$message['toCharacterIDs']);
+                        $kindaID2=explode(",",(string)$message['toCorpOrAllianceID']);
+                        $ids1=array_merge($ids1,$kindaID,$kindaID2);
 
-                      }
+                    }
+                    $ids1=array_unique($ids1);
+                    $redIDS=GetRedIDS($ids1,$Db);
+                    if(isset($redIDS[0])&&$redIDS[0]==0)
+                        $redIDS=array();
+				  
+				    foreach ($Mail->Messages as $message) {
+                        $sentTo=explode(",",(string)$message['toCharacterIDs']);
+                        $sentToGroup=explode(",",(string)$message['toCorpOrAllianceID']);
+                        $intersect=array_intersect($redIDS,$sentTo);
+                        $intersect2=array_intersect($redIDS,$sentToGroup);
+                        if(in_array((string)$message['senderID'],$redIDS)||!empty($intersect)||!empty($intersect2)){
+                            if (strpos(strtolower($alt),'main') !== false) {
+                                $alt = " class=\"redAlt messageRow\"";
+                            } else{
+                                $alt = " class=\"redMain messageRow\"";
+                            }
+                        }else{
+                            if (strpos(strtolower($alt),'main') !== false) {
+                                $alt = " class=\"alt messageRow\"";
+                            } else{
+                                $alt = " class=\"main messageRow\"";
+                            }
+
+                        }
 						
-						if ((int) $message["toListID"] == 0 || (string) $message["toListID"] == "") {
-							 $to = array();
-							 if ($message["toCorpOrAllianceID"] != "")
-								  $to += explode(",", $message["toCorpOrAllianceID"]);
-							 if ($message["toCharacterIDs"] != "")
-								  $to += explode(",", $message["toCharacterIDs"]);
+                        if ((int) $message["toListID"] == 0 || (string) $message["toListID"] == "") {
+                            $to = array();
+                            if ($message["toCorpOrAllianceID"] != "")
+							    $to += explode(",", $message["toCorpOrAllianceID"]);
+                            if ($message["toCharacterIDs"] != "") {
+							    $to += explode(",", $message["toCharacterIDs"]);
+							}
 							 
-							 $recp = "";
-							 foreach ($to as $rec)
-								  $recp .= $ids[(int) $rec] . ", ";
+                            $recp = "";
+							foreach ($to as $rec)
+							    $recp .= $ids[(int) $rec] . ", ";
 							 
-							 $recp = rtrim($recp, ", ");
+                            $recp = rtrim($recp, ", ");
 
 						} else
-							 $recp = "(mailing list)";
+                            $recp = "(mailing list)";
 						
 						$this->Output .= "<tr$alt style=\"cursor: pointer;\" href=\"$full_url&view=mail&mail=" . $message["messageID"] . "\">";
 						//$this->Output .= "<td>".($message["read"]!=1?"<b>#</b>":"")."</td>";
