@@ -51,23 +51,26 @@ class auditorMailPage extends auditorPage {
 			 $ids = idlookup($Db->link, $idsToResolve);
 			 
 			 if (isset($_GET['mail'])) {
-				  $ret = $Mail->fetchMailBody(CHAR_ID, USER_ID, API_KEY, $_GET['mail']);
-				  if (!$ret) {
-						$this->Output = "Error fetching mail $_GET[mail]: " . $Mail->Error;
-						return false;
-				  }
-				  
-				  foreach ($Mail->Messages as $message) {
-						if ($message["messageID"] != $_GET['mail']) {
-							 continue;
-						} else {
-							 $this->Output .= "<h3>$message[title]</h3><h5 style=\"display: inline;\">Sent by " . $ids[(int) $message["senderID"]] . " on $message[sentDate]</h5><br><br>";
-							 break;
-						}
-				  }
-				  
-				  $this->Output .= parse_ccptml($ret) . "<br><br>";
-				  $this->Output .= "<a href=\"$full_url&view=mail\">[back]</a><br><br>";
+				 $ret = $Mail->fetchMailBody(CHAR_ID, USER_ID, API_KEY, $_GET['mail']);
+				 if (!$ret) {
+					 $this->Output = "Error fetching mail $_GET[mail]: " . $Mail->Error;
+					 return false;
+				 }
+				 if(isset($_GET['ajax'])) {
+					 die(json_encode(["result"=>"success","body"=>(string)$ret]));
+				 }
+
+				 foreach ($Mail->Messages as $message) {
+					 if ($message["messageID"] != $_GET['mail']) {
+						 continue;
+					 } else {
+						 $this->Output .= "<h3>$message[title]</h3><h5 style=\"display: inline;\">Sent by " . $ids[(int) $message["senderID"]] . " on $message[sentDate]</h5><br><br>";
+						 break;
+					 }
+				 }
+
+				$this->Output .= parse_ccptml($ret) . "<br><br>";
+				$this->Output .= "<a href=\"$full_url&view=mail\">[back]</a><br><br>";
 				  
 			 } else {
 				  $this->Output .= "<span style=\"font-size:80%; font-weight: bold;\">";
@@ -104,12 +107,12 @@ class auditorMailPage extends auditorPage {
                       $intersect2=array_intersect($redIDS,$sentToGroup);
                       if(in_array((string)$message['senderID'],$redIDS)||!empty($intersect)||!empty($intersect2)){
                           if (strpos(strtolower($alt),'main') !== false) {
-                              $alt = " class=\"redAlt\"";
-                          } else $alt = " class=\"redMain\"";
+                              $alt = " class=\"redAlt messageRow\"";
+                          } else $alt = " class=\"redMain messageRow\"";
                       }else{
                           if (strpos(strtolower($alt),'main') !== false) {
-                              $alt = " class=\"alt\"";
-                          } else $alt = " class=\"main\"";
+                              $alt = " class=\"alt messageRow\"";
+                          } else $alt = " class=\"main messageRow\"";
 
                       }
 						
@@ -125,11 +128,11 @@ class auditorMailPage extends auditorPage {
 								  $recp .= $ids[(int) $rec] . ", ";
 							 
 							 $recp = rtrim($recp, ", ");
-							 
+
 						} else
 							 $recp = "(mailing list)";
 						
-						$this->Output .= "<tr$alt style=\"cursor: pointer;\" onclick=\"document.location='$full_url&view=mail&mail=" . $message["messageID"] . "'\">";
+						$this->Output .= "<tr$alt style=\"cursor: pointer;\" href=\"$full_url&view=mail&mail=" . $message["messageID"] . "\">";
 						//$this->Output .= "<td>".($message["read"]!=1?"<b>#</b>":"")."</td>";
 						$this->Output .= "<td>" . $message["sentDate"] . "</td>";
 						$this->Output .= "<td>" . $ids[(int) $message["senderID"]] . "</td>";

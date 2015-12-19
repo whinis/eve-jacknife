@@ -66,6 +66,28 @@
                 }
             });
         });
+        $(".messageRow").click(function(e) {
+            if(!$(this).next("tr").hasClass("messageBody")){
+                $(".messageBody").remove();
+                $.ajax({
+                    type: 'GET',
+                    url: $(this).attr("href")+"&ajax=true",
+                    context: $(this),
+                    async: true,
+                    success: function (data, textStatus, XHR) {
+                        data= $.parseJSON(data);
+                        if(data.result=="success"){
+                            $(this).after("<tr class=\"messageBody\"><td colspan='4'>"+data.body+"</td></tr>" );
+                        }
+                    },
+                    fail: function (data, textStatus, XHR) {
+                        location.href=$(this).attr("href");
+                    }
+                });
+            }else {
+                $(".messageBody").remove();
+            }
+        });
         $(".editKey").click(function(e) {
             e.preventDefault();
             $("#keyInfoBox").show();
