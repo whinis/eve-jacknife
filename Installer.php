@@ -80,7 +80,7 @@ if(isset($_GET['sql'])){
 	}elseif($fNum=="rename"){
 		if(defined("DB_PREFIX")){
 			$tables = array(); 
-			$rows = $mysql->query("SHOW TABLES FROM $db");
+			$rows = $mysql->query("SHOW TABLES FROM `$db`");
 			while ($row = mysqli_fetch_array($rows)) {
 				$tables[] = $row[0]; 
 				
@@ -220,6 +220,13 @@ if(isset($_GET['sql'])){
 	$fileCount=count($sqlFiles);
 	$_SESSION['fileCount']=$fileCount;
 	$_SESSION['files']=$sqlFiles;
+
+    if(!defined("API_BASE_URL")){ //add the changed location of api base url
+        $config=file_get_contents("eve.config.php");
+        $config=str_replace('define("CONTRACT_CONTENTS_TABLE", "contract_items");','define("CONTRACT_CONTENTS_TABLE", "contract_items");'." \r\n".'define("API_BASE_URL","https://api.eveonline.com");',$config);
+        file_put_contents("eve.config.php",$config);
+    }
+
 	if(!file_exists("./eve.config.php")){
 		header('Location: Installer.php');
 	}

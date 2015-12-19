@@ -55,7 +55,7 @@ function insert_header($title = "API Jackknife") {
         <article class="popup">
             <span class="close">Close Me</span>
             <p>Paste red flagged characters, corps, and alliances. One entity per line</p>
-            <textarea id="redFlagBox"><?php if(isset($_SESSION))echo $_SESSION['redFlagText']; ?></textarea><br>
+            <textarea id="redFlagBox"><?php if(isset($_SESSION)&&isset($_SESSION['redFlagText']))echo $_SESSION['redFlagText']; ?></textarea><br>
             <input type="button" id="saveRedFlag" value="Save">
         </article>
     </section>

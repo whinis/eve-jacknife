@@ -38,7 +38,9 @@ class eveApiMails extends eveApi {
   $api_ret = cache_api_retrieve($this->Db,"/char/MailBodies.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik,"ids"=>$id));
   if (!$api_ret) 
    return "";
-
+  if(is_int($api_ret->value)){
+    return "Http error".$api_ret->value;
+  }
   $body = $api_ret->value->xpath("/eveapi/result/rowset[@name='messages']/row");
   return $body[0];
  }
