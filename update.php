@@ -34,7 +34,7 @@ if(isset($_GET['sql'])){
 						if(defined("DEBUG"))
 							echo("MYSQL Error: " . $mysql->error ."<Br><br>in query: $query");
 						else
-							echo("MYSQL Error: " . $mysql->error;
+							echo("MYSQL Error: " . $mysql->error);
 
 					$query = "";
 					$queries++;
