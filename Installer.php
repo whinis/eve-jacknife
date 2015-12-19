@@ -108,6 +108,9 @@ if(isset($_GET['sql'])){
 		die('Could not connect: ' . $mysql->error);
 	}
 	$rows = $mysql->query("SHOW TABLES FROM $db");
+	if(!$rows) {
+		trigger_error("(SQL)" . ($mysql->error) . " query: " . "SHOW TABLES FROM $db", E_USER_NOTICE);
+	}
 	while ($row = $rows->fetch_array()) {
 		$tables[$row[0]] = $row[0]; 
 		
