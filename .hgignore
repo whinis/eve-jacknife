@@ -1,3 +1,6 @@
 syntax: glob
 .idea/*
 .svn/*
+eve.config.php
+install.lock
+SQL/gzip.exe
