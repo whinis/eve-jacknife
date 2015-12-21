@@ -24,7 +24,15 @@
 // ****************************************************************************
 // acount management
 define("MANAGE_PHP", true);
-define("SELF_URL", "http://" . $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."?");
+
+if( isset( $_SERVER['HTTPS'] ) ) {
+	define("URL_SCHEME", "https" );
+}
+else {
+	define("URL_SCHEME", "http" );
+}
+
+define("SELF_URL", URL_SCHEME."://" . $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."?");
 
 require_once("eve.php");
 require_once("audit.funcs.php");
