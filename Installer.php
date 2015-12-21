@@ -19,6 +19,7 @@ if(file_exists("install.lock")&&!(isset($_GET['update'])||isset($_GET['sql']))){
 	die('JackKnife Already Installed, Please run the upgrader or delete the lock file');
 }
 if(isset($_GET['sql'])){
+	$sql_port=3306;
 	include("eve.config.php");
 	session_start ();
 	if(!isset($_GET['sql'])){
@@ -97,13 +98,14 @@ if(isset($_GET['sql'])){
 	}
 	mysqli_close($mysql);
 }else if(isset($_GET['db'])){
+	$sql_port=3306;
 	include("eve.config.php");
 	session_start ();
 	$files=scandir("./SQL/");
 	$fileList=array();
 	$table=array();
 	$sqlFiles=array();
-	$mysql=mysqli_connect($sql,$sql_u,$sql_p,$sql_port);
+	$mysql=mysqli_connect($sql,$sql_u,$sql_p,$db,$sql_port);
 	if (!$mysql) {
 		die('Could not connect: ' . $mysql->error);
 	}
@@ -201,13 +203,14 @@ if(isset($_GET['sql'])){
 	<input type='button' value='Go to Main Page' onclick='window.location = "index.php"' style='display:none;' id='button'/>
     <?php
 }elseif (isset($_GET['update'])){
+	$sql_port=3306;
 	include("eve.config.php");
 	session_start ();
 	$files=scandir("./SQL/");
 	$fileList=array();
 	$table=array();
 	$sqlFiles=array();
-	$mysql=mysqli_connect($sql,$sql_u,$sql_p,$sql_port);
+	$mysql=mysqli_connect($sql,$sql_u,$sql_p,$db,$sql_port);
 	if (!$mysql) {
 		die('Could not connect: ' . $mysql->connect_error);
 	}
@@ -309,7 +312,7 @@ if(isset($_GET['sql'])){
 }elseif (isset($_GET['test'])){
 if(isset($_POST['db'])){
 	include("eve.config.php");
-	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass'],$_POST['port']);
+	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass'],null,$_POST['port']);
 	if (!$mysql) {
 		die('connection');
 	}
@@ -321,7 +324,7 @@ if(isset($_POST['db'])){
 
 
 }else{
-	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass'],$_POST['port']);
+	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass'],null,$_POST['port']);
 	if (!$mysql) {
 		die('connection'.$mysql->error);
 	}
