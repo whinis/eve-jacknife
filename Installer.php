@@ -68,7 +68,7 @@ if(isset($_GET['sql'])){
         }
 		return true;
 	}
-	$mysql=new mysqli($sql,$sql_u,$sql_p,$db);
+	$mysql=new mysqli($sql,$sql_u,$sql_p,$db,$sql_port);
 	if ($mysql->connect_errno) {
 		die('Could not connect: ' . $mysql->connect_error);
 	}
@@ -103,7 +103,7 @@ if(isset($_GET['sql'])){
 	$fileList=array();
 	$table=array();
 	$sqlFiles=array();
-	$mysql=mysqli_connect($sql,$sql_u,$sql_p);
+	$mysql=mysqli_connect($sql,$sql_u,$sql_p,$sql_port);
 	if (!$mysql) {
 		die('Could not connect: ' . $mysql->error);
 	}
@@ -133,49 +133,56 @@ if(isset($_GET['sql'])){
 	if(!file_exists("./eve.config.php")){
 		header('Location: Installer.php');
 	}
-	echo "<link REL=\"STYLESHEET\" TYPE=\"text/css\" HREF=\"audit.style.css\">";
-	 ?>
-	<script type="text/javascript">
-	function loadXMLDoc(i)
-	{
-		document.getElementById('install').onclick="";
-		var xmlhttp;
-		if (window.XMLHttpRequest)
-		{// code for IE7+, Firefox, Chrome, Opera, Safari
-			xmlhttp=new XMLHttpRequest();
-		}
-		else
-		{// code for IE6, IE5
-			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-		}
-		while(i<=<?php  echo $fileCount-1;  ?>){
-			document.getElementById(i).innerHTML="Installing";
-			document.getElementById(i).style.backgroundColor="blue";
-			xmlhttp.open("GET",'Installer.php?sql='+i+'&t='+new Date().getTime(),false);
-			xmlhttp.send();
-			if(xmlhttp.responseText==true){
-					document.getElementById(i).style.backgroundColor="green";
-					document.getElementById(i).innerHTML="Done";
-			}else{
-				document.getElementById(i).style.backgroundColor="red";
-				document.getElementById(i).innerHTML=xmlhttp.responseText;
-				document.getElementById('install').onclick=function(){loadXMLDoc(0)};
-				i=null;
-				return
-			}
-			i++;
-		}
-		xmlhttp.open("GET",'Installer.php?sql=lock&t='+new Date().getTime(),false);
-		xmlhttp.send();
-		document.getElementById('button').style.display='block';
-		
-		
-		}
-	</script>
-	<?php 
+    ?>
+	<link REL="STYLESHEET" TYPE="text/css" HREF="audit.style.css">
+    <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            window.document.currentFile=0;
+            $("#install").click(function(e) {
+                $(this).prop("disabled",true);
+                processFile();
+            });
+        });
+        function processFile(){
+            var i = window.document.currentFile;
+            if (i <=<?php  echo $fileCount-1;  ?>) {
+                $.ajax({
+                    type: 'POST',
+                    url: 'Installer.php?sql=' + i + '&t=' + new Date().getTime(),
+                    beforeSend:function (XHR, textStatus){
+                        $("#" + window.document.currentFile).css("backgroundColor", "Blue");
+                        $("#" + window.document.currentFile).html("Installing");
+                    },
+                    success: function (data, textStatus, XHR) {
+                        if (data == 1) {
+                            $("#" + window.document.currentFile).css("backgroundColor", "Green");
+                            $("#" + window.document.currentFile).html("Done");
+                            window.document.currentFile++;
+                            processFile();
+                        } else {
+                            $("#" + window.document.currentFile).css("backgroundColor", "Red");
+                            $("#" + window.document.currentFile).html(data);
+                            $("#install").removeProp("disabled");
+                        }
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: 'Installer.php?sql=lock&t=' + new Date().getTime(),
+                    success: function (data, textStatus, XHR) {
+                        $("#button").css("display", "block");
+                    }
+                });
+            }
+        }
+    </script>
+
+	<input type='button' value='Install' id='install'/>
+	<table>
+        	<?php
 	$i=0;
-	echo "<input type='button' value='Install' onclick='loadXMLDoc(0)' id='install'/>";
-	echo "<table>";
 	While( $i <= $fileCount-1){
 		echo"
 			<tr>
@@ -189,8 +196,10 @@ if(isset($_GET['sql'])){
 	";
 	$i++;
 	}
-	echo "</table>";
-	echo "<input type='button' value='Go to Main Page' onclick='window.location = \"index.php\"' style='display:none;' id='button'/>";
+	?>
+	</table>
+	<input type='button' value='Go to Main Page' onclick='window.location = "index.php"' style='display:none;' id='button'/>
+    <?php
 }elseif (isset($_GET['update'])){
 	include("eve.config.php");
 	session_start ();
@@ -198,7 +207,7 @@ if(isset($_GET['sql'])){
 	$fileList=array();
 	$table=array();
 	$sqlFiles=array();
-	$mysql=mysqli_connect($sql,$sql_u,$sql_p);
+	$mysql=mysqli_connect($sql,$sql_u,$sql_p,$sql_port);
 	if (!$mysql) {
 		die('Could not connect: ' . $mysql->connect_error);
 	}
@@ -230,49 +239,56 @@ if(isset($_GET['sql'])){
 	if(!file_exists("./eve.config.php")){
 		header('Location: Installer.php');
 	}
-	echo "<link REL=\"STYLESHEET\" TYPE=\"text/css\" HREF=\"audit.style.css\">";
-	 ?>
+    ?>
+	<link REL="STYLESHEET" TYPE="text/css" HREF="audit.style.css">
+    <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
 	<script type="text/javascript">
-	function loadXMLDoc(i)
-	{
-		document.getElementById('install').onclick="";
-		var xmlhttp;
-		if (window.XMLHttpRequest)
-		{// code for IE7+, Firefox, Chrome, Opera, Safari
-			xmlhttp=new XMLHttpRequest();
-		}
-		else
-		{// code for IE6, IE5
-			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-		}
-		while(i<=<?php  echo $fileCount-1;  ?>){
-			document.getElementById(i).innerHTML="Installing";
-			document.getElementById(i).style.backgroundColor="blue";
-			xmlhttp.open("GET",'Installer.php?sql='+i+'&t='+new Date().getTime(),false);
-			xmlhttp.send();
-			if(xmlhttp.responseText==true){
-					document.getElementById(i).style.backgroundColor="green";
-					document.getElementById(i).innerHTML="Done";
-			}else{
-				document.getElementById(i).style.backgroundColor="red";
-				document.getElementById(i).innerHTML=xmlhttp.responseText;
-				document.getElementById('install').onclick=function(){loadXMLDoc(0)};
-				i=null;
-				return
-			}
-			i++;
-		}
-		xmlhttp.open("GET",'Installer.php?sql=lock&t='+new Date().getTime(),false);
-		xmlhttp.send();
-		document.getElementById('button').style.display='block';
-		
-		
-		}
+        $(document).ready(function() {
+            window.document.currentFile=0;
+            $("#install").click(function(e) {
+                $(this).prop("disabled",true);
+                processFile();
+            });
+        });
+        function processFile(){
+            var i = window.document.currentFile;
+            if (i <=<?php  echo $fileCount-1;  ?>) {
+                $.ajax({
+                    type: 'POST',
+                    url: 'Installer.php?sql=' + i + '&t=' + new Date().getTime(),
+                    beforeSend:function (XHR, textStatus){
+                        $("#" + window.document.currentFile).css("backgroundColor", "Blue");
+                        $("#" + window.document.currentFile).html("Installing");
+                    },
+                    success: function (data, textStatus, XHR) {
+                        if (data == 1) {
+                            $("#" + window.document.currentFile).css("backgroundColor", "Green");
+                            $("#" + window.document.currentFile).html("Done");
+                            window.document.currentFile++;
+                            processFile();
+                        } else {
+                            $("#" + window.document.currentFile).css("backgroundColor", "Red");
+                            $("#" + window.document.currentFile).html(data);
+                            $("#install").removeProp("disabled");
+                        }
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: 'Installer.php?sql=lock&t=' + new Date().getTime(),
+                    success: function (data, textStatus, XHR) {
+                        $("#button").css("display", "block");
+                    }
+                });
+            }
+        }
 	</script>
-	<?php 
+
+	<input type='button' value='Update Database'  id='install'/>
+	<table>
+    <?php
 	$i=0;
-	echo "<input type='button' value='Update Database' onclick='loadXMLDoc(0)' id='install'/>";
-	echo "<table>";
 	While( $i <= $fileCount-1){
 		echo"
 			<tr>
@@ -286,12 +302,14 @@ if(isset($_GET['sql'])){
 	";
 	$i++;
 	}
-	echo "</table>";
-	echo "<input type='button' value='Go to Main Page' onclick='window.location = \"index.php\"' style='display:none;' id='button'></input>";
+	?>
+	</table>
+	<input type='button' value='Go to Main Page' onclick='window.location = "index.php"' style='display:none;' id='button'>
+    <?php
 }elseif (isset($_GET['test'])){
 if(isset($_POST['db'])){
 	include("eve.config.php");
-	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass']);
+	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass'],$_POST['port']);
 	if (!$mysql) {
 		die('connection');
 	}
@@ -303,7 +321,7 @@ if(isset($_POST['db'])){
 
 
 }else{
-	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass']);
+	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass'],$_POST['port']);
 	if (!$mysql) {
 		die('connection'.$mysql->error);
 	}
@@ -355,6 +373,7 @@ $sql = "'.$_POST['host'].'";
 $sql_u = "'.$_POST['username'].'";
 $sql_p = "'.$_POST['password'].'";
 $db ="'.$_POST['database'].'";
+$sql_port="'.$_POST['port'].'";
 
 define("DB_PREFIX",'.$prefix.');
 
@@ -411,103 +430,107 @@ if($fp){
 
 
 }else{
-	
-echo "<link REL=\"STYLESHEET\" TYPE=\"text/css\" HREF=\"audit.style.css\">";
-echo "
-	<script type=\"text/javascript\">
-	function checkValues()
-	{
-		var pass=document.getElementsByName('password')[0].value;
-		var host=document.getElementsByName('host')[0].value;
-		var db=document.getElementsByName('database')[0].value;
-		var username=document.getElementsByName('username')[0].value;
-		document.getElementById('button').disabled=\"disabled\";
-		var params=\"host=\"+host+\"&pass=\"+pass+\"&username=\"+username;
-		var http;
-		if (window.XMLHttpRequest)
-		{// code for IE7+, Firefox, Chrome, Opera, Safari
-			http=new XMLHttpRequest();
-		}
-		else
-		{// code for IE6, IE5
-			http=new ActiveXObject(\"Microsoft.XMLHTTP\");
-		}
-		http.open(\"POST\",'Installer.php?test=1&t='+new Date().getTime(),false);
-		//Send the proper header information along with the request
-		http.setRequestHeader(\"Content-type\", \"application/x-www-form-urlencoded\");
-		http.setRequestHeader(\"Content-length\", params.length);
-		http.setRequestHeader(\"Connection\", \"close\");
-		http.send(params);
-		var params=\"host=\"+host+\"&pass=\"+pass+\"&username=\"+username+\"&db=\"+db;
-		if(http.responseText==\"connectionR\"){
-			document.getElementById('connection').style.backgroundColor='green';
-			document.getElementById('connection').innerHTML='Ready';
-			document.getElementById('connection').width='50';
-		}else if(http.responseText==\"connection\"){
-			document.getElementById('connection').style.backgroundColor='red';
-			document.getElementById('connection').innerHTML='Check your Login Details';
-			document.getElementById('connection').width='200';
-			document.getElementById('button').disabled=\"\";
-			return;
-		}
-		http.open(\"POST\",'Installer.php?test=1&t='+new Date().getTime(),false);
-		//Send the proper header information along with the request
-		http.setRequestHeader(\"Content-type\", \"application/x-www-form-urlencoded\");
-		http.setRequestHeader(\"Content-length\", params.length);
-		http.setRequestHeader(\"Connection\", \"close\");
-		http.send(params);
-		if(http.responseText==\"databaseR\"){
-			document.getElementById('database').style.backgroundColor='green';
-			document.getElementById('database').innerHTML='Ready';
-			document.getElementById('database').width='50';
-			document.getElementById('button').style.display='none'
-			document.getElementById('button').disabled=false
-			document.getElementById('submit').disabled=false
-			document.getElementById('submit').style.display='block'
-		}else if(http.responseText==\"database\"){
-			document.getElementById('database').style.backgroundColor='red';
-			document.getElementById('database').innerHTML='Check your database name';
-			document.getElementById('database').width='200';
-			document.getElementById('button').disabled=\"\";
-		
-		}
-	}
-	</script>
-	";
-echo "
-<table>
-	<tr>
-		<td>
-			Connection Check:
-		</td>
-		<td id='connection' width=50>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			Database Check:
-		</td>
-		<td id='database' width=50>
-		</td>
-	</tr>
-</table>
-		
-<form action=\"Installer.php?config=1\" method='post' accept-charset='UTF-8' name='form'>
-<input type='text' name='host'> </input> Mysql Host <br>
-<input type='text' name='username'> </input> Mysql Username <br>
-<input type='password' name='password'> </input> Mysql Password <br>
-<input type='text' name='database'> </input> Mysql Database <br>
-<input type='text' name='prefix'> </input> Table Prefix(leave blank for no prefix)<br>
-<input type='text' name='emailAddress'> </input> Email address to send password resets from<br>
-<input type='text' name='emailHost' value='127.0.0.1'> </input> Mail Server Address<br>
-<input type='text' name='emailPort' value='25'> </input> Port for Mail Server<br>
-<input type='Button' value='Check' onclick=\"checkValues()\" id='button'></input>
-<input type='submit' value='Save' id='submit' style='display:none' disabled='disabled'></input>
-</form>
+    $sql="localhost";
+    $sql_u="";
+    $sql_p="";
+    $db="jackknife";
+    $sql_port=3306;
+    $prefix="";
+    if(file_exists("./eve.config.php")){
+        include("eve.config.php");
+        $prefix=DB_PREFIX;
+    }
+	?>
+    <link REL="STYLESHEET" TYPE="text/css" HREF="audit.style.css">
+    <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#checkButton").click(function(e) {
+                $("#checkButton").prop("disabled",true);
+                var array={
+                    host:$("#dbHost").val(),
+                    username:$("#dbUser").val(),
+                    pass:$("#dbPass").val(),
+                    port: $("#dbPort").val()
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: 'Installer.php?test=1&t='+new Date().getTime(),
+                    data: array,
+                    async: true,
+                    success: function (data, textStatus, XHR) {
+                        if(data=="connectionR"){
+                            $("#connection").css('backgroundColor',"green");
+                            $("#connection").css('width',"50");
+                            $("#connection").html('Ready');
+                            var array={
+                                host:$("#dbHost").val(),
+                                username:$("#dbUser").val(),
+                                pass:$("#dbPass").val(),
+                                port: $("#dbPort").val(),
+                                db:$("#dbDatabase").val()
+                            };
+                            $.ajax({
+                                type: 'POST',
+                                url: 'Installer.php?test=1&t='+new Date().getTime(),
+                                data: array,
+                                async: true,
+                                success: function (data, textStatus, XHR) {
+                                    if(data=="databaseR"){
+                                        $("#database").css('backgroundColor',"green");
+                                        $("#database").css('width',"50");
+                                        $("#database").html('Ready');
+                                        $("#checkButton").hide();
+                                        $("#submit").show();
+                                        $("#submit").removeProp("disabled");
+                                    }else{
+                                        $("#database").css('backgroundColor',"red");
+                                        $("#database").css('width',"200");
+                                        $("#database").html('Check your Login Details');
+                                        $("#checkButton").removeProp("disabled");
+                                    }
+                                }
+                            });
+                        }else{
+                            $("#connection").css('backgroundColor',"red");
+                            $("#connection").css('width',"200");
+                            $("#connection").html('Check your Login Details');
+                            $("#checkButton").removeProp("disabled");
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    <table>
+        <tr>
+            <td>
+                Connection Check:
+            </td>
+            <td id='connection' width=50>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Database Check:
+            </td>
+            <td id='database' width=50>
+            </td>
+        </tr>
+    </table>
 
-
-
-
-
-";
+    <form action="Installer.php?config=1" method='post' accept-charset='UTF-8' name='form'>
+    <input type='text' name='host' id="dbHost" value="<?php echo $sql; ?>"> Mysql Host <br>
+    <input type='text' name='username' id="dbUser" value="<?php echo $sql_u; ?>"> Mysql Username <br>
+    <input type='password' name='password' id="dbPass" value="<?php echo $sql_p; ?>"> Mysql Password <br>
+    <input type='text' name='database' id="dbDatabase" value="<?php echo $db; ?>"> Mysql Database <br>
+    <input type='text' name='port' id="dbPort" value="<?php echo $sql_port; ?>"> Mysql Port <br>
+    <input type='text' name='prefix' id="dbPrefix" value="<?php echo $prefix; ?>"> Table Prefix(leave blank for no prefix)<br>
+    <input type='text' name='emailAddress' value=""> Email address to send password resets from (Only needed for logins)<br>
+    <input type='text' name='emailHost' value='127.0.0.1'> Mail Server Address(Only needed for logins)<br>
+    <input type='text' name='emailPort' value='25'> Port for Mail Server(Only needed for logins)<br>
+    <input type='Button' value='Check'id='checkButton'>
+    <input type='submit' value='Save' id='submit' style='display:none' disabled='disabled'>
+    </form>
+<?php
 }

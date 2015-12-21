@@ -49,7 +49,9 @@ require_once("eveApiCharacterID.class.php");
 require_once("eveApiCharacterAffiliations.class.php");
 require_once("eveApiAccount.class.php");
 
-
-$Db = new eveDb($sql, $sql_u, $sql_p, $db,3306,false);
+if(!isset($sql_port)){
+    $sql_port=3306;
+}
+$Db = new eveDb($sql, $sql_u, $sql_p, $db,$sql_port,false);
 
  ?>
