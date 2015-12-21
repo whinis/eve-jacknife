@@ -95,6 +95,10 @@ if(isset($_GET['sql'])){
 	}elseif($fNum=="lock"){
 		$fp=fopen("install.lock",'w');
 		fclose($fp);
+        if(!file_exists("install.lock")){
+            echo "error";
+        }
+        echo "success";
 	}
 	mysqli_close($mysql);
 }else if(isset($_GET['db'])){
@@ -174,7 +178,15 @@ if(isset($_GET['sql'])){
                     type: 'POST',
                     url: 'Installer.php?sql=lock&t=' + new Date().getTime(),
                     success: function (data, textStatus, XHR) {
-                        $("#button").css("display", "block");
+                        if(data=="success") {
+                            $("#lock").css("backgroundColor", "Green");
+                            $("#lock").html("Done");
+                            $("#button").css("display", "block");
+                        }else{
+                            $("#lock").css("backgroundColor", "Red");
+                            $("#lock").html(data);
+                            $("#install").removeProp("disabled");
+                        }
                     }
                 });
             }
@@ -199,6 +211,14 @@ if(isset($_GET['sql'])){
 	$i++;
 	}
 	?>
+        <tr>
+            <td>
+                Create Lock File
+            </td>
+            <td id="lock" style="background-color:grey">
+                Not Started
+            </td>
+        </tr>
 	</table>
 	<input type='button' value='Go to Main Page' onclick='window.location = "index.php"' style='display:none;' id='button'/>
     <?php
@@ -323,12 +343,25 @@ if(isset($_POST['db'])){
 	}
 
 
-}else{
+}elseif(isset($_POST['host'])){
 	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass'],null,$_POST['port']);
 	if (!$mysql) {
 		die('connection'.$mysql->error);
 	}
 	die ('connectionR');
+}else{
+    $writeable=is_writable(__DIR__);
+    if($writeable&&file_exists("eve.config.php")&&!is_writable("eve.config.php")){
+        $writeable=false;
+    }
+    if($writeable&&file_exists("install.lock")&&!is_writable("install.lock")){
+        $writeable=false;
+    }
+
+    if (!$writeable) {
+        die("permission");
+    }
+    die ('permissionR');
 }
 
 
@@ -450,28 +483,20 @@ if($fp){
         $(document).ready(function() {
             $("#checkButton").click(function(e) {
                 $("#checkButton").prop("disabled",true);
-                var array={
-                    host:$("#dbHost").val(),
-                    username:$("#dbUser").val(),
-                    pass:$("#dbPass").val(),
-                    port: $("#dbPort").val()
-                };
                 $.ajax({
                     type: 'POST',
                     url: 'Installer.php?test=1&t='+new Date().getTime(),
-                    data: array,
                     async: true,
                     success: function (data, textStatus, XHR) {
-                        if(data=="connectionR"){
-                            $("#connection").css('backgroundColor',"green");
-                            $("#connection").css('width',"50");
-                            $("#connection").html('Ready');
+                        if(data=="permissionR"){
+                            $("#permission").css('backgroundColor',"green");
+                            $("#permission").css('width',"50");
+                            $("#permission").html('Ready');
                             var array={
                                 host:$("#dbHost").val(),
                                 username:$("#dbUser").val(),
                                 pass:$("#dbPass").val(),
-                                port: $("#dbPort").val(),
-                                db:$("#dbDatabase").val()
+                                port: $("#dbPort").val()
                             };
                             $.ajax({
                                 type: 'POST',
@@ -479,25 +504,50 @@ if($fp){
                                 data: array,
                                 async: true,
                                 success: function (data, textStatus, XHR) {
-                                    if(data=="databaseR"){
-                                        $("#database").css('backgroundColor',"green");
-                                        $("#database").css('width',"50");
-                                        $("#database").html('Ready');
-                                        $("#checkButton").hide();
-                                        $("#submit").show();
-                                        $("#submit").removeProp("disabled");
+                                    if(data=="connectionR"){
+                                        $("#connection").css('backgroundColor',"green");
+                                        $("#connection").css('width',"50");
+                                        $("#connection").html('Ready');
+                                        var array={
+                                            host:$("#dbHost").val(),
+                                            username:$("#dbUser").val(),
+                                            pass:$("#dbPass").val(),
+                                            port: $("#dbPort").val(),
+                                            db:$("#dbDatabase").val()
+                                        };
+                                        $.ajax({
+                                            type: 'POST',
+                                            url: 'Installer.php?test=1&t='+new Date().getTime(),
+                                            data: array,
+                                            async: true,
+                                            success: function (data, textStatus, XHR) {
+                                                if(data=="databaseR"){
+                                                    $("#database").css('backgroundColor',"green");
+                                                    $("#database").css('width',"50");
+                                                    $("#database").html('Ready');
+                                                    $("#checkButton").hide();
+                                                    $("#submit").show();
+                                                    $("#submit").removeProp("disabled");
+                                                }else{
+                                                    $("#database").css('backgroundColor',"red");
+                                                    $("#database").css('width',"200");
+                                                    $("#database").html('Check your database name');
+                                                    $("#checkButton").removeProp("disabled");
+                                                }
+                                            }
+                                        });
                                     }else{
-                                        $("#database").css('backgroundColor',"red");
-                                        $("#database").css('width',"200");
-                                        $("#database").html('Check your Login Details');
+                                        $("#connection").css('backgroundColor',"red");
+                                        $("#connection").css('width',"200");
+                                        $("#connection").html('Check your Login Details');
                                         $("#checkButton").removeProp("disabled");
                                     }
                                 }
                             });
                         }else{
-                            $("#connection").css('backgroundColor',"red");
-                            $("#connection").css('width',"200");
-                            $("#connection").html('Check your Login Details');
+                            $("#permission").css('backgroundColor',"red");
+                            $("#permission").css('width',"220");
+                            $("#permission").html('Unable to write to base directory');
                             $("#checkButton").removeProp("disabled");
                         }
                     }
@@ -508,18 +558,25 @@ if($fp){
     <table>
         <tr>
             <td>
+                Permission Check:
+            </td>
+            <td id='permission' width=50>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 Connection Check:
             </td>
             <td id='connection' width=50>
             </td>
         </tr>
         <tr>
-            <td>
-                Database Check:
-            </td>
-            <td id='database' width=50>
-            </td>
-        </tr>
+			<td>
+				Database Check:
+			</td>
+			<td id='database' width=50>
+			</td>
+		</tr>
     </table>
 
     <form action="Installer.php?config=1" method='post' accept-charset='UTF-8' name='form'>
