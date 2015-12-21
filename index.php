@@ -25,7 +25,14 @@
 ini_set("zlib.output_compression", "On");
 ini_set("zlib.output_compression", 4096);
 
-define("SELF_URL", "http://" . $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."?");
+if( isset( $_SERVER['HTTPS'] ) ) {
+	define("URL_SCHEME", "https" );
+}
+else {
+	define("URL_SCHEME", "http" );
+}
+
+define("SELF_URL", URL_SCHEME."://" . $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']."?");
 define("AUDIT_PHP", true);
 
 $cookielogin = false;
