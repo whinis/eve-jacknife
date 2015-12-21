@@ -2,6 +2,7 @@
 define("AccountStatus",33554432); //Full
 define("AccountBalance",1); //Full
 define("AssetList",2); //Full
+define("Bookmarks",268435456 );
 define("CalendarEventAttendees",4); //Full
 define("CharacterSheet",8); //Limited
 define("ContactList",16); //Full
@@ -26,7 +27,9 @@ define("Standings",524288); //Limited
 define("UpcomingCalendarEvents",1048576); //Full
 define("WalletJournal",2097152); //Full
 define("WalletTransactions",4194304); //Full
+
 define("corp_AccountBalance",1); //Full
+define("corp_Bookmarks",67108864);
 define("corp_ContactList",16); //Full
 define("corp_ContainerLog",32); //Full
 define("corp_Contracts",8388608); //Full
@@ -53,4 +56,5 @@ define("corp_WalletJournal",1048576); //Full
 define("corp_WalletTransactions",2097152); //Full
 define("eve_CharacterInfo_Public",8388608); //None / Limited / Full
 define("eve_CharacterInfo_Private",16777216); //None / Limited / Full
+
  ?>

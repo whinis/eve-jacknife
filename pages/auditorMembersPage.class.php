@@ -21,7 +21,7 @@
 // ****************************************************************************
 
 // member list
-
+include_once("auditorPage.base.php");
 function ptime($stamp)
 {
     $t = time() - strtotime($stamp);

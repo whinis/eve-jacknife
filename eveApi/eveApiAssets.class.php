@@ -83,7 +83,7 @@ class eveApiAssets extends eveApi {
   $this->Db->cacheLocationIds(array_keys($allLocs));
 
   foreach($this->assets as $item)
-   $itemGroups = add_groups($this->Db,$itemGroups, $item);
+        $itemGroups = add_groups($this->Db,$itemGroups, $item);
    
   $this->Db->cacheGroupTypes(array_keys($itemGroups));
 
@@ -92,7 +92,6 @@ class eveApiAssets extends eveApi {
   uasort($this->assets,"sortfunc_locname");
    
   $this->assetsByLocation = array();
-
   foreach($this->assets as $itemId => $item) {
    $locid = locationTranslate($item["locationID"]);
    if (!isset($this->assetsByLocation[$locid])) {

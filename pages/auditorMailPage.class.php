@@ -19,7 +19,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 // 
 // ****************************************************************************
-
+include_once("auditorPage.base.php");
 class auditorMailPage extends auditorPage {
 	public function GetName() { return "mail"; }
 	public function GetAccMode() { return ACC_CHAR_ONLY; }

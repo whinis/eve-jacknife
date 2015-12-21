@@ -27,27 +27,15 @@ set_include_path(get_include_path() . PATH_SEPARATOR . "eveApi");
 require_once("eve.config.php");
 require_once("eve.funcs.php");
 
-require_once("eveApiCaching.php");
-require_once("class_db.php");
-require_once("eveDb.php");
-require_once("eveAccessMasks.php");
-require_once("eveApi.base.php");
 
-require_once("eveApiOrders.class.php");
-require_once("eveApiTransactions.class.php");
-require_once("eveApiJournal.class.php");
-require_once("eveApiSkills.class.php");
-require_once("eveApiTraining.class.php");
-require_once("eveApiAssets.class.php");
-require_once("eveApiKillLog.class.php");
-require_once("eveApiMails.class.php");
-require_once("eveApiNotifications.class.php");
-require_once("eveApiMembers.class.php");
-require_once("eveApiContracts.class.php");
-require_once("eveApiContacts.class.php");
-require_once("eveApiCharacterID.class.php");
-require_once("eveApiCharacterAffiliations.class.php");
-require_once("eveApiAccount.class.php");
+//Auto load the eveApi pages
+$files=scandir("./eveApi/");
+$includes=array();
+foreach ($files as $file){
+    if(pathinfo($file, PATHINFO_EXTENSION)=="php"){
+        include("./eveApi/".pathinfo($file, PATHINFO_BASENAME));
+    }
+}
 
 if(!isset($sql_port)){
     $sql_port=3306;

@@ -20,36 +20,41 @@
 // 
 // ****************************************************************************
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class eveApiContacts extends eveApi {
+function sortfunc_bookmarklocname($a, $b) {
+    global $Db;
 
-    public $Contacts=array();
+    if ($a == $b) {
+        return 0;
+    }
+
+    $as = $Db->getLocationNameFromId($a);
+    $bs = $Db->getLocationNameFromId($b);
+
+    return ($as < $bs) ? -1 : 1;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class eveApiBookmarks extends eveApi {
+
+    public $Bookmarks=array();
+    public $BookmarksByLocation=array();
     public function fetch($chid, $usid, $apik,$corp = false)
     {
-        return $this->fetch_xml("/".($corp?"corp":"char")."/ContactList.xml.aspx", array(
+        return $this->fetch_xml("/".($corp?"corp":"char")."/Bookmarks.xml.aspx", array(
             "characterID" => $chid,
             "keyID" => $usid,
             "vCode" => $apik
         ));
     }
     public function LoadAPI() {
-        $this->Contacts = $this->api->xpath("/eveapi/result/rowset[@name='contactList']/row");
-        uasort($this->Contacts,array("eveApiContacts", "sortfunc_standings"));
-        return true;
-    }
-    static function sortfunc_standings($a, $b) {
-        if((int)$a["standing"] <  (int)$b["standing"]){
-            return 1;
-        }else if((int)$a["standing"] ==  (int)$b["standing"]) {
-            if((string)$b['inWatchlist']==(string)$a['inWatchlist']) {
-                return strcasecmp($a["contactName"],$b["contactName"]);
-            }else if($b['inWatchlist']=="True")
-                return 1;
-            else
-                return -1;
-        }else{
-            return -1;
+        $Bookmarks = $this->api->xpath("/eveapi/result/rowset[@name='folders']/row");
+        foreach($Bookmarks as $folder){
+            foreach($folder->rowset->row as $bookmark){
+                $this->Bookmarks[]=$bookmark;
+                $this->BookmarksByLocation[(int)locationTranslate($bookmark['locationID'])][]=count($this->Bookmarks)-1;
+            }
         }
+        uksort($this->BookmarksByLocation,"sortfunc_bookmarklocname");
+        return true;
     }
 }
   

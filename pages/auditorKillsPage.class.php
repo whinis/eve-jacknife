@@ -20,7 +20,7 @@
 // 
 // ****************************************************************************
 
-
+include_once("auditorPage.base.php");
 function force_nowrap($str) {
  return str_replace(" ","&nbsp;",$str);
 }

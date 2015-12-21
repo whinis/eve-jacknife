@@ -19,18 +19,19 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 // 
 // ****************************************************************************
+include_once("auditorPage.base.php");
 class auditorContactsPage extends auditorPage {
 
 	public function GetName() { return "contacts"; }
-	public function GetAccMode() { return ACC_CHAR_ONLY; }
-	public function GetAccMask($corp) { return Notifications; }
+	public function GetAccMode() { return ACC_BOTH; }
+	public function GetAccMask($corp) { return ContactList; }
 	public function GetOutput($Db) {
 
 		$Contacts = new eveApiContacts($Db);
 		$full_url = FULL_URL; // TODO
 		$time_start = microtime_float();
 		
-		if (!$Contacts->fetch(CHAR_ID, USER_ID, API_KEY)) {
+		if (!$Contacts->fetch(CHAR_ID, USER_ID, API_KEY,CORP_MODE)) {
 		 	$this->Output = $Contacts->Error;
 			return false;
 		}

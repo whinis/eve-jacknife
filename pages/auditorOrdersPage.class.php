@@ -20,7 +20,7 @@
 // 
 // ****************************************************************************
 
-
+include_once("auditorPage.base.php");
 define("gotobar", "<span style=\"font-size:80%;\">[go to: active <a href=\"#sa\">sell</a> <a href=\"#ba\">buy</a>&nbsp;|&nbsp;expired <a href=\"#se\">sell</a> <a href=\"#be\">buy</a> ]</span>");
 
 function disp_orders($entries, $title, $exclude = array(), $totalType = false, $active = false)

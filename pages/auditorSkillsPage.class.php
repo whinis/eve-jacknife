@@ -21,7 +21,7 @@
 // ****************************************************************************
 
 //default audit view
-
+include_once("auditorPage.base.php");
 set_include_path(get_include_path() . PATH_SEPARATOR . "skills");
 $SkillsApi = null;
 

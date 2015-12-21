@@ -63,7 +63,6 @@ abstract class eveApi {
   $this->cacheHit = ($result->hit == 1);
   
   $this->api = $result->value;
-
   if ($this->api->error) {
    $this->Error = (string)$this->api->error;
    return false;

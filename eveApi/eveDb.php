@@ -493,7 +493,24 @@ class eveDb  extends db{
 		settype($offset, 'integer');
         $sql    = "SELECT * FROM ".DB_PREFIX."invTypes WHERE typeID = '".$this->link->real_escape_string($id)."' LIMIT 1 OFFSET $offset;";
         //$result = $this->query($sql);
-        $result = $this->selectWhere("invTypes",['typeID'=>$id],null,1);
+        $fields=[
+            'typeID',
+            'groupID',
+            'typeName',
+            'description'=>
+                'substring(description,1,4000)',
+            'mass',
+            'volume',
+            'capacity',
+            'portionSize',
+            'raceID',
+            'basePrice',
+            'published',
+            'marketGroupID',
+            'iconID',
+            'soundID'
+        ];
+        $result = $this->selectWhere("invTypes",['typeID'=>$id],$fields,1);
         //debug_print_backtrace();
         if ($result&& $result->rows >0) {
 			$row = $result->results[0];
@@ -579,7 +596,24 @@ class eveDb  extends db{
         
         $sql    = "SELECT * FROM ".DB_PREFIX."invTypes WHERE typeID IN (" . implode(",",$items) . ")";
         //$result = $this->query($sql);
-        $result = $this->selectWhere("invTypes",['typeID'=>['IN',$items]],null);
+        $fields=[
+            'typeID',
+            'groupID',
+            'typeName',
+            'description'=>
+                'substring(description,1,4000)',
+            'mass',
+            'volume',
+            'capacity',
+            'portionSize',
+            'raceID',
+            'basePrice',
+            'published',
+            'marketGroupID',
+            'iconID',
+            'soundID'
+        ];
+        $result = $this->selectWhere("invTypes",['typeID'=>['IN',$items]],$fields);
 
         if (!$result|| $result->rows ==0) {
             return;
@@ -647,6 +681,38 @@ class eveDb  extends db{
         
         $sql    = "SELECT * FROM ".DB_PREFIX."dgmEffects WHERE effectId = '".$this->link->real_escape_string($effectID)."' LIMIT 1";
         //$result = $this->query($sql);
+        $fields=[
+            'effectID',
+            'effectName',
+            'effectCategory',
+            'preExpression',
+            'postExpression',
+            'description',
+            'guid',
+            'iconID',
+            'isOffensive',
+            'isAssistance',
+            'durationAttributeID',
+            'trackingSpeedAttributeID',
+            'dischargeAttributeID',
+            'rangeAttributeID',
+            'falloffAttributeID',
+            'disallowAutoRepeat',
+            'published',
+            'displayName',
+            'isWarpSafe',
+            'rangeChance',
+            'electronicChance',
+            'propulsionChance',
+            'distribution',
+            'sfxName',
+            'npcUsageChanceAttributeID',
+            'npcActivationChanceAttributeID',
+            'fittingUsageChanceAttributeID',
+            'modifierInfo'=>
+                'substring(modifierInfo,1,2000)',
+        ];
+
         $result = $this->selectWhere("dgmEffects",['effectId'=>$effectID],null,1);
 
 

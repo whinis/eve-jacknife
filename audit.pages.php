@@ -5,19 +5,14 @@ $eligible_pages = array();
 
 // pages default in order = first eligible page becomes the default
 
-include("pages/auditorPage.base.php");
-include("pages/auditorAboutPage.class.php");
-include("pages/auditorSkillsPage.class.php");
-include("pages/auditorKillsPage.class.php");
-include("pages/auditorMailPage.class.php");
-include("pages/auditorMembersPage.class.php");
-include("pages/auditorNotificationsPage.class.php");
-include("pages/auditorAssetsPage.class.php");
-include("pages/auditorJournalPage.class.php");
-include("pages/auditorTransactionsPage.class.php");
-include("pages/auditorOrdersPage.class.php");
-include("pages/auditorContractsPage.class.php");
-include("pages/auditorContactsPage.class.php");
+//Auto load the eveApi pages
+$files=scandir("./pages/");
+$includes=array();
+foreach ($files as $file){
+	if(pathinfo($file, PATHINFO_EXTENSION)=="php"){
+		include_once("./pages/".pathinfo($file, PATHINFO_BASENAME));
+	}
+}
 
 foreach ($registered_pages as $name => $page) 
 	if ((CORP_MODE && $page->GetAccMode() != ACC_CHAR_ONLY) || (!CORP_MODE && $page->GetAccMode() != ACC_CORP_ONLY)) {
