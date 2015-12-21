@@ -431,13 +431,14 @@ function test7($mod, $name = "",$add = "") {
 
 // table row for skill: display name if usable,  and level if owned or U if usable
 function test3($skill, $name = "") {
-     global $SkillsApi;
+    global $SkillsApi;
 
-     if ($name == "")
+    if ($name == "")
         $name = $skill;
-      //debug_print_backtrace();
-     $canuse = $SkillsApi->canCharUseTypeName($skill)||($SkillsApi->getSkillLevelByName($skill)!==-1);
-     $level = $SkillsApi->getSkillLevelByName($skill); $level = (($level != -1)?$level:"U");
+    //debug_print_backtrace();
+    $canuse = $SkillsApi->canCharUseTypeName($skill)||($SkillsApi->getSkillLevelByName($skill)!==-1);
+    $level = $SkillsApi->getSkillLevelByName($skill);
+    $level = (($level != -1)?$level:"U");
      if ($canuse)
         echo "<tr><td>" . $name . "&nbsp;</td><td style=\"color: #000000; background-color:".lvlToColour($level).";\">&nbsp;" . $level . "&nbsp;</td></tr>\n";
      return $level;
