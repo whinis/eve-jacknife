@@ -331,7 +331,6 @@ if(isset($_GET['sql'])){
     <?php
 }elseif (isset($_GET['test'])){
 if(isset($_POST['db'])){
-	include("eve.config.php");
 	$mysql=mysqli_connect($_POST['host'],$_POST['username'],$_POST['pass'],null,$_POST['port']);
 	if (!$mysql) {
 		die('connection');
