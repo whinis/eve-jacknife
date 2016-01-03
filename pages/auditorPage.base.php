@@ -7,9 +7,8 @@ function getPageTimes($Db,$time_api,$time_exec) {
 	global $allApiCalls;
 	
 	$output = "<span style=\"font-size:80%;\">";
-	
-   if ($Db->queries != 0)
-		$output .= "\n".$Db->queries." queries<br>";
+
+	$output .= "\n".$Db->getCount()." queries<br>";
 		
    $output .=  "api time: ".number_format($time_api,6)."s<br>";
    $output .=  "exec time: ".number_format($time_exec-$time_api,6)."s<br>";

@@ -24,23 +24,33 @@ class db
 	
 	protected $ref;
     protected $res;
-	protected $link;
 	protected $prefix="";
     protected $lastQuery="";
+	protected $mysqlND=false;
 
 
 	public $debugQuery=false;
 	public $lastid;
     public $hold=false;
-    public $queries = 0;
     public $prepare;
 
     private $params=array("");
 	private $_prepared=false;
-    private $parent;
+	private $classLinks=array();
+	private $child=false;
+	private $parent;
+	private $queries = 0;
 
+	function __construct(){
 
-	function __construct($host,$user,$pass,$database,$port=3306,$debug=false,$prepared=false,$parent=false){
+	}
+
+	function __destruct(){
+		if($this->ref&&!$this->child)
+			$this->close();
+	}
+
+	function loadByParams($host,$user,$pass,$database,$port=3306,$debug=false,$prepared=false){
 		$this->ref = new mysqli($host, $user, $pass, $database, $port);
 		$this->destroy=false;
         $this->_prepared=$prepared;
@@ -49,34 +59,46 @@ class db
 			$this->ref=null;
 			trigger_error("(SQL) Mysql Connection Error ".(mysqli_connect_error()),E_USER_ERROR );
 		}
+		$this->debug=$debug;
+		$this->setup();
+	}
+
+	public function loadByLink(&$ref,$parent=null,$debug=false){
+		$this->ref=$ref;
+		$this->debug=$debug;
+		$this->setup();
+		$this->child=true;
+		if($parent!==null) {
+			$this->_prepared = true;
+			$this->parent = $parent;
+		}
+	}
+
+	private function setup(){
 		if(!$this->ref){
 			$this->destroy=true;
 			$this->ref=null;
 			trigger_error("(SQL) Unknown connection error",E_USER_ERROR);
 		}
-		$this->link=$this->ref;
+		if(extension_loaded("mysqlnd")&&function_exists('mysqli_fetch_all')){
+			$this->mysqlND=true;
+		}
 		mysqli_set_charset($this->ref,"utf8");
-		$this->debug=$debug;
 		if(defined("DB_PREFIX")){
 			$this->prefix=DB_PREFIX;
 		}
-        if($this->_prepared===false) {
-            $this->prepare = new db($host, $user, $pass, $database, $port, $debug, true,$this); //setup a copy to be used for prepared statements
-        }else{
-            $this->parent=$parent;
-        }
+	}
 
+	public function &prepare(){
+		if($this->child&&$this->parent!==null){
+			return $this->parent->prepare();
+		}
+		$instance = new self();
+		$instance->loadByLink($this->ref,$this->debug);
+		$this->classLinks[]=&$instance;
+		return $instance;
 	}
-	function __destruct(){
-		if($this->ref)
-			$this->close();
-	}
-	public function setupPrepare(){
-		$this->_prepared=true;
-	}
-    public function _increaseQueryCount(){
-        $this->queries++;
-    }
+
 
 	protected function _prepare($query){
         //clean the last statement if it exist
@@ -172,11 +194,7 @@ class db
 		// select prepared statement or raw query;
 		if($query==""&&$this->res) {
 			$result = $this->res->execute();
-            if($this->_prepared==true) {
-                $this->parent->_increaseQueryCount();
-            }else {
-                $this->queries++;
-            }
+			$this->queries++;
 			$success=!($this->res->error||$result===false);
 			if(!$success){
 				#output to a log file
@@ -191,11 +209,7 @@ class db
 
 			#run query
 			$result=$this->ref->query($query);
-            if($this->_prepared==true) {
-                $this->parent->_increaseQueryCount();
-            }else {
-                $this->queries++;
-            }
+			$this->queries++;
 
 			if($this->ref->error) {
 				#output to a log file
@@ -211,11 +225,10 @@ class db
 			return false;
 		}
 
-		$mysqlnd = function_exists('mysqli_fetch_all');//check if we have mysqlnd
         #check if select statement, store in array if so
         if($this->type=="select"){
             $return = new stdClass;
-            if($mysqlnd===true) {
+            if($this->mysqlND) {
                 if($query==""&&is_object($this->res)) {
                     $result = $this->res->get_result();
                 }
@@ -677,12 +690,14 @@ class db
 			$return=$wrapper."(".$return.$append.")";
 		return $return;
 	}
+
     public function clean(){
         //clean the last statement if it exist
         if(is_object($this->res)) {
             $this->res->close();
         }
     }
+
 	#closes database
 	public function close() {
         //clean the last statement if it exist
@@ -693,5 +708,16 @@ class db
         if(isset($this->ref)&&$this->ref&&is_resource($this->ref))
 			$this->ref->close();
 	}
+
+	#Gets number of queries ran by this class and all children.
+	public function getCount(){
+		$count=$this->queries;
+		foreach($this->classLinks as $child){
+			if(is_a($child,"db"))
+				$count+=$child->getCount();
+		}
+		return $count;
+	}
+
 }
 ?>

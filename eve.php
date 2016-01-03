@@ -40,6 +40,7 @@ foreach ($files as $file){
 if(!isset($sql_port)){
     $sql_port=3306;
 }
-$Db = new eveDb($sql, $sql_u, $sql_p, $db,$sql_port,false);
+$Db = new eveDb();
+$Db->loadByParams($sql, $sql_u, $sql_p, $db,$sql_port,false);
 
  ?>

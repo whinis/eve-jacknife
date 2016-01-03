@@ -57,6 +57,9 @@ class auditorBookmarksPage extends auditorPage {
                 $this->Output .= "<b>" . $system . "</b></a></td><td align=right><b>" . count($items) . "&nbsp;item" . (count($items) == 1 ? "" : "s") . "</b>&nbsp;&nbsp;&nbsp;<br></td></tr>";
                 $this->Output .= "<tr><td colspan=2><div id=\"l$location\" style=\"" . ($xpandall ? "display:block;" : "display:none;") . "\"><br>\n";
                 foreach($items as $i=>$bookmark){
+                    if($Bookmarks->Bookmarks[$bookmark]['creatorID']==0){
+                        $this->Output.=$Bookmarks->Bookmarks[$bookmark]['bookmarkID']." ";
+                    }
                     $this->Output.= $Bookmarks->Bookmarks[$bookmark]['memo']."<br>";
                 }
                 $this->Output .= "<br></div></td></tr>\n";

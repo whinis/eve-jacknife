@@ -39,6 +39,9 @@ test3("Deep Core Mining");
 test3("Mining Foreman");
 test3("Mining Director");
 
+echo "<tr><td colspan=2><center>Others</center></td></tr>";
+test3("Cynosural Field Theory");
+
 echo "</table>";
 
 

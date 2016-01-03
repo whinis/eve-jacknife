@@ -167,7 +167,7 @@ function char_idLookup($Db,$list,$names) {
 	$names = fuck_ccp($list,$names);
 
 	$sql = "";
-    $insertStatement=$Db->prepare->insert(ID_CACHE_TABLE,['id'=>"?","name"=>"?"]);
+    $insertStatement=$Db->prepare()->insert(ID_CACHE_TABLE,['id'=>"?","name"=>"?"]);
 	foreach ($list as $id) {
         $insertStatement->execute(['id'=>$id,'name'=>$names[$id]]);
     }
@@ -218,7 +218,7 @@ function idLookup($link,$ids) {
     if ($result->error)
         return char_idLookup($Db,$list,$names);
 
-    $insertStatement=$Db->prepare->insert(ID_CACHE_TABLE,["id"=>"?","name"=>"?"]);
+    $insertStatement=$Db->prepare()->insert(ID_CACHE_TABLE,["id"=>"?","name"=>"?"]);
     foreach($result->value->xpath('//row') as $kvp) { // add them to the array and make an insert query
         $names[(int)$kvp['characterID']] = (string)$kvp['name'];
         $insertStatement->execute([$kvp['characterID'],$kvp['name']]);

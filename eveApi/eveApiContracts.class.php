@@ -194,7 +194,7 @@ class eveApiContracts extends eveApi {
 					$this->typesToCache[$item[0]] = "1";
 			}
 	  	}
-		$insertStatement=$this->Db->prepare->insert(CONTRACT_CONTENTS_TABLE,['contractID'=>'?','buying'=>'?','selling'=>'?']);
+		$insertStatement=$this->Db->prepare()->insert(CONTRACT_CONTENTS_TABLE,['contractID'=>'?','buying'=>'?','selling'=>'?']);
 		foreach ($ids as $id) {
 			if (isset($items[$id])) continue;
 			
@@ -258,7 +258,7 @@ class eveApiContracts extends eveApi {
 			return;
 		}
 
-		$insertStatement=$this->Db->prepare->insert(CONTRACT_BIDS_TABLE,['contractID'=>'?','bidID'=>'?','bidderID'=>'?','amount'=>'?','bidTime'=>'?']);
+		$insertStatement=$this->Db->prepare()->insert(CONTRACT_BIDS_TABLE,['contractID'=>'?','bidID'=>'?','bidderID'=>'?','amount'=>'?','bidTime'=>'?']);
 		foreach ($rows as $bid) {
 			$id = (float)$bid["contractID"];
 			$bidid = (float)$bid["bidID"];

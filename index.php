@@ -287,8 +287,7 @@ if (PAGE_VIEW == "onepage") {
 
 	echo "<br><span style=\"font-size:80%;\"><a href=\"#top\">top</a></span><br>\n";
 	echo "<span style=\"font-size:80%;\">";
-	if ($Db->queries != 0)
-		echo "\n".$Db->queries." queries<br>";
+	echo "\n".$Db->getCount()." queries<br>";
 	echo "exec time: $time_exec s<br>";
 	echo "</span>";
 	echo "</body></html>";
