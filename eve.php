@@ -26,14 +26,16 @@ set_include_path(get_include_path() . PATH_SEPARATOR . "eveApi");
 
 require_once("eve.config.php");
 require_once("eve.funcs.php");
+require_once("eveApi.base.php");
 
 
 //Auto load the eveApi pages
 $files=scandir("./eveApi/");
 $includes=array();
+
 foreach ($files as $file){
     if(pathinfo($file, PATHINFO_EXTENSION)=="php"){
-        include("./eveApi/".pathinfo($file, PATHINFO_BASENAME));
+        include_once("./eveApi/".pathinfo($file, PATHINFO_BASENAME));
     }
 }
 

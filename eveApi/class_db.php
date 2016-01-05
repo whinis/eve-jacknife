@@ -701,7 +701,7 @@ class db
 	#closes database
 	public function close() {
         //clean the last statement if it exist
-        if(is_object($this->res)) {
+        if(is_a($this->res,"mysqli_stmt")) {
             $this->res->close();
         }
 

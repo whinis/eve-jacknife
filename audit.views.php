@@ -123,8 +123,7 @@ function character_select($Db, $chars) {
 <br><span style="font-size:80%"><a href="<?php SELF_URL . (isset($_GET['fittingid']) ? "&fittingid=$_GET[fittingid]" :"") ?>">back</a></span><br>
 </body>
 </html>
-<?php 
-		$Db->close();
+<?php
 		exit;
 	} /// END CHAR SELECT ///////////////////////////////////////////////////////////////////////////////
 }
