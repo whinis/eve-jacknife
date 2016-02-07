@@ -1,4 +1,4 @@
-<?php 
+<?php
 // main views
 
 function insert_header($title = "API Jackknife") {
@@ -6,7 +6,7 @@ function insert_header($title = "API Jackknife") {
 <html>
 <head>
 <link rel="icon" href="favicon.ico" type="image/x-icon">
-<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"> 
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 <title><?php echo $title;  ?></title>
 <link REL="STYLESHEET" TYPE="text/css" HREF="audit.style.css">
 <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
@@ -60,7 +60,7 @@ function insert_header($title = "API Jackknife") {
         </article>
     </section>
 <a name="top"></a>
-<?php 
+<?php
 }
 
 function fatal_error($error = "Fatal Error", $addtl="",$api=false) {
@@ -91,14 +91,14 @@ function character_select($Db, $chars) {
 		insert_header("API Jackknife: Char Selection");
 		 ?>
 		<h3>Select character</h3><table><tr>
-		<?php 
+		<?php
 		if(isset($_GET['key']))
 			$auth=SELF_URL."key=".$_GET['key'];
 		else
 			$auth=SELF_URL."usid=". USER_ID . "&apik=". API_KEY;
 		foreach ($chars as $ch_id => $char) {
 			echo "<td align=center><a href=\"".$auth."&chid=$ch_id".(isset($_GET['fittingid']) ? "&fittingid=$_GET[fittingid]" :"") . ((isset($_GET['save']) && $_GET['save'] == "1") ? "&save=1":""). "\">";
-			echo "<img src=\"http://image.eveonline.com/Character/".$ch_id."_256.jpg\" height=150 width=150><br>";
+			echo "<img src=\"https://image.eveonline.com/Character/".$ch_id."_256.jpg\" height=150 width=150><br>";
 			echo "<b>".$char["name"]."</b></a><br><span style=\"font-size:70%\">".$char["corporationName"].(($char["allianceID"] != 0)?("<br>".$char["allianceName"]):"<br>&nbsp;")."</span>";
            if(loggedIn()){
 				$Hide="";
@@ -139,7 +139,7 @@ function api_input($info = "") {
         $infobar="<span class=\"infobar\">&lt;&nbsp;".$infobar."&gt;</span><br>";
     echo $infobar;
 
-	
+
 	 ?>
 	     <h2> Eve JackKnife Api Auditor</h2>
 	 <style type="text/css">
@@ -164,7 +164,7 @@ function api_input($info = "") {
     <div class="wrapper">
 <b>Please insert your api key. You will need to enable items in the eve key interface for them to be accessible here.</b><br>
 
-<?php 
+<?php
 if ($info != "")
 echo "<br><b>$info</b><br>";
  ?>
@@ -218,7 +218,7 @@ EVE Online and the EVE logo are the registered trademarks of CCP hf. All rights 
  ?>
 </body>
 </html>
-<?php 
+<?php
 	exit;
 }
  ?>

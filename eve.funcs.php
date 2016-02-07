@@ -1,23 +1,23 @@
-<?php 
+<?php
 // ****************************************************************************
-// 
+//
 // ZZJ Audit Tool v1.0
 // Copyright (C) 2010  ZigZagJoe (zigzagjoe@gmail.com)
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-// 
+//
 // ****************************************************************************
 
 // eveAPI funcs
@@ -37,7 +37,7 @@ function get_key_info($Db, $userid, $apikey) {
         foreach ($keyInfo->api->xpath("//row") as $char)
             $apiinfo .= "$char[characterName], ";
     }
-	
+
 	return rtrim($apiinfo,", ");
 }
 
@@ -45,7 +45,7 @@ function get_key_info($Db, $userid, $apikey) {
 function niceTime($timeLeft, $count = 10) {
  @$oldTz = date_default_timezone_get();
  date_default_timezone_set ("UTC");
- 
+
  $tl = array();
 
  $days = (int)($timeLeft/(24*60*60));
@@ -98,7 +98,7 @@ function locationTranslate($location) {
 function trimZeros($str) {
  while($str[0] == '0')
   $str = substr($str, 1);
- 
+
  return $str;
 }
 
@@ -119,14 +119,14 @@ function isFullApi($db,$chid,$usid,$apik) {
             return $row['type'] == "1";
         }
     }
- 
+
     $xmlstr = cache_api_retrieve($db,"/char/AccountBalance.xml.aspx", array("characterID" => $chid,"keyID"=>$usid,"vCode"=>$apik));
- 
+
     if ($xmlstr->http_error)
         return false;
 
     $isFull = true;
- 
+
     if ($xmlstr->api_error)
         $isFull = false;
     $db->insert(TYPE_CACHE_TABLE,['keyv'=>$key,'type'=>($isFull?"1":"0")]);
@@ -142,7 +142,7 @@ function parse_ccptml($str) {
 
 function fuck_ccp($list, $names) { // stupid durable id lookup
  $result = simple_api_retrieve('/eve/CharacterName.xml.aspx',array('ids'=>implode(",",$list)));
- 
+
  if ($result->error) {
 	$c = count($list);
 	if ($c == 1) {
@@ -153,10 +153,10 @@ function fuck_ccp($list, $names) { // stupid durable id lookup
 	}
 	return $names;
  }
- 
+
  foreach($result->value->xpath('//row') as $kvp)
   $names[(int)$kvp['characterID']] = (string)$kvp['name'];
- 
+
  return $names;
 }
 
@@ -186,9 +186,9 @@ function idLookup($link,$ids) {
         return null;
     }
 
-  
+
     $names = array();
- 
+
     // first try to look up cached values in the DB
     $result=$Db->selectWhere(ID_CACHE_TABLE,['id'=>['IN',$ids]]);
 
@@ -199,10 +199,10 @@ function idLookup($link,$ids) {
             }
         }
     }
- 
+
     if (count($names) == count($ids))
         return $names; // all names were cached!
- 
+
     $list = array();
 
     foreach($ids as $id) { // make a list of ids which were not cached
@@ -210,7 +210,7 @@ function idLookup($link,$ids) {
             $list[] = $id;
         }
     }
-   
+
     $result = simple_api_retrieve('/eve/CharacterName.xml.aspx',array('ids'=>implode(",",$list)));
     if(!$result)
 	    return false;
@@ -223,7 +223,7 @@ function idLookup($link,$ids) {
         $names[(int)$kvp['characterID']] = (string)$kvp['name'];
         $insertStatement->execute([$kvp['characterID'],$kvp['name']]);
     }
- 
+
     return $names;
 }
 
@@ -241,7 +241,7 @@ function getEvePrice($id, $Db) {
          $row = $result->results[0];
          return $row["value"];
      } else {
-         $evec = file_get_contents("http://api.eve-central.com/api/marketstat?typeid=".$id);
+         $evec = file_get_contents("https://api.eve-central.com/api/marketstat?typeid=".$id);
 
          $xml = new SimpleXMLElement($evec);
 
