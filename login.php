@@ -203,11 +203,9 @@ class User {
 			if (!$result) {
 				return false;
 			}
-			if(mysqli_affected_rows ($this->link)){
-				$this->setOutput("Registered successful");
-				$this->uid=mysqli_insert_id();
-				return true;
-			}
+			$this->setOutput("Registered successful");
+			$this->uid=$result->lastid;
+			return true;
 		}
 	
 	}
