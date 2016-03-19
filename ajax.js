@@ -38,7 +38,22 @@
     }
     $(document).ready(function(){
         $("#redFlag").click(function(e){
-            var hiddenSection = $('section.hidden');
+            var hiddenSection = $('#redFlagBox').parents('section.hidden');
+            hiddenSection.fadeIn()
+                // unhide section.hidden
+                .css({ 'display':'block' })
+                // set to full screen
+                .css({ width: $(window).width() + 'px', height: $(window).height() + 'px' })
+                .css({ top:($(window).height() - hiddenSection.height())/2 + 'px',
+                    left:($(window).width() - hiddenSection.width())/2 + 'px' })
+                // greyed out background
+                .css({ 'background-color': 'rgba(0,0,0,0.5)' })
+                .appendTo('body');
+            // console.log($(window).width() + ' - ' + $(window).height());
+            $('span.close').click(function(){ $(hiddenSection).fadeOut(); });
+        });
+        $("#evePraisal").click(function(e){
+            var hiddenSection = $('#evePraisalBox').parents('section.hidden');
             hiddenSection.fadeIn()
                 // unhide section.hidden
                 .css({ 'display':'block' })
@@ -53,7 +68,7 @@
             $('span.close').click(function(){ $(hiddenSection).fadeOut(); });
         });
         $("#saveRedFlag").click(function(e){
-            var hiddenSection = $('section.hidden');
+            var hiddenSection = $('#redFlagBox').parents('section.hidden');
             var array={action:"redFlag", characters:$("#redFlagBox").val()};
             $.ajax({
                 type: 'POST',

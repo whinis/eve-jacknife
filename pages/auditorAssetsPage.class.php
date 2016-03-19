@@ -127,7 +127,7 @@ function is_space($item) {
 	 return $item['locationID'] < 60000000;
 }
 
-function item_display($station, $itemId, $item, $lvl = 0)
+function item_display($station, $itemId, $item,&$allItems, $lvl = 0)
 {
 	 global $Db, $hrwidth, $pos_fuels, $xpandall;
 	 $type = $Db->getTypeFromTypeId($item["typeID"]);
@@ -159,12 +159,25 @@ Items in the AssetList (and ContractItems) now include a rawQuantity attribute i
 		  $output .= "<div id=\"i" . $itemId . "\" style=\"" . (($xpandall && (!$pos_fuels || !is_space($item))) ? "display:block;" : "display:none;") . "\">\n<HR align=left>\n";
 		  
 		  foreach ($item["contents"] as $itemIdC => $itemC) {
-				$output .= item_display($station, $itemIdC, $itemC, $lvl + 1);
+				$output .= item_display($station, $itemIdC, $itemC,$allItems, $lvl + 1);
+		  }
+		  if(isset($allItems[$item['typeID']])){
+			 $allItems[$item['typeID']]['qty'] += $item["quantity"];
+		  }else{
+			 $allItems[$item['typeID']]['qty'] = $item["quantity"];
+			 $allItems[$item['typeID']]['name'] = $name;
 		  }
 		  
 		  $output .= "<HR align=left></div>";
-	 } else if (!$pos_fuels || ($pos_fuels && is_pos_fuel($type)))
-		  $output .= $space . ($item["quantity"] == "1" ? "" : $item["quantity"] . " x ") . $name . "<br>\n";
+	 } else if (!$pos_fuels || ($pos_fuels && is_pos_fuel($type))) {
+		 $output .= $space . ($item["quantity"] == "1" ? "" : $item["quantity"] . " x ") . $name . "<br>\n";
+		 if(isset($allItems[$item['typeID']])){
+			 $allItems[$item['typeID']]['qty'] += $item["quantity"];
+		 }else{
+			 $allItems[$item['typeID']]['qty'] = $item["quantity"];
+			 $allItems[$item['typeID']]['name'] = $name;
+		 }
+	 }
 	 return $output;
 }
 		
@@ -239,6 +252,7 @@ class auditorAssetsPage extends auditorPage {
 			 $this->Output .= "<a href=\"$full_url&view=assets\">Collapse all entries</a><br>";
 		$this->Output .= "<br><table class='fancy2'>";
 
+		$allItems = [];
 		foreach ($Assets->assetsByLocation as $location => $items) {
 			 $station = $Db->getLocationNameFromId($location);
 			 
@@ -260,12 +274,15 @@ class auditorAssetsPage extends auditorPage {
 			 $this->Output .= "<b>" . $station . "</b></a>" . ($location < 60000000 ? " (in space)" : "") . "</td><td align=right><b>" . count($items) . "&nbsp;item" . (count($items) == 1 ? "" : "s") . "</b>&nbsp;&nbsp;&nbsp;<br></td></tr>";
 			 $this->Output .= "<tr><td colspan=2><div id=\"l$location\" style=\"" . ($xpandall ? "display:block;" : "display:none;") . "\"><br>\n";
 			 
-			 foreach ($items as $itemId => $item)
-				  $this->Output .= item_display($station, $itemId, $item);
+			 foreach ($items as $itemId => $item) {
+				 $this->Output .= item_display($station, $itemId, $item,$allItems);
+			 }
 			 
 			 $this->Output .= "<br></div></td></tr>\n";
 		}
 		$this->Output .= "</table></td><td valign=top>";
+		$this->Output .= "<a href='#' id='evePraisal'>Evepraisal Ready List</a>";
+		$this->Output .= "<br><br>";
 		$this->Output .= "Significant assets:";
 		$this->Output .= "<br><br>";
 
@@ -290,6 +307,19 @@ class auditorAssetsPage extends auditorPage {
 
 		$this->Output .= "</table>";
 		$this->Output .= "</td></tr></table>";
+
+		$this->Output .='<section class="hidden" >';
+		$this->Output .='<article class="popup">';
+		$this->Output .='<span class="close">Close Me</span>';
+		$this->Output .='<p>evepraisal item list</p>';
+		$this->Output .='<textarea style="height: 67%;width: 100%;" id="evePraisalBox">';
+		foreach($allItems as $item){
+			$this->Output .= $item['qty']."     ".$item['name']."\n";
+		}
+		$this->Output .='</textarea><br>';
+		$this->Output .='</article>';
+		$this->Output .='</section>';
+
 						
 		$this->Times = getPageTimes($Db,$time_api,microtime_float() - $time_start);
 		return true;
