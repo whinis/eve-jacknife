@@ -119,7 +119,9 @@ function cache_api_retrieve($db,$apicall, $args = array(), $expiresOverride = 0)
         return null;
 	
     date_default_timezone_set ("UTC");
- 
+
+    $db->delete(CACHE_TABLE,['expires'=>['<',gmdate("Y-m-d H:i:s")]]); //delete old cache
+
     if ($expiresOverride != -1||(defined("API_DEBUG")&&API_DEBUG!=true)) { // skip the cache, don't want to save it and won't be cached
         $key = hash('sha256', $apicall . implode($args));
 
