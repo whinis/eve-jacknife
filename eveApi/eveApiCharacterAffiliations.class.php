@@ -28,11 +28,13 @@ class eveApiCharacterAffiliations extends eveApi {
     {
 
         return $this->fetch_xml("/eve/CharacterAffiliation.xml.aspx", array(
-            "ids" => implode(",",$characters),
+            "ids" => implode(",",array_filter($characters)),
         ),3600);
 
     }
     public function LoadAPI() {
+        if(!$this->api)
+            return false;
         $this->IDs = $this->api->xpath("/eveapi/result/rowset/row");
         return true;
     }

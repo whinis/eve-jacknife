@@ -372,3 +372,17 @@ table.fancy tr:hover th[scope=row], table.fancy tr:hover td
 {
   background-color: #224466;
 }
+.corpHistoryTable
+{
+	overflow-y: auto;
+	overflow-x: hidden;
+	height: 200px;
+}
+.corpHistoryTable table tr td
+{
+	color: green !important;
+}
+.corpHistoryTable table tr.red td
+{
+	color: darkred !important;
+}

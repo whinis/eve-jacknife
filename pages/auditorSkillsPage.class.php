@@ -109,6 +109,12 @@ class auditorSkillsPage extends auditorPage {
 			return false;
 		}
 
+		$HistoryApi = new eveApiChar($Db);
+		if (!$HistoryApi->fetch(CHAR_ID)) {
+			$this->Output = $HistoryApi->Error;
+			return false;
+		}
+
 		if (isset($_GET['fitcheck']) || isset($_GET['fittingid'])) {
 			$time_end = microtime_float();
 			$time_api = $time_end - $time_start;
@@ -270,7 +276,7 @@ EOD;
 			$this->Header .= CHAR_ID."_256.jpg\" height=118 width=118></td><td><span style=\"font-size:";
 			$this->Header .= (strlen($SkillsApi->charName) > 18) ? "300" : "400";
 			$this->Header .= "%\">".$SkillsApi->charName."</span><br>";
-			$this->Header .= $SkillsApi->corpName;
+			$this->Header .= "<a href='#' id='corpHistory'>".$SkillsApi->corpName."</a>";
 			$this->Header .= "<br><span style=\"font-size:75%\">";
 			$this->Header .= number_format($SkillsApi->SPTotal, 0) ." SP in " . $SkillsApi->SkillCount ." skills<br>";
 			$this->Header .= number_format($SkillsApi->balance, 2) . " ISK<br>";
@@ -348,6 +354,29 @@ EOD;
 				 $this->Output .= "<td></td>";
 
 			$this->Output .= "</tr>\n</table></td></tr></table>";
+
+            $this->Output .='<section class="hidden" >';
+            $this->Output .='<article class="popup" style="width: 50%">';
+            $this->Output .='<span class="close">Close Me</span>';
+            $this->Output .='<p id="corpHistoryBox">Corp History</p>';
+            $this->Output .="<div class='corpHistoryTable'><table>";
+            $redIDS = GetRedIDS($HistoryApi->corpIDs,$Db);
+            foreach($HistoryApi->corpHistory as $item){
+                if(in_array($item['corporationID'],$redIDS))
+                    $this->Output .="<tr class='red'>";
+                else
+                    $this->Output .="<tr>";
+                $this->Output .= "<td>".$item['corporationName']."</td>     <td>".date('Y-m-d H:i:s',(string)$item['startDate'])."</td><td>-</td>";
+                if((string)$item['endDate']>0)
+                    $this->Output .= "<td>".date('Y-m-d H:i:s',(string)$item['endDate'])."</td>";
+                else
+                    $this->Output .= "<td>present</td>";
+                $this->Output .="</tr>";
+            }
+            $this->Output .="</table></div> ";
+            $this->Output .='<br>';
+            $this->Output .='</article>';
+            $this->Output .='</section>';
 
 			$this->Output .= "<span style=\"font-size:80%;\">";
 			$this->Output .= "best viewed in " . ($small ? "1024x768" : "1440x900") . "<br>";
