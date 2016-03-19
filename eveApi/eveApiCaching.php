@@ -126,7 +126,7 @@ function cache_api_retrieve($db,$apicall, $args = array(), $expiresOverride = 0)
         $key = hash('sha256', $apicall . implode($args));
 
         //$result = $link->query("SELECT expires, value FROM ".DB_PREFIX.CACHE_TABLE." WHERE apicall = '".$apicall."' AND keyv = '".$key."' LIMIT 1");
-        $result = $db->selectWhere(CACHE_TABLE,['apicall'=>$apicall,'keyv'=>$key],['expires','value']);
+        $result = $db->selectWhere(CACHE_TABLE,['apicall'=>$apicall,'keyv'=>$key,'expires'=>['>',gmdate("Y-m-d H:i:s")]],['expires','value']);
         if ($result != false) {
             if ($result->rows > 0) {
                 // yay! got a cached value
