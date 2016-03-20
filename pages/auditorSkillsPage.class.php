@@ -276,7 +276,7 @@ EOD;
 			$this->Header .= CHAR_ID."_256.jpg\" height=118 width=118></td><td><span style=\"font-size:";
 			$this->Header .= (strlen($SkillsApi->charName) > 18) ? "300" : "400";
 			$this->Header .= "%\">".$SkillsApi->charName."</span><br>";
-			$this->Header .= "<a href='#' id='corpHistory'>".$SkillsApi->corpName."</a>";
+			$this->Header .= $SkillsApi->corpName." <a href='#' id='corpHistory'> (history)</a>";
 			$this->Header .= "<br><span style=\"font-size:75%\">";
 			$this->Header .= number_format($SkillsApi->SPTotal, 0) ." SP in " . $SkillsApi->SkillCount ." skills<br>";
 			$this->Header .= number_format($SkillsApi->balance, 2) . " ISK<br>";

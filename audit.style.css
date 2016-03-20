@@ -41,6 +41,10 @@ input {
 span.infobar {
 	font-size:80%;
 }
+span.infobar a,span.infobar span{
+	padding: 2px;
+	margin: 2px;
+}
 
 span.updated_text {
 	font-size:70%;

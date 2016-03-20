@@ -581,7 +581,7 @@ if($fp){
     <form action="Installer.php?config=1" method='post' accept-charset='UTF-8' name='form'>
     <input type='text' name='host' id="dbHost" value="<?php echo $sql; ?>"> Mysql Host <br>
     <input type='text' name='username' id="dbUser" value="<?php echo $sql_u; ?>"> Mysql Username <br>
-    <input type='password' name='password' id="dbPass" value="<?php echo $sql_p; ?>"> Mysql Password <br>
+    <input type='password' name='password' id="dbPass"> Mysql Password <br>
     <input type='text' name='database' id="dbDatabase" value="<?php echo $db; ?>"> Mysql Database <br>
     <input type='text' name='port' id="dbPort" value="<?php echo $sql_port; ?>"> Mysql Port <br>
     <input type='text' name='prefix' id="dbPrefix" value="<?php echo $prefix; ?>"> Table Prefix(leave blank for no prefix)<br>
