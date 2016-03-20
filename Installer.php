@@ -31,7 +31,7 @@ if(isset($_GET['sql'])){
 		$query = "";
 		$queries = 0;
 		while ($handle && !feof($handle)) {
-			$line = gzgets($handle, 4096); // keep string manipulations sane
+			$line = gzgets($handle, 2048); // keep string manipulations sane
 			if ($line != "" && substr($line, 0, 2) != "--") { // line doesnt start with comment
 				$query .= $line;
 				if (substr(trim($line), -2, 2) == ");") {
