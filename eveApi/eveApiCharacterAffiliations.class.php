@@ -35,7 +35,12 @@ class eveApiCharacterAffiliations extends eveApi {
     public function LoadAPI() {
         if(!$this->api)
             return false;
-        $this->IDs = $this->api->xpath("/eveapi/result/rowset/row");
+        if(!is_object($this->api)){
+            fatal_error("Server Returned: ".$this->Error);
+            return false;
+        }else {
+            $this->IDs = $this->api->xpath("/eveapi/result/rowset/row");
+        }
         return true;
     }
 }
