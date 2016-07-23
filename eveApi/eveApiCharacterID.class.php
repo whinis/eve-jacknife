@@ -26,9 +26,22 @@ class eveApiCharacterID extends eveApi {
     public $IDs=array();
     public function fetch($characters)
     {
+        if (count($characters) > 249) { //affiliation endpoint can only handle 250 characters at a time, chunk the array
+            $chunked = array_chunk($characters, 240);
+            $return = false;
+            $ids = [];
+            foreach ($chunked as $chars) {
+                $return |= $this->fetch_xml("/eve/CharacterID.xml.aspx", array(
+                    "names" => implode(",", array_filter($chars)),
+                ), 3600);
+                $ids = array_merge($ids, $this->IDs);
+            }
+            $this->IDs = $ids;
+            return $return;
+        }
         return $this->fetch_xml("/eve/CharacterID.xml.aspx", array(
-            "names" => implode(",",$characters),
-        ));
+            "names" => implode(",", array_filter($characters)),
+        ), 3600);
     }
     public function LoadAPI() {
         $IDs = $this->api->xpath("/eveapi/result/rowset/row");
