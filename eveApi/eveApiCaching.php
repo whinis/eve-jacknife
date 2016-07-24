@@ -164,12 +164,12 @@ function cache_api_retrieve($db,$apicall, $args = array(), $expiresOverride = 0)
         return new CacheEntry("Ssl is not working for Curl",null,null,null,null,$db);
     if ($http_errno != 0)
         return new CacheEntry($http_errno,null,null,null,null,$db);
-    if ($http_code != 200)       // major api failure
-        return new CacheEntry("unexpected response code $http_code",null,null,null,null,$db);
 
     try {
         $xml = new SimpleXMLElement($resp,LIBXML_NOCDATA);
     } catch (Exception $e) {    // malformed XML
+        if ($http_code != 200)       // major api failure
+            return new CacheEntry("unexpected response code $http_code",null,null,null,null,$db);
         return new CacheEntry("malformed XML document",null,null,null,null,$db);
     }
     if ($xml->error)            // error response, don't cache it...

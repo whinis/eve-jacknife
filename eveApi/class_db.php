@@ -693,17 +693,17 @@ class db
 
     public function clean(){
         //clean the last statement if it exist
-        if(is_object($this->res)) {
-            $this->res->close();
-        }
+		if(is_a($this->res,"mysqli_stmt") && is_resource($this->res)) {
+			$this->res->close();
+		}
     }
 
 	#closes database
 	public function close() {
         //clean the last statement if it exist
-        if(is_a($this->res,"mysqli_stmt")) {
-            $this->res->close();
-        }
+		if(is_a($this->res,"mysqli_stmt") && is_resource($this->res)) {
+			$this->res->close();
+		}
 
         if(isset($this->ref)&&$this->ref&&is_resource($this->ref))
 			$this->ref->close();
