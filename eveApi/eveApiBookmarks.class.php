@@ -37,13 +37,19 @@ class eveApiBookmarks extends eveApi {
 
     public $Bookmarks=array();
     public $BookmarksByLocation=array();
-    public function fetch($chid, $usid, $apik,$corp = false)
+    public function fetch($chid, $usid, $apik,$corp = false, $token=false)
     {
-        return $this->fetch_xml("/".($corp?"corp":"char")."/Bookmarks.xml.aspx", array(
-            "characterID" => $chid,
-            "keyID" => $usid,
-            "vCode" => $apik
-        ));
+        if(SSO_MODE)
+            return $this->fetch_xml("/".($corp?"corp":"char")."/Bookmarks.xml.aspx", array(
+                "characterID" => $chid,
+                "accessToken" => $usid
+            ));
+        else
+            return $this->fetch_xml("/".($corp?"corp":"char")."/Bookmarks.xml.aspx", array(
+                "characterID" => $chid,
+                "keyID" => $usid,
+                "vCode" => $apik
+            ));
     }
     public function LoadAPI() {
         $Bookmarks = $this->api->xpath("/eveapi/result/rowset[@name='folders']/row");

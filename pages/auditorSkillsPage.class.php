@@ -85,7 +85,12 @@ function parse_eft_fit($Db, $fit, &$warnings, &$ship, &$name) {
 class auditorSkillsPage extends auditorPage {
 	public function GetName() { return "skills"; }
 	public function GetAccMode() { return ACC_CHAR_ONLY; }
-	public function GetAccMask($corp) { return CharacterSheet; }
+	public function GetAccMask($corp) {
+		if(SSO_MODE)
+			return Skills && Clones;
+		else
+			return CharacterSheet;
+	}
 	public $stored = false;
 	public $key = "";
 	public $redirect = false;
@@ -110,7 +115,13 @@ class auditorSkillsPage extends auditorPage {
 		}
 
 		$HistoryApi = new eveApiChar($Db);
-		if (!$HistoryApi->fetch(CHAR_ID)) {
+		$uid=null;
+		$akey=null;
+		if(!SSO_MODE) {
+			$uid=USER_ID;
+			$akey=API_KEY;
+		}
+		if (!$HistoryApi->fetch(CHAR_ID,$uid,$akey)) {
 			$this->Output = $HistoryApi->Error;
 			return false;
 		}
@@ -264,6 +275,24 @@ class auditorSkillsPage extends auditorPage {
 			$Db->cacheSkillsForTypeIds($itemTypesUsed);
 			$Db->cacheGroupTypes(array(257,272,269,273,255,268,256,270,275,266,258,271,274,278));
 
+
+			if(canAccess(CharacterSheet))
+				$characterInfo = $SkillsApi;
+			else{
+				$characterInfo = $HistoryApi;
+				if(canAccess(Clones)) {
+					$clone = new eveApiClones($Db);
+					$clone->fetch(CHAR_ID, USER_ID, API_KEY);
+					$characterInfo->attributes = $clone->attributes;
+				}
+				if(canAccess(AccountBalance)){
+					$balance = new eveApiBalance($Db);
+					$balance->fetch(CHAR_ID, USER_ID, API_KEY);
+					$characterInfo->balance = $balance->balance;
+				}
+			}
+
+
 			$this->Updated = APITime($SkillsApi);
 			$this->Title = "Skills for " . CHAR_NAME;
 			$this->Header = <<<EOD
@@ -274,16 +303,28 @@ class auditorSkillsPage extends auditorPage {
 <img src="https://image.eveonline.com/Character/
 EOD;
 			$this->Header .= CHAR_ID."_256.jpg\" height=118 width=118></td><td><span style=\"font-size:";
-			$this->Header .= (strlen($SkillsApi->charName) > 18) ? "300" : "400";
-			$this->Header .= "%\">".$SkillsApi->charName."</span><br>";
-			$this->Header .= $SkillsApi->corpName." <a href='#' id='corpHistory'> (history)</a>";
+			$this->Header .= (strlen($characterInfo->charName) > 18) ? "250" : "300";
+			$this->Header .= "%\">".$characterInfo->charName."</span><br>";
+			$this->Header .= $characterInfo->corpName." <a href='#' id='corpHistory'> (history)</a>";
 			$this->Header .= "<br><span style=\"font-size:75%\">";
 			$this->Header .= number_format($SkillsApi->SPTotal, 0) ." SP in " . $SkillsApi->SkillCount ." skills<br>";
-			$this->Header .= number_format($SkillsApi->balance, 2) . " ISK<br>";
-			$this->Header .= "Born ".date("Y-m-d",$SkillsApi->charDOB)."</span></td></tr>";
+			if($characterInfo->balance != null)
+				$this->Header .= number_format($characterInfo->balance, 2) . " ISK<br>";
+			else
+				$this->Header .= "N/A ISK<br>";
+			if($characterInfo->charDOB != null)
+				$this->Header .= "Born ".date("Y-m-d",$characterInfo->charDOB)."<br>";
+			else
+				$this->Header .= "Born N/A<br>";
+
+			if($HistoryApi->location != null)
+				$this->Header .= "Last Location : ".$HistoryApi->location."</span></td></tr>";
+			else
+				$this->Header .= "Last Location : Not Available</span></td></tr>";
+
 			$this->Header .= "<tr><td colspan=\"2\">";
 			$this->Header .= "<span style=\"font-size:75%;\"><a href=\"" . FULL_URL ."&view=skills&fitcheck\">check " . CHAR_NAME."'s skills against a ship fit</a><br><a target=\"_blank\" href=\"http://eve-search.com/search/author/";
-			$this->Header .= str_replace(" ", "%20", $SkillsApi->charName);
+			$this->Header .= str_replace(" ", "%20", $characterInfo->charName);
 			$this->Header .= "/forum/734105\">search character sale forums for character</a></span><br></td></tr>";
 			$this->Header .= <<<EOD
 </table>

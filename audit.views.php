@@ -181,7 +181,7 @@ echo "<br><b>$info</b><br>";
 Create API:</b>
 <a target="_blank" href="https://community.eveonline.com/support/api-key/createpredefined?accessmask=34013320">Skills-only API</a>&nbsp; or
 <a target="_blank" href="https://community.eveonline.com/support/api-key/createpredefined?accessmask=268435455">Everything API</a>&nbsp;<br>
-<br>'Remember API' requires cookies to be enabled. Corp apis will not be 'remebered'.<br>If using an old-style Full or Limited API, remember to check the old api checkbox!</h5><pre width="100%"><?php file_get_contents("updates.txt"); ?></pre>
+<br>'Remember API' requires cookies to be enabled. Corp apis will not be 'remebered'.</h5>
 <br>
 <br>
 This Website is used to audit an api so that you might see your own skills and what ships you can fly, mails, contracts,assets, and any other given access from a specific api key<br>

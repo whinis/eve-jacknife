@@ -28,8 +28,11 @@ class eveApiTransactions extends eveApi {
 
 	public $entries;
 
-	public function fetch($chid,$usid,$apik,$corp = false,$acct = 1000, $count=500) {
-		$args = array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik,"rowCount"=>$count);
+	public function fetch($chid,$usid,$apik,$corp = false,$acct = 1000, $count=500, $token=false){
+	    if(SSO_MODE)
+            $args = array("characterID"=>$chid,"accessToken"=>$usid,"rowCount"=>$count);
+        else
+		    $args = array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik,"rowCount"=>$count);
 
 		if ($corp)
 			$args["accountKey"] = $acct;

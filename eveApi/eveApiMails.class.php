@@ -52,9 +52,12 @@ class eveApiMails extends eveApi {
         }
     }
 
-    public function fetch($chid,$usid,$apik) {
+    public function fetch($chid,$usid,$apik, $token=false) {
         try {
-            $api_ret = $this->fetch_xml("/char/MailMessages.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik));
+            if(SSO_MODE)
+                $api_ret = $this->fetch_xml("/char/MailMessages.xml.aspx",array("characterID"=>$chid,"accessToken"=>$usid));
+            else
+                $api_ret = $this->fetch_xml("/char/MailMessages.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik));
         }catch (exception $ex){
             $this->Error = "Invalid XML returned.";
             return null;

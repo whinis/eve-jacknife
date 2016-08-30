@@ -28,8 +28,11 @@ class eveApiOrders extends eveApi {
 
 	public $entries;
 
-	public function fetch($chid,$usid,$apik,$corp = false) {
-		$args = array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik);
+	public function fetch($chid,$usid,$apik,$corp = false, $token=false) {
+	    if(SSO_MODE)
+		    $args = array("characterID"=>$chid,"accessToken"=>$usid);
+        else
+            $args = array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik);
 		return $this->fetch_xml("/".($corp?"corp":"char")."/MarketOrders.xml.aspx",$args,60*60);
 	}
 

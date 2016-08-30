@@ -29,7 +29,7 @@ class eveApiMembers extends eveApi {
  
  public $entries;
   
- public function fetch($chid,$usid,$apik, $extended = false) {
+ public function fetch($chid,$usid,$apik, $extended = false, $token=false) {
   $args = array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik);
 	if ($extended)
 		$args["extended"] = "1";

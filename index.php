@@ -11,8 +11,6 @@
 // (at your option) any later version.
 // 
 // This program is distributed in the hope that it will be useful,
-
-
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
@@ -67,6 +65,14 @@ if (isset($_GET['apik']))
 if (isset($_GET['chid']))
 	$chid = trim($_GET['chid']);
 
+if (isset($_GET['accessToken'])) {
+	$userid = trim($_GET['accessToken']);
+	$apikey = "";
+	define("SSO_MODE",true);
+}
+if(!defined("SSO_MODE")){
+	define("SSO_MODE",false);
+}
 if (isset($_GET['key']))
 	$short_api_key = trim($_GET['key']);
 if (!login_load_creds($Db, (isset($userid) && isset($apikey) || isset($short_api_key)))) {
@@ -133,11 +139,18 @@ define("API_KEY",$apikey);
 $multiplechars = false;
 
 function canAccess($mask) {
-	return (KEY_MASK & $mask) == $mask;
+	$result = (KEY_MASK & $mask);
+	if($result < 0 ){
+		$result = (KEY_MASK/536870912 & $mask/536870912);
+		return $result == $mask/536870912;
+	}
+	return $result == $mask;
 }
 
-
-$keyInfo = cache_api_retrieve($Db,"/account/APIKeyInfo.xml.aspx", array("keyID"=>USER_ID, "vCode" => API_KEY),5*60)->value;
+if(SSO_MODE)
+	$keyInfo = cache_api_retrieve($Db,"/account/APIKeyInfo.xml.aspx", array("accessToken"=>USER_ID),5*60)->value;
+else
+	$keyInfo = cache_api_retrieve($Db,"/account/APIKeyInfo.xml.aspx", array("keyID"=>USER_ID, "vCode" => API_KEY),5*60)->value;
 if (!is_object($keyInfo)||$keyInfo->error)
 	fatal_error("Unable to load API. Verify the key is correct and not expired.");
 define("KEY_MASK",(float)$keyInfo->result->key["accessMask"]);
@@ -169,6 +182,8 @@ if (isset($short_api_key)&&$charSelect)
 	$urlAuthInfo = "key=$short_api_key&chid=$chid";
 elseif (isset($short_api_key)&&!$charSelect)
 	$urlAuthInfo = "key=$short_api_key";
+elseif (SSO_MODE)
+	$urlAuthInfo = "accessToken=".USER_ID;
 else 
 	$urlAuthInfo = (isset($chid) ? "chid=$chid&" :"") . "usid=" . USER_ID . "&apik=" . API_KEY ;
 

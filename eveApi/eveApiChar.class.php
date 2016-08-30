@@ -39,9 +39,17 @@ class eveApiChar extends eveApi
     public $corpHistory;
     public $corpIDs;
 
+    public $location = null;
+
     
-    public function fetch($chid)
+    public function fetch($chid,$usid=null,$apik=null)
     {
+        if($usid != null)
+            return $this->fetch_xml("/eve/CharacterInfo.xml.aspx", array(
+                "characterID" => $chid,
+                "keyID" => $usid,
+                "vCode" => $apik
+            ));
         return $this->fetch_xml("/eve/CharacterInfo.xml.aspx", array(
             "characterID" => $chid,
         ));
@@ -55,12 +63,13 @@ class eveApiChar extends eveApi
             $this->Error = "not a char sheet xml";
             return false;
         }
-
-        $this->charName = (string) ($this->api->result->name);
-        $this->corpName = (string) ($this->api->result->corporationName);
+        $this->charName = (string) ($this->api->result->characterName);
+        $this->corpName = (string) ($this->api->result->corporation);
         $this->corpID   = (string) ($this->api->result->corporationID);
-        $this->charDOB = strtotime((string) ($this->api->result->DoB));
-        $this->charAgeSecs = strtotime((string) ($this->api->currentTime)) - strtotime((string) ($this->api->result->DoB));
+
+        if(isset($this->api->result->lastKnownLocation)){
+            $this->location=$this->api->result->lastKnownLocation." in ".$this->api->result->shipName."(".$this->api->result->shipTypeName.")";
+        }
 
         $previousTime = 0;
         foreach($this->api->result->rowset->row as $corp){

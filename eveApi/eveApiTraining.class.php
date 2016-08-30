@@ -34,8 +34,11 @@ class eveApiTraining extends eveApi {
  public $timeLeftRaw;
  public $gmtTime;
   
- public function fetch($chid,$usid,$apik) {
-  return $this->fetch_xml("/char/SkillInTraining.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik));
+ public function fetch($chid,$usid,$apik, $token=false) {
+     if(SSO_MODE)
+         return $this->fetch_xml("/char/SkillInTraining.xml.aspx",array("characterID"=>$chid,"accessToken"=>$usid));
+     else
+         return $this->fetch_xml("/char/SkillInTraining.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik));
  }
  
  public function loadAPI() {

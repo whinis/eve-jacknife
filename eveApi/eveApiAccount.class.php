@@ -31,7 +31,10 @@ class eveApiAccount extends eveApi {
 	public $paidUntil;
 	public function fetch($usid, $apik)
     {
-		return $this->fetch_xml("/account/AccountStatus.xml.aspx ",array("keyID"=>$usid,"vCode"=>$apik));
+        if(SSO_MODE)
+		    return $this->fetch_xml("/account/AccountStatus.xml.aspx ",array("accessToken"=>$usid));
+        else
+            return $this->fetch_xml("/account/AccountStatus.xml.aspx ",array("keyID"=>$usid,"vCode"=>$apik));
     }
 	public function loadAPI() {
 		$account=$this->api;

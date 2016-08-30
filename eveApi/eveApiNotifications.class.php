@@ -30,8 +30,11 @@ class eveApiNotifications extends eveApi {
  public $Message;
  public $unread;
  
- public function fetch($chid,$usid,$apik) {
-  $api_ret = $this->fetch_xml("/char/Notifications.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik),6*60*60);
+ public function fetch($chid,$usid,$apik, $token=false){
+     if(SSO_MODE)
+        $api_ret = $this->fetch_xml("/char/Notifications.xml.aspx",array("characterID"=>$chid,"accessToken"=>$usid),6*60*60);
+     else
+         $api_ret = $this->fetch_xml("/char/Notifications.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik),6*60*60);
   $this->Message = "";
    
  // if (!$api_ret || !$this->cacheHit) // api does not support partial updates! wtf

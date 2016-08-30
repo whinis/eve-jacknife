@@ -33,10 +33,13 @@ class eveApiKillLog extends eveApi {
  protected $chid;
  protected $corp;
  
- public function fetch($chid,$usid,$apik, $corp = false, $corpid = "") {
-  $this->chid = $corp?$corpid:$chid;
-  $this->corp = $corp;
-  return $this->fetch_xml("/".($corp?"corp":"char")."/KillLog.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik));
+ public function fetch($chid,$usid,$apik, $corp = false, $corpid = "", $token=false) {
+     $this->chid = $corp?$corpid:$chid;
+     $this->corp = $corp;
+     if(SSO_MODE)
+         return $this->fetch_xml("/".($corp?"corp":"char")."/KillLog.xml.aspx",array("characterID"=>$chid,"accessToken"=>$usid));
+     else
+         return $this->fetch_xml("/".($corp?"corp":"char")."/KillLog.xml.aspx",array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik));
  }
 
  public function loadAPI() {

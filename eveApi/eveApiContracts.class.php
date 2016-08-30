@@ -162,8 +162,11 @@ class eveApiContracts extends eveApi {
 	public $limit = 100;
 	public $count = 0;
 	 
-	public function fetch($chid,$usid,$apik, $corp = false, $getItems = true) {
-		$args = array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik);
+	public function fetch($chid,$usid,$apik, $corp = false, $getItems = true, $token=false) {
+	    if(SSO_MODE)
+		    $args = array("characterID"=>$chid,"accessToken"=>$usid);
+        else
+            $args = array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik);
 		$this->chid = $chid;
 		$this->usid = $usid;
 		$this->apik = $apik;

@@ -30,71 +30,80 @@ class eveApiSkills extends eveApi
     public $charName;
     public $charId;
     
-    public $corpName;
-    public $corpID;
+    public $corpName ="N/A";
+    public $corpID ="N/A";
     
-    public $balance;
+    public $balance ="0";
     
-    public $SPTotal;
-    public $SkillCount;
+    public $SPTotal =0;
+    public $SkillCount = "0";
     public $Skills;
-    public $attributes;
-	public $charAgeSecs;
-	public $charDOB;
+    public $attributes =[];
+	public $charAgeSecs ="N/A";
+	public $charDOB ="0";
+    public $page = "CharacterSheet.xml.aspx";
+    public $location = null;
 	 
     public $isDirector;
     
-    public function fetch($chid, $usid, $apik)
+    public function fetch($chid, $usid, $apik, $token=false)
     {
-        return $this->fetch_xml("/char/CharacterSheet.xml.aspx", array(
-            "characterID" => $chid,
-            "keyID" => $usid,
-            "vCode" => $apik
-        ));
+        if(SSO_MODE)
+            $args = array("characterID"=>$chid,"accessToken"=>$usid);
+        else
+            $args = array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik);
+        if(canAccess(CharacterSheet)){
+            $this->page = "CharacterSheet.xml.aspx";
+        }elseif(canAccess(Skills)){
+            $this->page = "Skills.xml.aspx";
+        }
+        return $this->fetch_xml("/char/".$this->page,$args);
     }
     
     public function loadAPI()
     {
-        $this->charId = (string) ($this->api->result->characterID);
+        if(canAccess(CharacterSheet)) {
+            $this->charId = (string)($this->api->result->characterID);
 
-        if (!$this->charId) {
-            $this->Error = "not a char sheet xml";
-            return false;
+            if (!$this->charId) {
+                $this->Error = "not a char sheet xml";
+                return false;
+            }
+
+            $attrib = $this->api->result->attributes;
+
+            $attributes = array("mem" => (int)$attrib->memory,
+                "int" => (int)$attrib->intelligence,
+                "char" => (int)$attrib->charisma,
+                "will" => (int)$attrib->willpower,
+                "perc" => (int)$attrib->perception);
+
+            if (isset($this->api->result->attributeEnhancers))
+                $attributes["perc"] += (int)$this->api->result->attributeEnhancers->perceptionBonus->augmentatorValue;
+            if (isset($this->api->result->attributeEnhancers))
+                $attributes["will"] += (int)$this->api->result->attributeEnhancers->willpowerBonus->augmentatorValue;
+            if (isset($this->api->result->attributeEnhancers))
+                $attributes["mem"] += (int)$this->api->result->attributeEnhancers->memoryBonus->augmentatorValue;
+            if (isset($this->api->result->attributeEnhancers))
+                $attributes["int"] += (int)$this->api->result->attributeEnhancers->intelligenceBonus->augmentatorValue;
+            if (isset($this->api->result->attributeEnhancers))
+                $attributes["char"] += (int)$this->api->result->attributeEnhancers->charismaBonus->augmentatorValue;
+
+            $this->attributes = $attributes;
+
+            $this->charName = (string)($this->api->result->name);
+            $this->corpName = (string)($this->api->result->corporationName);
+            $this->corpID = (string)($this->api->result->corporationID);
+
+            $this->balance = (double)($this->api->result->balance);
+            $this->charDOB = strtotime((string)($this->api->result->DoB));
+            $this->charAgeSecs = strtotime((string)($this->api->currentTime)) - strtotime((string)($this->api->result->DoB));
+            $this->isDirector = count($this->api->xpath("/eveapi/result/rowset[@name='corporationRoles']/row[@roleName='roleDirector']")) != 0;
         }
-		  
-		  $attrib = $this->api->result->attributes;
-	
-        $attributes = array("mem" => (int)$attrib->memory,
-			  "int" => (int)$attrib->intelligence,
-			  "char" => (int)$attrib->charisma,
-			  "will" => (int)$attrib->willpower,
-			  "perc" => (int)$attrib->perception);
-
-		 if (isset($this->api->result->attributeEnhancers))
-			$attributes["perc"] += (int)$this->api->result->attributeEnhancers->perceptionBonus->augmentatorValue;
-		 if (isset($this->api->result->attributeEnhancers))
-			$attributes["will"] += (int)$this->api->result->attributeEnhancers->willpowerBonus->augmentatorValue;
-		 if (isset($this->api->result->attributeEnhancers))
-			$attributes["mem"] += (int)$this->api->result->attributeEnhancers->memoryBonus->augmentatorValue;
-		 if (isset($this->api->result->attributeEnhancers))
-			$attributes["int"] += (int)$this->api->result->attributeEnhancers->intelligenceBonus->augmentatorValue;
-		 if (isset($this->api->result->attributeEnhancers))
-			$attributes["char"] += (int)$this->api->result->attributeEnhancers->charismaBonus->augmentatorValue;
-			
-		  $this->attributes = $attributes;
-
-        $this->charName = (string) ($this->api->result->name);
-        $this->corpName = (string) ($this->api->result->corporationName);
-        $this->corpID   = (string) ($this->api->result->corporationID);
-        
-        $this->balance = (double) ($this->api->result->balance);
-		  $this->charDOB = strtotime((string) ($this->api->result->DoB));
-        $this->charAgeSecs = strtotime((string) ($this->api->currentTime)) - strtotime((string) ($this->api->result->DoB));
         $this->SPTotal    = 0;
         $this->SkillCount = 0;
         $this->Skills     = array();
-        
-        $this->isDirector = count($this->api->xpath("/eveapi/result/rowset[@name='corporationRoles']/row[@roleName='roleDirector']")) != 0;
+
         
         
         return true;

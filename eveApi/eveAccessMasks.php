@@ -27,6 +27,8 @@ define("Standings",524288); //Limited
 define("UpcomingCalendarEvents",1048576); //Full
 define("WalletJournal",2097152); //Full
 define("WalletTransactions",4194304); //Full
+define("Skills",1073741824); //Full
+define("Clones",2147483648); //Full
 
 define("corp_AccountBalance",1); //Full
 define("corp_Bookmarks",67108864);

@@ -21,41 +21,27 @@
 // ****************************************************************************
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class eveApiContacts extends eveApi {
+class eveApiBalance extends eveApi {
 
-    public $Contacts=array();
+    public $balance=array();
     public function fetch($chid, $usid, $apik,$corp = false, $token=false)
     {
         if(SSO_MODE)
-            return $this->fetch_xml("/".($corp?"corp":"char")."/ContactList.xml.aspx", array(
+            return $this->fetch_xml("/".($corp?"corp":"char")."/AccountBalance.xml.aspx", array(
                 "characterID" => $chid,
                 "accessToken" => $usid,
             ));
         else
-            return $this->fetch_xml("/".($corp?"corp":"char")."/ContactList.xml.aspx", array(
+            return $this->fetch_xml("/".($corp?"corp":"char")."/AccountBalance.xml.aspx", array(
                 "characterID" => $chid,
                 "keyID" => $usid,
                 "vCode" => $apik
             ));
     }
     public function LoadAPI() {
-        $this->Contacts = $this->api->xpath("/eveapi/result/rowset[@name='contactList']/row");
-        uasort($this->Contacts,array("eveApiContacts", "sortfunc_standings"));
+        $this->balance = $this->api->xpath("/eveapi/result/rowset/row");
+        $this->balance=(float)$this->balance[0]['balance'];
         return true;
-    }
-    static function sortfunc_standings($a, $b) {
-        if((int)$a["standing"] <  (int)$b["standing"]){
-            return 1;
-        }else if((int)$a["standing"] ==  (int)$b["standing"]) {
-            if((string)$b['inWatchlist']==(string)$a['inWatchlist']) {
-                return strcasecmp($a["contactName"],$b["contactName"]);
-            }else if($b['inWatchlist']=="True")
-                return 1;
-            else
-                return -1;
-        }else{
-            return -1;
-        }
     }
 }
   

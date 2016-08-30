@@ -56,8 +56,11 @@ class eveApiAssets extends eveApi {
  public $totalCt;
  
  public function fetch($chid,$usid,$apik,$corp = false) {
-  $args = array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik);
-  return $this->fetch_xml("/".($corp?"corp":"char")."/AssetList.xml.aspx",$args);
+     if(SSO_MODE)
+         $args = array("characterID"=>$chid,"accessToken"=>$usid);
+     else
+         $args = array("characterID"=>$chid,"keyID"=>$usid,"vCode"=>$apik);
+     return $this->fetch_xml("/".($corp?"corp":"char")."/AssetList.xml.aspx",$args);
  }
 
  public function loadAPI() {
@@ -96,8 +99,9 @@ class eveApiAssets extends eveApi {
    $locid = locationTranslate($item["locationID"]);
    if (!isset($this->assetsByLocation[$locid])) {
     $this->assetsByLocation[locationTranslate($locid)] = array($item['itemID'] => $item);
-   } else 
-    $this->assetsByLocation[locationTranslate($locid)][$item['itemID']] = $item;
+   } else {
+       $this->assetsByLocation[locationTranslate($locid)][$item['itemID']] = $item;
+   }
   }
       
   $this->totalCt = count($this->api->xpath("//row"));
