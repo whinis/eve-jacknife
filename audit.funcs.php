@@ -184,4 +184,13 @@ function loggedIn(){
 }
 
 
+function canAccess($mask) {
+    $result = (KEY_MASK & $mask);
+    if($result < 0 ){
+        $result = (KEY_MASK/536870912 & $mask/536870912);
+        return $result == $mask/536870912;
+    }
+    return $result == $mask;
+}
+
  ?>

@@ -52,6 +52,23 @@
             // console.log($(window).width() + ' - ' + $(window).height());
             $('span.close').click(function(){ $(hiddenSection).fadeOut(); });
         });
+        $("#ssoSelectButton").click(function(e){
+            var hiddenSection = $('#ssoSelect').parents('section.hidden');
+            hiddenSection.fadeIn()
+            // unhide section.hidden
+                .css({ 'display':'block' })
+                // set to full screen
+                .css({ width: $(window).width() + 'px', height: $(window).height() + 'px' })
+                .css({ top:($(window).height() - hiddenSection.height())/2 + 'px',
+                    left:($(window).width() - hiddenSection.width())/2 + 'px' })
+                // greyed out background
+                .css({ 'background-color': 'rgba(0,0,0,0.5)' })
+                .appendTo('body')
+                .children()
+                .css("height","360px");
+            // console.log($(window).width() + ' - ' + $(window).height());
+            $('span.close').click(function(){ $(hiddenSection).fadeOut(); });
+        });
         $("#evePraisal").click(function(e){
             var hiddenSection = $('#evePraisalBox').parents('section.hidden');
             hiddenSection.fadeIn()
@@ -93,6 +110,22 @@
                 success: function (data, textStatus, XHR) {
                     $(hiddenSection).fadeOut();
                     location.reload();
+                }
+            });
+        });
+        $("#generateSSOLink").click(function(e){
+            var hiddenSection = $('#ssoSelect').parents('section.hidden');
+            var scopes = [];
+            $('input[name="scopes"]:checked').each(function(){scopes.push($(this).val())});
+            var array={action:"ssoLogin", scopes:scopes};
+            $.ajax({
+                type: 'POST',
+                url: 'ajax.php?t=' + new Date().getTime(),
+                data: array,
+                async: true,
+                success: function (data, textStatus, XHR) {
+                    data=$.parseJSON(data);
+                    window.location.href=data.url;
                 }
             });
         });

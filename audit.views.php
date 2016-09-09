@@ -33,8 +33,7 @@ function insert_header($title = "API Jackknife") {
             position: relative;
             width: 400px;
             height: 300px;
-            background: #e3e3e3;
-            color: #222;
+            background: #222262;
             border: 1px solid #333;
             border-radius: 3px;
             padding: 5px 7px;
@@ -42,7 +41,6 @@ function insert_header($title = "API Jackknife") {
         }
         span.close {
             text-transform: uppercase;
-            color: #222;
         }
         span.close:hover{
             color: red;
@@ -53,10 +51,32 @@ function insert_header($title = "API Jackknife") {
 <body>
     <section class="hidden" >
         <article class="popup">
-            <span class="close">Close Me</span>
+            <a href="#" ><span class="close">Close</span></a>
             <p>Paste red flagged characters, corps, and alliances. One entity per line</p>
             <textarea id="redFlagBox"><?php if(isset($_SESSION)&&isset($_SESSION['redFlagText']))echo $_SESSION['redFlagText']; ?></textarea><br>
             <input type="button" id="saveRedFlag" value="Save">
+        </article>
+    </section>
+    <section class="hidden" >
+        <article class="popup">
+            <a href="#" ><span class="close">Close</span></a>
+            <p>Please Select the scopes you want to use</p>
+            <form id="ssoSelect">
+                <table>
+                    <tr><td> Wallet Read</td><td><input type="checkbox" checked name="scopes" value="characterWalletRead"></td></tr>
+                    <tr><td> Assets Read</td><td><input type="checkbox" checked name="scopes" value="characterAssetsRead"></td></tr>
+                    <tr><td> Contacts Read</td><td><input type="checkbox" checked name="scopes" value="characterContactsRead"></td></tr>
+                    <tr><td> Kills Read</td><td><input type="checkbox" checked name="scopes" value="characterKillsRead"></td></tr>
+                    <tr><td> Mails Read</td><td><input type="checkbox" checked name="scopes" value="characterMailRead"></td></tr>
+                    <tr><td> Market Orders Read</td><td><input type="checkbox" checked name="scopes" value="characterMarketOrdersRead"></td></tr>
+                    <tr><td> Notifications Read</td><td><input type="checkbox" checked name="scopes" value="characterNotificationsRead"></td></tr>
+                    <tr><td> Skills Read</td><td><input type="checkbox" checked name="scopes" value="characterSkillsRead"></td></tr>
+                    <tr><td> Contracts Read</td><td><input type="checkbox" checked name="scopes" value="characterContractsRead"></td></tr>
+                    <tr><td> Bookmarks Read</td><td><input type="checkbox" checked name="scopes" value="characterBookmarksRead"></td></tr>
+                    <tr><td> Clone Information Read</td><td><input type="checkbox" checked name="scopes" value="characterClonesRead"></td></tr>
+                </table>
+                <input type="button" id="generateSSOLink" value="Login">
+            </form>
         </article>
     </section>
 <a name="top"></a>
@@ -184,7 +204,16 @@ Create API:</b>
 <br>'Remember API' requires cookies to be enabled. Corp apis will not be 'remebered'.</h5>
 <br>
 <br>
-This Website is used to audit an api so that you might see your own skills and what ships you can fly, mails, contracts,assets, and any other given access from a specific api key<br>
+        <?php if(defined("SSO_URL")){ ?>
+        Login via SSO. After you select roles and login the url will be valid for exactly 20 minutes after which it will be invalidated by CCP.<br>
+        This URL can be shared with anyone without any risk to your account or the possibility of them keeping the api forever or needing to delete the key afterwards<br>
+        Refresh tokens are not stored<br>
+<a href="#" id="ssoSelectButton"><img alt="EVE SSO Login Buttons Small White" src="https://images.contentful.com/idjq7aai9ylm/18BxKSXCymyqY4QKo8KwKe/c2bdded6118472dd587c8107f24104d7/EVE_SSO_Login_Buttons_Small_White.png?w=195&amp;h=30"></a>
+
+        <?php } ?>
+        <br>
+<br>
+        This Website is used to audit an api so that you might see your own skills and what ships you can fly, mails, contracts,assets, and any other given access from a specific api key<br>
 After inputting your api key either precreated or by using one of the two create links above  you can use the site to view the previously mentioned items from the eve api as well as<br>
 checking if you have the skills required to fit a particular ship. This site is mainly for those who want to check another character's api to determine if they meet requirements for their<br>
 corp or if what they are telling them is true however this can also be useful to new players to see what ships they can and cannot fly effectively. Green links at the top of the page<br>

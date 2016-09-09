@@ -78,6 +78,16 @@ if(isset($_POST['action'])){
                             $_SESSION['mailFormatted'] = false;
                         }
                 break;
+                case "ssoLogin":
+                    session_start();
+                    if(isset($_POST['scopes'])==true && defined("SSO_URL")) {
+                        require_once ("ccpOAuth.php");
+                        $sso = new ccpOAuth(SSO_URL, SSO_CLIENTID, SSO_SECRET, SSO_CALLBACK, $curl, false);
+                        $info['url']=$sso->generateLink($_POST['scopes']);
+                    }else {
+                        $_SESSION['mailFormatted'] = false;
+                    }
+                break;
                 default:
                         $info['result']="failure";
                 break;

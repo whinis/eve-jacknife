@@ -43,6 +43,13 @@ require_once("eve.php");
 require_once("audit.funcs.php");
 require_once("audit.views.php");
 
+if(isset($_GET['code']) && defined("SSO_URL")){
+	require_once ("ccpOAuth.php");
+	$sso = new ccpOAuth(SSO_URL, SSO_CLIENTID, SSO_SECRET, SSO_CALLBACK, $curl, false);
+	$token = $sso->getToken($_GET['code']);
+	redirect("?accessToken=$token");
+}
+
 
 if(defined("allow_login")&&allow_login==true) {
 	require_once("login.php");
@@ -138,14 +145,7 @@ define("API_KEY",$apikey);
 
 $multiplechars = false;
 
-function canAccess($mask) {
-	$result = (KEY_MASK & $mask);
-	if($result < 0 ){
-		$result = (KEY_MASK/536870912 & $mask/536870912);
-		return $result == $mask/536870912;
-	}
-	return $result == $mask;
-}
+
 
 if(SSO_MODE)
 	$keyInfo = cache_api_retrieve($Db,"/account/APIKeyInfo.xml.aspx", array("accessToken"=>USER_ID),5*60)->value;
