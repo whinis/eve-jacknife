@@ -7,3 +7,9 @@ can be used to navigate the apis or selecting one-page will display everything a
 
 
 A fully function Demo can be seen at http://evejackknife.com/
+
+If you would like to enable SSO then you need to add the following to your eve.config.php with client information values from https://developers.eveonline.com/
+define("SSO_URL","login.eveonline.com");
+define("SSO_CLIENTID", "*");
+define("SSO_SECRET", "*");
+define("SSO_CALLBACK", "*");
