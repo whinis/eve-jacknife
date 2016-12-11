@@ -101,12 +101,17 @@ class auditorSkillsPage extends auditorPage {
 		}
 	}
 
-	public function GetOutput($Db) {
+	public function GetOutput($Db)
+	{
 		global $SkillsApi;
 		$full_url = FULL_URL; // TODO
 		$small = isset($_GET['small']);
 
 		$SkillsApi = new eveApiSkills($Db);
+		if (canAccess(AccountStatus)) {
+			$account = new eveApiAccount($Db);
+			$account->fetch(USER_ID, API_KEY);
+		}
 		$time_start = microtime_float();
 
 		if (!$SkillsApi->fetch(CHAR_ID, USER_ID, API_KEY)) {
@@ -313,10 +318,18 @@ EOD;
 			else
 				$this->Header .= "N/A ISK<br>";
 			if($characterInfo->charDOB != null)
-				$this->Header .= "Born ".date("Y-m-d",$characterInfo->charDOB)."<br>";
+				$this->Header .= "Born ".date("Y-m-d",$characterInfo->charDOB);
 			else
-				$this->Header .= "Born N/A<br>";
-
+				$this->Header .= "Born N/A";
+			if(canAccess(AccountStatus)){
+				$this->Header .="  ";
+				if($account->isAlpha){
+					$this->Header .="<span style='color:deepskyblue'>Alpha Account</span>";
+				}else{
+					$this->Header .="<span style='color:orange'>Omega Account</span>";
+				}
+			}
+			$this->Header .="<br>";
 			if($HistoryApi->location != null)
 				$this->Header .= "Last Location : ".$HistoryApi->location."</span></td></tr>";
 			else

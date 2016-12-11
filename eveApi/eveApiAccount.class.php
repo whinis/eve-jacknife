@@ -29,6 +29,7 @@ class eveApiAccount extends eveApi {
 	public $logonCount;
 	public $logonMinutes;
 	public $paidUntil;
+    public $isAlpha;
 	public function fetch($usid, $apik)
     {
         if(SSO_MODE)
@@ -41,15 +42,19 @@ class eveApiAccount extends eveApi {
 		$this->created=$account->result->createDate;
 		$this->logonCount=$account->result->logonCount;
 		$this->logonMinutes=$account->result->createMinutes;
+        $this->isAlpha = false;
 		  
 		$end = strtotime((string)($account->result->paidUntil));
 		$gmtTime = time();
 		$timeLeft = ($end - $gmtTime);
 		if($timeLeft>86400){
 			$this->paidUntil=floor((($timeLeft/60)/60)/24)." Days";
-		}else{
+		}else if($timeLeft> 0 ){
 			$this->paidUntil = "less than a day";
-		}
+		}else {
+            $this->isAlpha = true;
+            $this->paidUntil = "";
+        }
 		return true;
 	}
 }
