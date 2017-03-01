@@ -16,3 +16,11 @@ define("SSO_CLIENTID", "*");
 define("SSO_SECRET", "*");
 define("SSO_CALLBACK", "*");
 ```
+
+__Installation Requirements__
+
+
+* Web server with php 5.6 or higher capability (apache,lighttpd,nginx with mod_php or php-fpm)
+
+* Mysql or MariaDB
+
