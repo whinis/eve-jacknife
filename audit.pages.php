@@ -30,12 +30,14 @@ foreach ($registered_pages as $name => $page) {
 	}
 }
 //reorder where skills page is
-$page=$eligible_pages["skills"];
-unset($eligible_pages[$page->GetName()]);
-$eligible_pages=[$page->GetName()=>$page]+$eligible_pages;
-if(isset($enabled_pages[$page->GetName()])) {
-	unset($enabled_pages[$page->GetName()]);
-	$enabled_pages = [$page->GetName() => $page] + $enabled_pages;
+if(isset($eligible_pages["skills"])) {
+    $page = $eligible_pages["skills"];
+    unset($eligible_pages[$page->GetName()]);
+    $eligible_pages = [$page->GetName() => $page] + $eligible_pages;
+    if (isset($enabled_pages[$page->GetName()])) {
+        unset($enabled_pages[$page->GetName()]);
+        $enabled_pages = [$page->GetName() => $page] + $enabled_pages;
+    }
 }
 if (count($enabled_pages) > 1) {
 	$eligible_pages["onepage"] = "onepage";
