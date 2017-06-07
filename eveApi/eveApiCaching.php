@@ -89,6 +89,7 @@ function simple_api_retrieve($apicall, $args) {
  curl_setopt($req, CURLOPT_POSTFIELDS, $args);
  curl_setopt($req, CURLOPT_SSL_VERIFYPEER, 1);
  curl_setopt($req, CURLOPT_SSL_VERIFYHOST,2 );
+ curl_setopt($req, CURLOPT_USERAGENT,"EveJackknife.com;Equto;Whinis@whinis.com");
  curl_setopt($req, CURLOPT_RETURNTRANSFER, true);
  curl_setopt($req, CURLOPT_TIMEOUT, 30);
  curl_setopt($req, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem'); //CA cert file
@@ -148,6 +149,7 @@ function cache_api_retrieve($db,$apicall, $args = array(), $expiresOverride = 0)
     curl_setopt($req, CURLOPT_POSTFIELDS, $args);
     curl_setopt($req, CURLOPT_SSL_VERIFYPEER, 1);
     curl_setopt($req, CURLOPT_SSL_VERIFYHOST,2 );
+    curl_setopt($req, CURLOPT_USERAGENT,"EveJackknife.com;Equto;Whinis@whinis.com");
     curl_setopt($req, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($req, CURLOPT_TIMEOUT, 30);
     curl_setopt($req, CURLOPT_CAINFO, dirname(__FILE__) . '/cacert.pem'); //CA cert file
