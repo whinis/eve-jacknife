@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `api_type_cache` (
   `keyv` varchar(255) NOT NULL,
   `type` tinyint(1) NOT NULL,
   UNIQUE KEY `keyv` (`keyv`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `api_cache` (
   `apicall` varchar(80) default NULL,
