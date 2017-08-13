@@ -41,8 +41,17 @@ class db
 	private $parent;
 	private $queries = 0;
 
-	function __construct(){
+    private static $_instance;
 
+	function __construct(){
+        if(db::instance() !== false)
+        {
+            self::$_instance = db::instance();
+        }
+        else
+        {
+            self::$_instance = $this;
+        }
 	}
 
 	function __destruct(){
@@ -61,6 +70,7 @@ class db
 		}
 		$this->debug=$debug;
 		$this->setup();
+        self::$_instance = $this;
 	}
 
 	public function loadByLink(&$ref,$parent=null,$debug=false){
@@ -88,6 +98,14 @@ class db
 			$this->prefix=DB_PREFIX;
 		}
 	}
+
+    public static function instance(){
+
+        if(!isset(self::$_instance)) {
+            return false;
+        }
+        return self::$_instance;
+    }
 
 	public function &prepare(){
 		if($this->child&&$this->parent!==null){
