@@ -31,6 +31,7 @@ $_checkedTables = false;
 
 class CachedEntry {
     public $result;
+    public $headers = [];
     public $error = false;
     public $http_error = false;
     public $http_code= 0;
@@ -44,6 +45,7 @@ class CachedEntry {
     protected $link;
     protected $_db;
     protected $_opts = [];
+    protected $_headers = [];
  
     public function __construct($apicall, $args = array())
     {
@@ -61,12 +63,23 @@ class CachedEntry {
         $this->_opts['CURLOPT_RETURNTRANSFER'] = true;
         $this->_opts['CURLOPT_TIMEOUT'] = 30;
         $this->_opts['CURLOPT_CAINFO'] = dirname(__FILE__) . '/cacert.pem';
+        $this->_opts['CURLOPT_HEADER'] = 1;
+        //$this->_opts['CURLOPT_HEADERFUNCTION'] = dirname(__FILE__) . '/cacert.pem';
     }
+
     public function setOpt($header,$value){
         if($value !== null)
             $this->_opts[$header] = $value;
         else if (isset($this->_opts[$header])){
             unset($this->_opts[$header]);
+        }
+    }
+
+    public function setHeaders($header,$value){
+        if($value !== null)
+            $this->_headers[$header] = $value;
+        else if (isset($this->_headers[$header])){
+            unset($this->_headers[$header]);
         }
     }
 
@@ -88,18 +101,38 @@ class CachedEntry {
             }
             curl_setopt($req, $k, $value);
         }
+        if(!empty($this->_headers)){
+            $headers = [];
+            foreach ($this->_headers as $key=>$value){
+                $headers[] = $key.": ".$value;
+            }
+            curl_setopt($req, CURLOPT_HTTPHEADER, $headers);
+        }
 
         $resp = curl_exec($req);
         $http_code = curl_getinfo($req,  CURLINFO_HTTP_CODE);
         $http_errno = curl_errno($req);
+        if(isset($this->_opts['CURLOPT_HEADER']) && $this->_opts['CURLOPT_HEADER']){
+            $header_size = curl_getinfo($req, CURLINFO_HEADER_SIZE);
+            $headers = substr($resp, 0, $header_size);
+            $headers = explode("\r\n", $headers);
+            foreach($headers as $h){
+                if(strpos($h,":")!==false) {
+                    $this->headers[substr($h,0,strpos($h,":"))] = substr($h,strpos($h,":")+2);
+                }
+            }
+            $this->result = substr($resp, $header_size);
+        }else {
+            $this->result = $resp;
+        }
         curl_close($req);
         $this->http_code = $http_code;
         if ($http_errno != 0)
             $this->http_error = $http_errno;
         if (isset($allApiCalls))
             $allApiCalls[] = array($this->apicall,$this->args, "fetched");
-        $this->result = $resp;
-        return $resp;
+
+        return $this->result;
     }
 
     protected function _cached_retrieve($time=3600){
@@ -129,12 +162,16 @@ class CachedEntry {
         }else{
             $result = $this->retrieve();
             if($this->http_code ===200 && $this->http_error === false) {
-                $this->cached_until = time() + $time;
-                $cachedUntil = gmdate("Y-m-d H:i:s", time() + $time);
+                if(isset($row['expires']))
+                    $this->cached_until =strtotime($row['expires']);
+                elseif(isset($this->headers['Expires']))
+                    $this->cached_until =strtotime($this->headers['Expires']);
+                elseif($time > 0)
+                    $this->cached_until = time() + $time;
                 $this->getDB()->insert(CACHE_TABLE, [
                     "apicall" => $this->apicall,
                     'keyv' => $this->key,
-                    'expires' => $cachedUntil,
+                    'expires' => gmdate("Y-m-d H:i:s",$this->cached_until),
                     'value' => gzcompress($result, 6)//  needed for binary data
                 ]);
             }
