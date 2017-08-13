@@ -27,6 +27,8 @@ set_include_path(get_include_path() . PATH_SEPARATOR . "eveApi");
 require_once("eve.config.php");
 require_once("eve.funcs.php");
 require_once("eveApi.base.php");
+require_once("libs/class_db.php");
+require_once("libs/eveCaching.php");
 
 
 //Auto load the eveApi pages
