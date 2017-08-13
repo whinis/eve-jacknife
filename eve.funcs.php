@@ -96,7 +96,7 @@ function locationTranslate($location) {
 }
 
 function trimZeros($str) {
- while($str[0] == '0')
+ while($str != '' && $str[0] == '0')
   $str = substr($str, 1);
 
  return $str;
