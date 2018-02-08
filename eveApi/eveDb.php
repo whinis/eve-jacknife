@@ -45,6 +45,8 @@ class eveDb  extends db{
     // count of queries
     
     protected $locationCache = array();
+    protected $citadelLocationCache = array();
+    protected $citadelLocationsDownladed = false;
     protected $stationToSystemCache = array();
     
     protected $typesCache = array();
@@ -403,13 +405,13 @@ class eveDb  extends db{
         
         return $row['itemName'];
     }
-    
+
     public function getNameFromSystemId($id) {
-        
+
         if (isset($this->locationCache[$id])) {
             return $this->locationCache[$id];
         }
-        
+
         //$sql    = "SELECT solarSystemID, solarSystemName FROM ".DB_PREFIX."mapSolarSystems WHERE solarSystemID = '".$this->ref->real_escape_string($id)."' LIMIT 1";
         //$result = $this->query($sql);
         $result = $this->selectWhere("mapSolarSystems",['solarSystemID'=>$id],['solarSystemID','solarSystemName'],1);
@@ -419,10 +421,51 @@ class eveDb  extends db{
         }
 
         $row = $result->results[0];
-        
+
         $this->locationCache[$row['solarSystemID']] = $row['solarSystemName'];
-        
+
         return $row['solarSystemName'];
+    }
+
+    public function getNameFromCitadelId($id) {
+
+        if ($this->citadelLocationsDownladed) {
+            if (isset($this->citadelLocationCache[$id])) {
+                return $this->citadelLocationCache[$id];
+            } else {
+                return "Unknown Citadel - ".substr($id, -5);
+            }
+        }
+
+        // Get cURL resource
+        $curl = curl_init();
+
+        // Set some options - we are passing in a useragent too here
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => 'https://stop.hammerti.me.uk/api/citadel/all',
+            CURLOPT_USERAGENT => 'EveJackKnife'
+        ));
+
+        // Send the request & save response to $resp
+        $resp = curl_exec($curl);
+
+        $response = json_decode(trim($resp));
+        curl_close($curl);
+
+        $response = (array)$response;
+
+        foreach ($response as $citID => $citData) {
+            $this->citadelLocationCache[$citID] = $citData->name." - ".$citData->typeName." - ".substr($citID, -5);
+        }
+
+        $this->citadelLocationsDownladed = true;
+
+        if (isset($this->citadelLocationCache[$id])) {
+            return $this->citadelLocationCache[$id];
+        } else {
+            return "Unknown Citadel - ".substr($id, 0, -5);
+        }
     }
     
     public function getSystemSecurity($id) {
@@ -558,6 +601,9 @@ class eveDb  extends db{
         if ($location < 60000000) {
             // items in space
             return $this->getNameFromSystemId($location);
+        } elseif ($location > 60000000000) {
+            // items in citadels
+            return $this->getNameFromCitadelId($location);
         } else {
             return $this->getNameFromStationId(locationTranslate($location));
         }
